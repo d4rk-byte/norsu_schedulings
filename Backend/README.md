@@ -46,136 +46,124 @@ A comprehensive web-based class scheduling and management system built with Symf
 
 ## 🛠️ Technology Stack
 
-- **Framework**: Symfony 7.3 (PHP 8.2+)
+- **Backend**: Symfony 7.3 (PHP 8.2+)
 - **Database**: MySQL/MariaDB with Doctrine ORM
-- **Frontend**: 
-  - Twig templating
-  - Tailwind CSS for styling
-  - Alpine.js for interactivity
-  - Symfony UX Turbo for SPA-like experience
+- **Frontend**: Next.js 16, React 19, TypeScript, Tailwind CSS
 - **PDF Generation**: TCPDF
 - **File Processing**: PhpSpreadsheet for CSV imports
+- **HTTP Client**: Axios (frontend)
 - **Security**: Symfony Security component with role-based access control
 
 ## 📋 Requirements
 
-- PHP 8.2 or higher
-- Composer 2.x
+- PHP 8.2+ and Composer 2.x (backend)
+- Node.js 18+ and npm (frontend)
 - MySQL 5.7+ or MariaDB 10.3+
-- Node.js 18+ (for asset compilation, if needed)
-- Apache/Nginx web server
+- Docker Desktop (optional, for Docker setup)
 
-## 🚀 Installation
+## 🚀 Local Setup
 
-### Option 1: Docker Setup (Recommended)
+This repository is a monorepo with two apps:
 
-#### 1. Clone the Repository
+- **Backend (Symfony API)**: `Backend/`
+- **Frontend (Next.js UI)**: `Frontend/`
+
+### Option 1: Docker backend + local frontend (recommended)
+
+#### 1. Clone the repository
 
 ```bash
-git clone https://github.com/jdkwer/Norsu_Sced.git
-cd smart_scheduling_system
+git clone https://github.com/d4rk-byte/norsu_schedulings.git
+cd Full-Scheduling_system
 ```
 
-#### 2. Configure Environment
-
-Copy the `.env.example` file to `.env` and configure:
+#### 2. Backend (Docker)
 
 ```bash
+cd Backend
 cp .env.example .env
 ```
 
-Edit `.env` with your settings (pre-configured for Docker):
+Update `.env` with your settings:
 
 ```env
-# Database credentials
+APP_ENV=dev
+APP_PORT=8000
+FRONTEND_BASE_URL=http://localhost:3000
+
 MYSQL_ROOT_PASSWORD=SecureRoot2026!
 MYSQL_DATABASE=smart_scheduling
 MYSQL_USER=symfony
 MYSQL_PASSWORD=SymfonySecure2026!
-
-# Database URL (Docker)
-DATABASE_URL=mysql://symfony:SymfonySecure2026!@db:3306/smart_scheduling?serverVersion=8.0.31
-
-# Application Port
-APP_PORT=8000
-
-# phpMyAdmin Port
-PHPMYADMIN_PORT=8080
 ```
 
-#### 3. Start Docker Containers
+Start services:
 
 ```bash
-# Start all services (app + database)
 docker compose up -d
-
-# Optional: Start with phpMyAdmin
+# Optional: phpMyAdmin
 docker compose --profile tools up -d
 ```
 
-#### 4. Create Database Schema
+Apply migrations and create an admin user:
 
 ```bash
-# Create tables from entities
-docker compose exec app php bin/console doctrine:schema:update --force
-```
-
-#### 5. Create Admin User
-
-```bash
+docker compose exec app php bin/console doctrine:migrations:migrate
 docker compose exec app php bin/console app:create-admin
 ```
 
-You will be prompted for:
-- Username (default: admin)
-- Email (default: admin@norsu.edu.ph)
-- Password (minimum 8 characters)
-- First Name (default: Admin)
-- Last Name (default: User)
-
-**Alternative**: Create admin with arguments:
+#### 3. Frontend (local)
 
 ```bash
-docker compose exec app php bin/console app:create-admin admin admin@norsu.edu.ph secretpassword --first-name=John --last-name=Doe
+cd ../Frontend
+cp .env.example .env.local
 ```
 
-#### 6. Access the Application
+Update `.env.local`:
 
-- **Application**: http://localhost:8000
-- **phpMyAdmin**: http://localhost:8080 (if started with `--profile tools`)
-  - Username: `root` or `symfony`
-  - Password: (as configured in `.env`)
+```env
+NEXT_PUBLIC_API_URL=http://localhost:8000
+```
 
-### Option 2: Traditional Installation
-
-#### 1. Install Dependencies
+Install and run the UI:
 
 ```bash
+npm install
+npm run dev
+```
+
+#### 4. Access
+
+- **Frontend UI**: http://localhost:3000
+- **Backend API**: http://localhost:8000
+- **phpMyAdmin**: http://localhost:8080 (if started with `--profile tools`)
+
+### Option 2: Full local (no Docker)
+
+#### Backend
+
+```bash
+cd Backend
 composer install
 ```
 
-#### 2. Configure Environment
-
-Create `.env.local` and configure your local database:
+Create `.env.local`:
 
 ```env
+APP_ENV=dev
 DATABASE_URL="mysql://username:password@127.0.0.1:3306/smart_scheduling?serverVersion=8.0"
+FRONTEND_BASE_URL=http://localhost:3000
 ```
 
-#### 3. Create Database and Schema
+Create schema and seed an admin user:
 
 ```bash
 php bin/console doctrine:database:create
-php bin/console doctrine:schema:update --force
-```
-
-#### 4. Create Admin User
-
-```bash
+php bin/console doctrine:migrations:migrate
 php bin/console app:create-admin
 ```
 
-#### 5. Start Development Server
+Start the backend:
 
 ```bash
 symfony server:start
@@ -183,7 +171,20 @@ symfony server:start
 php -S localhost:8000 -t public
 ```
 
-Visit `http://localhost:8000` in your browser.
+#### Frontend
+
+```bash
+cd ../Frontend
+cp .env.example .env.local
+npm install
+npm run dev
+```
+
+If you prefer schema sync over migrations (dev only):
+
+```bash
+php bin/console doctrine:schema:update --force
+```
 
 ## 👤 User Roles
 
@@ -317,21 +318,17 @@ mysqldump -u username -p smart_scheduling > backup_$(date +%Y%m%d).sql
 
 ## 🎨 Customization
 
-### Styling
-The system uses Tailwind CSS. Modify styles in:
-- `assets/styles/app.css`
-- Inline classes in Twig templates
+### Frontend UI
+The Next.js UI lives in `Frontend/src`. Tailwind configuration is in:
+- `Frontend/tailwind.config.js`
+- `Frontend/postcss.config.js`
 
-### Templates
-Twig templates are located in:
-- `templates/admin/` - Admin views
-- `templates/faculty/` - Faculty views
-- `templates/department_head/` - Department head views
+### Backend configuration
+Adjust server settings in:
+- `Backend/config/packages/` - Symfony configuration
+- `Backend/.env` or `Backend/.env.local` - Environment variables
 
-### Configuration
-Adjust system settings in:
-- `config/packages/` - Symfony configuration
-- `.env` - Environment variables
+The backend redirects non-API routes to `FRONTEND_BASE_URL`.
 
 ## 🐛 Troubleshooting
 
@@ -353,6 +350,11 @@ docker compose exec app chmod -R 777 var/
 - Verify port 8000 is not in use: `netstat -ano | findstr :8000`
 - Check if containers are healthy: `docker compose ps`
 - Restart: `docker compose down && docker compose up -d`
+
+#### Frontend Cannot Reach API
+- Verify `Frontend/.env.local` has `NEXT_PUBLIC_API_URL=http://localhost:8000`
+- Confirm the backend is running and reachable on port 8000
+- If you changed ports, update both `NEXT_PUBLIC_API_URL` and `FRONTEND_BASE_URL`
 
 #### phpMyAdmin Cannot Connect
 - Verify phpMyAdmin is running: `docker compose --profile tools ps`
@@ -393,5 +395,5 @@ For issues and questions, please contact the IT department or system administrat
 ---
 
 **Version**: 1.0  
-**Last Updated**: December 2025  
+**Last Updated**: March 2026  
 **Symfony Version**: 7.3.*
