@@ -98,7 +98,7 @@ export default function FacultySchedulePage() {
             value={semester}
             onChange={handleSemesterChange}
             options={SEMESTERS.map(s => ({ value: s, label: `${s} Semester` }))}
-            className="w-44 min-w-[11rem]"
+            className="w-44 min-w-44"
           />
           <Button
             type="button"
@@ -106,7 +106,7 @@ export default function FacultySchedulePage() {
             icon={<Download className="h-4 w-4" />}
             onClick={() => handleExport('schedule')}
             loading={exporting}
-            className="whitespace-nowrap flex-shrink-0"
+            className="whitespace-nowrap shrink-0"
           >
             Schedule PDF
           </Button>
@@ -116,7 +116,7 @@ export default function FacultySchedulePage() {
             icon={<FileText className="h-4 w-4" />}
             onClick={() => handleExport('teaching-load')}
             loading={exporting}
-            className="whitespace-nowrap flex-shrink-0"
+            className="whitespace-nowrap shrink-0"
           >
             Teaching Load PDF
           </Button>
@@ -190,7 +190,7 @@ function ScheduleList({ schedules }: { schedules: FacultyScheduleItem[] }) {
       {schedules.map((s) => (
         <Card key={s.id} className="hover:shadow-sm transition-shadow">
           <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-            <div className="flex-shrink-0 w-20 text-center">
+            <div className="shrink-0 w-20 text-center">
               <p className="text-sm font-bold text-blue-600">{s.start_time_12h}</p>
               <p className="text-xs text-gray-400 dark:text-gray-500">{s.end_time_12h}</p>
             </div>

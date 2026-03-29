@@ -5,6 +5,8 @@
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
     app.timezone: 'Asia/Manila'
+    app.frontend_base_url_default: ''
+    app.frontend_base_url: '%env(default:app.frontend_base_url_default:FRONTEND_BASE_URL)%'
 
 services:
     # default configuration for services in *this* file
