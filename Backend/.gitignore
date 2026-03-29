@@ -1,0 +1,63 @@
+
+###> symfony/framework-bundle ###
+/.env
+/.env.dev
+/.env.test
+/.env.prod
+/.env.local
+/.env.local.php
+/.env.*.local
+/config/secrets/prod/prod.decrypt.private.php
+/public/bundles/
+/var/
+/vendor/
+###< symfony/framework-bundle ###
+
+###> phpunit/phpunit ###
+/phpunit.xml
+/.phpunit.cache/
+###< phpunit/phpunit ###
+
+###> symfony/asset-mapper ###
+/public/assets/
+/assets/vendor/
+###< symfony/asset-mapper ###
+
+###> personal/config ###
+/ngrok.yml
+/compose.override.yaml
+###< personal/config ###
+
+###> ide/editor ###
+/.idea/
+/.vscode/
+*.swp
+*.swo
+*~
+###< ide/editor ###
+
+###> os ###
+.DS_Store
+Thumbs.db
+desktop.ini
+###< os ###
+
+###> node ###
+/node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+###< node ###
+
+###> uploads ###
+/public/uploads/
+###< uploads ###
+
+###> production documentation ###
+PRODUCTION_READINESS.md
+QUICK_START_PRODUCTION.md
+###< production documentation ###
+
+###> lexik/jwt-authentication-bundle ###
+/config/jwt/*.pem
+###< lexik/jwt-authentication-bundle ###

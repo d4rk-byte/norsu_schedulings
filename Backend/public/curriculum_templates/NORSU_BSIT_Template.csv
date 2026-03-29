@@ -1,0 +1,53 @@
+Subject Code,Descriptive Title,Units,Lec,Lab,Year Level,Semester,Subject Type,Required,Prerequisites
+GE 4,Mathematics in the Modern World,3,3,0,1,1st,lecture,yes,
+GE 5,Purposive Communication,3,3,0,1,1st,lecture,yes,
+GE 6,Art Appreciation,3,3,0,1,1st,lecture,yes,
+ITS 100,Introduction to Computing,3,3,0,1,1st,lecture,yes,
+ITS 101,Computer Programming I,2,1,3,1,1st,lecture_lab,yes,
+PE 1,Physical Education I,2,2,0,1,1st,pe,yes,
+NSTP 1,National Service Training Program I,3,3,0,1,1st,nstp,yes,
+GE 1,Understanding the Self,3,3,0,1,2nd,lecture,yes,
+GE 2,Readings in Philippine History,3,3,0,1,2nd,lecture,yes,
+GE 3,The Contemporary World,3,3,0,1,2nd,lecture,yes,
+ITS 103,Discrete Mathematics,3,3,0,1,2nd,lecture,yes,
+ITS 104,Computer Programming II,2,1,3,1,2nd,lecture_lab,yes,ITS 101
+ITS 105,Data Structures & Algorithms,3,2,3,1,2nd,lecture_lab,yes,ITS 104
+PE 2,Physical Education II,2,2,0,1,2nd,pe,yes,PE 1
+NSTP 2,National Service Training Program II,3,3,0,1,2nd,nstp,yes,NSTP 1
+GE 7,"Science, Technology and Society",3,3,0,2,1st,lecture,yes,
+GE 8,Ethics,3,3,0,2,1st,lecture,yes,
+GE 9,Life and Works of Rizal,3,3,0,2,1st,lecture,yes,
+Eng 127,Business Communication I,3,3,0,2,1st,lecture,yes,GE 5
+ITS 200,Database Management Systems I,2,1,3,2,1st,lecture_lab,yes,
+ITS 201,Systems and Architecture,2,1,3,2,1st,lecture_lab,yes,ITS 103
+ITS 202,Object Oriented Programming I,2,1,3,2,1st,lecture_lab,yes,ITS 105
+ITS 203,Intellectual Property Basic,3,3,0,2,1st,lecture,yes,
+PE 3,Rhythms and Social Dancing,2,2,0,2,1st,pe,yes,PE 2
+GE 10,Environmental Science,2,2,0,2,2nd,lecture,yes,
+Eng 128,Business Communication II,3,3,0,2,2nd,lecture,yes,Eng 127
+ITS 204,Data Communication & Software Installation,2,1,3,2,2nd,lecture_lab,yes,ITS 201
+ITS 205,Database Management Systems II,2,1,3,2,2nd,lecture_lab,yes,ITS 200
+ITS 206,Data Comm. & Networking I,2,1,3,2,2nd,lecture_lab,yes,ITS 201
+ITS 207,Object Oriented Programming II,2,1,3,2,2nd,lecture_lab,yes,ITS 202
+ITS 208,Graphics and Visual Computing,2,1,3,2,2nd,lecture_lab,yes,ITS 105
+ITS 209,Introduction to Human Computer Interaction,2,1,3,2,2nd,lecture_lab,yes,ITS 104
+PE 4,Cultural Presentation & Sports Activities,2,2,0,2,2nd,pe,yes,PE 3
+ITS 300,Principles of Systems Thinking,3,3,0,3,1st,lecture,yes,Eng 128
+STS 105,Principles of System Administrator,3,3,0,3,1st,lecture,yes,
+ITS 301,Web Development I,2,1,3,3,1st,lecture_lab,yes,ITS 209
+ITS 302,Data Comm. & Networking II,2,1,3,3,1st,lecture_lab,yes,ITS 206
+ITS 303,Animation,2,1,3,3,1st,lecture_lab,yes,
+ITS 304,System Analysis & Design,2,1,3,3,1st,lecture_lab,yes,ITS 105
+ITS 305,"Information Management and Emerging Technologies",2,1,3,3,2nd,lecture_lab,yes,ITS 300
+ITS 306,Web Development 2,2,1,3,3,2nd,lecture_lab,yes,ITS 300
+ITS 307,Platform Technologies,2,1,3,3,2nd,lecture_lab,yes,ITS 209
+ITS 308,System Administration and Maintenance,2,1,3,3,2nd,lecture_lab,yes,ITS 302
+ITS 309,Information Assurance & Security,2,1,3,3,2nd,lecture_lab,yes,ITS 302
+ITS 310,Multimedia,3,3,0,3,2nd,lecture,yes,ITS 304
+ITS 311,Quantitative Method (Inc. Modeling & Simulation),2,1,3,3,2nd,lecture_lab,yes,ITS 103
+ITS 400,Internship 1 (300 hours),3,0,0,3,summer,internship,yes,Must have taken at least 90% of 1st to 3rd yr
+ITS 401,Internship 2 (500 hours),3,0,0,4,1st,internship,yes,ITS 400
+ITS 402,Capstone Project 1,3,0,3,4,1st,laboratory,yes,ITS 306
+ITS 403,Capstone Project 2,3,0,3,4,2nd,laboratory,yes,ITS 402
+ITS 404,Social and Professional Issues of IT,3,3,0,4,2nd,lecture,yes,
+ITS 405,Multimedia and Gaming Systems,3,0,3,4,2nd,laboratory,yes,

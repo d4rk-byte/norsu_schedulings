@@ -1,0 +1,518 @@
+<!-- Profile Modal -->
+<div x-data="profileModal()" 
+     @open-profile-modal.window="openProfileModal()"
+     x-cloak>
+    <!-- View Profile Modal -->
+    <div x-show="showProfileModal" 
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="transition ease-in duration-200"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0"
+         class="fixed inset-0 z-50 overflow-y-auto" 
+         @keydown.escape.window="closeAllModals()"
+         style="display: none;">
+        <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+            <!-- Background overlay -->
+            <div class="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" @click="closeAllModals()"></div>
+
+            <!-- Modal panel -->
+            <div class="inline-block overflow-hidden text-left align-bottom transition-all transform bg-white rounded-lg shadow-xl sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full"
+                 @click.stop>
+                <!-- Header -->
+                <div class="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-8">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-4">
+                            <div class="h-20 w-20 rounded-full bg-white flex items-center justify-center">
+                                <span class="text-3xl font-bold text-blue-600" x-text="getInitials()"></span>
+                            </div>
+                            <div class="text-white">
+                                <h2 class="text-2xl font-bold" x-text="getFullName()"></h2>
+                                <p class="text-blue-100" x-text="'{{ app.user.roleString|replace({'_': ' '})|title }}'"></p>
+                                <p class="text-sm text-blue-100 mt-1">{{ app.user.email }}</p>
+                            </div>
+                        </div>
+                        <button @click="closeAllModals()" class="text-white hover:text-gray-200">
+                            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Content -->
+                <div class="px-6 py-6 max-h-96 overflow-y-auto">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Personal Information -->
+                        <div class="space-y-4">
+                            <h3 class="text-lg font-semibold text-gray-900 border-b pb-2">Personal Information</h3>
+                            
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Username</dt>
+                                <dd class="mt-1 text-sm text-gray-900">{{ app.user.username }}</dd>
+                            </div>
+
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Full Name</dt>
+                                <dd class="mt-1 text-sm text-gray-900" x-text="getFullName() || 'Not set'"></dd>
+                            </div>
+
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Email</dt>
+                                <dd class="mt-1 text-sm text-gray-900">{{ app.user.email }}</dd>
+                            </div>
+
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Employee ID</dt>
+                                <dd class="mt-1 text-sm text-gray-900">{{ app.user.employeeId ?: 'Not set' }}</dd>
+                            </div>
+
+                            {% if app.user.address %}
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Address</dt>
+                                <dd class="mt-1 text-sm text-gray-900">{{ app.user.address }}</dd>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Professional Information -->
+                        <div class="space-y-4">
+                            <h3 class="text-lg font-semibold text-gray-900 border-b pb-2">Professional Information</h3>
+                            
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Role</dt>
+                                <dd class="mt-1">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                        {% if app.user.role == 1 %}bg-purple-100 text-purple-800
+                                        {% elseif app.user.role == 2 %}bg-blue-100 text-blue-800
+                                        {% elseif app.user.role == 3 %}bg-green-100 text-green-800
+                                        {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                        {{ app.user.roleString|replace({'_': ' '})|title }}
+                                    </span>
+                                </dd>
+                            </div>
+
+                            {% if app.user.position %}
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Position</dt>
+                                <dd class="mt-1 text-sm text-gray-900">{{ app.user.position }}</dd>
+                            </div>
+                            {% endif %}
+
+                            {% if app.user.college %}
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">College</dt>
+                                <dd class="mt-1 text-sm text-gray-900">{{ app.user.college.name }}</dd>
+                            </div>
+                            {% endif %}
+
+                            {% if app.user.department %}
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Department</dt>
+                                <dd class="mt-1 text-sm text-gray-900">{{ app.user.department.name }}</dd>
+                            </div>
+                            {% endif %}
+
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Account Status</dt>
+                                <dd class="mt-1">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                        {% if app.user.isActive %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+                                        {% if app.user.isActive %}Active{% else %}Inactive{% endif %}
+                                    </span>
+                                </dd>
+                            </div>
+
+                            {% if app.user.lastLogin %}
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Last Login</dt>
+                                <dd class="mt-1 text-sm text-gray-900">{{ app.user.lastLogin|date('M j, Y g:i A') }}</dd>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer Actions -->
+                <div class="bg-gray-50 px-6 py-4 flex flex-wrap gap-3">
+                    <button @click="openEditModal()" 
+                            class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                        <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                        </svg>
+                        Edit Profile
+                    </button>
+                    
+                    <button @click="openPasswordModal()" 
+                            class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                        <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/>
+                        </svg>
+                        Change Password
+                    </button>
+
+                    <button @click="closeAllModals()" 
+                            class="ml-auto inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Profile Modal -->
+    <div x-show="showEditModal" 
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="transition ease-in duration-200"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0"
+         class="fixed inset-0 z-50 overflow-y-auto"
+         @keydown.escape.window="closeEditModal()"
+         style="display: none;">
+        <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" @click="closeEditModal()"></div>
+
+            <div class="inline-block overflow-hidden text-left align-bottom transition-all transform bg-white rounded-lg shadow-xl sm:my-8 sm:align-middle sm:max-w-3xl sm:w-full"
+                 @click.stop>
+                <!-- Header -->
+                <div class="bg-white px-6 py-4 border-b border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-medium text-gray-900">Edit Profile</h3>
+                        <button @click="closeEditModal()" class="text-gray-400 hover:text-gray-500">
+                            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Form Content -->
+                <form @submit.prevent="submitProfileEdit()" class="px-6 py-6 max-h-96 overflow-y-auto">
+                    <div id="edit-form-messages"></div>
+                    
+                    <div class="space-y-6">
+                        <!-- Personal Information -->
+                        <div class="border-b border-gray-200 pb-6">
+                            <h4 class="text-base font-semibold text-gray-900 mb-4">Personal Information</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">First Name</label>
+                                    <input type="text" x-model="editData.firstName" 
+                                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Middle Name</label>
+                                    <input type="text" x-model="editData.middleName"
+                                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Last Name</label>
+                                    <input type="text" x-model="editData.lastName"
+                                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Email <span class="text-red-500">*</span></label>
+                                    <input type="email" x-model="editData.email" required
+                                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                </div>
+                                <div class="md:col-span-2">
+                                    <label class="block text-sm font-medium text-gray-700">Address</label>
+                                    <textarea x-model="editData.address" rows="2"
+                                              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Professional Information -->
+                        <div>
+                            <h4 class="text-base font-semibold text-gray-900 mb-4">Professional Information</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Employee ID</label>
+                                    <input type="text" x-model="editData.employeeId" readonly
+                                           class="mt-1 block w-full rounded-md border-gray-300 bg-gray-50 shadow-sm cursor-not-allowed">
+                                    <p class="mt-1 text-xs text-gray-500">Employee ID cannot be changed</p>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Position</label>
+                                    <input type="text" x-model="editData.position"
+                                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+
+                <!-- Footer -->
+                <div class="bg-gray-50 px-6 py-4 flex justify-end space-x-3">
+                    <button @click="closeEditModal()" type="button"
+                            class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                        Cancel
+                    </button>
+                    <button @click="submitProfileEdit()" type="button"
+                            :disabled="isSubmitting"
+                            class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <span x-show="!isSubmitting">Save Changes</span>
+                        <span x-show="isSubmitting">Saving...</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Change Password Modal -->
+    <div x-show="showPasswordModal" 
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="transition ease-in duration-200"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0"
+         class="fixed inset-0 z-50 overflow-y-auto"
+         @keydown.escape.window="closePasswordModal()"
+         style="display: none;">
+        <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" @click="closePasswordModal()"></div>
+
+            <div class="inline-block overflow-hidden text-left align-bottom transition-all transform bg-white rounded-lg shadow-xl sm:my-8 sm:align-middle sm:max-w-md sm:w-full"
+                 @click.stop>
+                <!-- Header -->
+                <div class="bg-white px-6 py-4 border-b border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-medium text-gray-900">Change Password</h3>
+                        <button @click="closePasswordModal()" class="text-gray-400 hover:text-gray-500">
+                            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Form Content -->
+                <form @submit.prevent="submitPasswordChange()" class="px-6 py-6">
+                    <div id="password-form-messages"></div>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Current Password <span class="text-red-500">*</span></label>
+                            <input type="password" x-model="passwordData.currentPassword" required
+                                   class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">New Password <span class="text-red-500">*</span></label>
+                            <input type="password" x-model="passwordData.newPassword" required minlength="6"
+                                   class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            <p class="mt-1 text-xs text-gray-500">Minimum 6 characters</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Confirm Password <span class="text-red-500">*</span></label>
+                            <input type="password" x-model="passwordData.confirmPassword" required minlength="6"
+                                   class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                        </div>
+                    </div>
+
+                    <div class="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-3">
+                        <p class="text-xs text-blue-700">
+                            <strong>Security Tip:</strong> After changing your password, you may need to log in again on all devices.
+                        </p>
+                    </div>
+                </form>
+
+                <!-- Footer -->
+                <div class="bg-gray-50 px-6 py-4 flex justify-end space-x-3">
+                    <button @click="closePasswordModal()" type="button"
+                            class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                        Cancel
+                    </button>
+                    <button @click="submitPasswordChange()" type="button"
+                            :disabled="isSubmitting"
+                            class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <span x-show="!isSubmitting">Change Password</span>
+                        <span x-show="isSubmitting">Changing...</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function profileModal() {
+    return {
+        showProfileModal: false,
+        showEditModal: false,
+        showPasswordModal: false,
+        isSubmitting: false,
+        editData: {
+            firstName: '{{ app.user.firstName }}',
+            middleName: '{{ app.user.middleName }}',
+            lastName: '{{ app.user.lastName }}',
+            email: '{{ app.user.email }}',
+            employeeId: '{{ app.user.employeeId }}',
+            position: '{{ app.user.position }}',
+            address: '{{ app.user.address }}'
+        },
+        passwordData: {
+            currentPassword: '',
+            newPassword: '',
+            confirmPassword: ''
+        },
+
+        openProfileModal() {
+            this.showProfileModal = true;
+            document.body.style.overflow = 'hidden';
+        },
+
+        openEditModal() {
+            this.showProfileModal = false;
+            this.showEditModal = true;
+        },
+
+        openPasswordModal() {
+            this.showProfileModal = false;
+            this.showPasswordModal = true;
+        },
+
+        closeAllModals() {
+            this.showProfileModal = false;
+            this.showEditModal = false;
+            this.showPasswordModal = false;
+            document.body.style.overflow = '';
+        },
+
+        closeEditModal() {
+            this.showEditModal = false;
+            this.showProfileModal = true;
+        },
+
+        closePasswordModal() {
+            this.showPasswordModal = false;
+            this.showProfileModal = true;
+            this.resetPasswordForm();
+        },
+
+        getInitials() {
+            const first = this.editData.firstName || '{{ app.user.username }}';
+            const last = this.editData.lastName || '';
+            return (first.charAt(0) + last.charAt(0)).toUpperCase();
+        },
+
+        getFullName() {
+            const parts = [this.editData.firstName, this.editData.middleName, this.editData.lastName].filter(p => p);
+            return parts.length > 0 ? parts.join(' ') : '{{ app.user.username }}';
+        },
+
+        async submitProfileEdit() {
+            if (this.isSubmitting) return;
+            this.isSubmitting = true;
+            
+            try {
+                const response = await fetch('{{ path('app_profile_edit_ajax') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify(this.editData)
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    this.showMessage('edit-form-messages', 'success', data.message || 'Profile updated successfully!');
+                    setTimeout(() => {
+                        this.closeEditModal();
+                        location.reload();
+                    }, 1000);
+                } else {
+                    this.showMessage('edit-form-messages', 'error', data.message || 'Failed to update profile');
+                }
+            } catch (error) {
+                this.showMessage('edit-form-messages', 'error', 'An error occurred. Please try again.');
+            } finally {
+                this.isSubmitting = false;
+            }
+        },
+
+        async submitPasswordChange() {
+            if (this.isSubmitting) return;
+            
+            if (this.passwordData.newPassword !== this.passwordData.confirmPassword) {
+                this.showMessage('password-form-messages', 'error', 'New password and confirmation do not match');
+                return;
+            }
+
+            this.isSubmitting = true;
+            
+            try {
+                const response = await fetch('{{ path('app_profile_change_password_ajax') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify(this.passwordData)
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    this.showMessage('password-form-messages', 'success', data.message || 'Password changed successfully!');
+                    setTimeout(() => {
+                        this.closePasswordModal();
+                        this.resetPasswordForm();
+                    }, 1000);
+                } else {
+                    this.showMessage('password-form-messages', 'error', data.message || 'Failed to change password');
+                }
+            } catch (error) {
+                this.showMessage('password-form-messages', 'error', 'An error occurred. Please try again.');
+            } finally {
+                this.isSubmitting = false;
+            }
+        },
+
+        resetPasswordForm() {
+            this.passwordData = {
+                currentPassword: '',
+                newPassword: '',
+                confirmPassword: ''
+            };
+        },
+
+        showMessage(containerId, type, message) {
+            const container = document.getElementById(containerId);
+            const bgColor = type === 'success' ? 'bg-green-50' : 'bg-red-50';
+            const textColor = type === 'success' ? 'text-green-800' : 'text-red-800';
+            const iconColor = type === 'success' ? 'text-green-400' : 'text-red-400';
+            const icon = type === 'success' 
+                ? '<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />'
+                : '<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />';
+            
+            container.innerHTML = `
+                <div class="mb-4 rounded-md ${bgColor} p-4">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <svg class="h-5 w-5 ${iconColor}" fill="currentColor" viewBox="0 0 20 20">
+                                ${icon}
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm font-medium ${textColor}">${message}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+    }
+}
+
+// Global function to open profile modal
+window.openProfileModal = function() {
+    const event = new CustomEvent('open-profile-modal');
+    window.dispatchEvent(event);
+}
+</script>

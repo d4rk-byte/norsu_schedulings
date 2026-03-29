@@ -1,0 +1,1079 @@
+{% extends 'department_head/base.html.twig' %}
+
+{% block title %}Create Schedule - Department Head Dashboard{% endblock %}
+
+{% block main_content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Breadcrumb -->
+    <nav class="mb-6 flex" aria-label="Breadcrumb">
+        <ol class="inline-flex items-center space-x-2 text-sm">
+            <li class="inline-flex items-center">
+                <a href="{{ path('department_head_dashboard') }}" class="text-gray-600 hover:text-blue-600 transition">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
+                    </svg>
+                </a>
+            </li>
+            <li>
+                <div class="flex items-center">
+                    <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+                    </svg>
+                    <a href="{{ path('department_head_schedules') }}" class="ml-2 text-gray-600 hover:text-blue-600 transition">Department Schedules</a>
+                </div>
+            </li>
+            <li>
+                <div class="flex items-center">
+                    <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+                    </svg>
+                    <span class="ml-2 text-gray-900 font-medium">Create Schedule</span>
+                </div>
+            </li>
+        </ol>
+    </nav>
+
+    <!-- Header -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900 mb-2">Create New Schedule</h1>
+        <p class="text-gray-600">Create a schedule for subjects in your department</p>
+    </div>
+
+    <!-- Flash Messages -->
+    {% for label, messages in app.flashes %}
+        {% if label == 'error' %}
+            <div class="mb-6 bg-red-50 border-l-4 border-red-500 p-4 rounded-r-lg shadow-sm">
+                <div class="flex items-start">
+                    <svg class="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                    </svg>
+                    <div class="ml-3 flex-1">
+                        {% for message in messages %}
+                            <p class="text-sm font-medium text-red-800">{{ message }}</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        {% elseif label == 'warning' %}
+            <div class="mb-6 bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-r-lg shadow-sm">
+                <div class="flex items-start">
+                    <svg class="w-5 h-5 text-yellow-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                    </svg>
+                    <div class="ml-3 flex-1">
+                        {% for message in messages %}
+                            <p class="text-sm font-medium text-yellow-800">{{ message }}</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        {% elseif label == 'success' %}
+            <div class="mb-6 bg-green-50 border-l-4 border-green-500 p-4 rounded-r-lg shadow-sm">
+                <div class="flex items-start">
+                    <svg class="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                    </svg>
+                    <div class="ml-3 flex-1">
+                        {% for message in messages %}
+                            <p class="text-sm font-medium text-green-800">{{ message }}</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    {% endfor %}
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Left Column: Form -->
+        <div class="lg:col-span-2">
+            <form method="post" action="{{ path('department_head_schedules_create') }}" id="scheduleForm" class="space-y-6" novalidate>
+                
+                <!-- Step 1: Subject Details -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center font-semibold text-lg">1</div>
+                        <div>
+                            <h2 class="text-xl font-semibold text-gray-900">Subject & Section Details</h2>
+                            <p class="text-sm text-gray-500">Select the subject and specify section information</p>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-6">
+                        <div>
+                            <label for="subject" class="block text-base font-semibold text-gray-800 mb-3">
+                                Subject <span class="text-red-500">*</span>
+                            </label>
+                            <select id="subject" name="subject" required 
+                                    class="block w-full text-base py-3 px-4 rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 transition"
+                                    style="max-height: 300px; overflow-y: auto;"
+                                    size="1"
+                                    onchange="onSubjectChange(this)">
+                                <option value="">Choose a subject...</option>
+                                {% for subject in subjects %}
+                                    <option value="{{ subject.id }}" 
+                                            data-subject-code="{{ subject.code }}"
+                                            data-subject-title="{{ subject.title }}"
+                                            data-subject-units="{{ subject.units }}">
+                                        {{ subject.code }} - {{ subject.title }} ({{ subject.units }} units)
+                                    </option>
+                                {% endfor %}
+                            </select>
+                            <p class="mt-2 text-sm text-gray-600">Select the subject for this schedule (scroll to see all department subjects)</p>
+                        </div>
+
+                        <!-- Existing Sections Info -->
+                        <div id="existing-sections-info" class="hidden bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-300 rounded-lg p-5 shadow-md">
+                            <div class="flex items-start gap-3">
+                                <div class="flex-1">
+                                    <p class="text-sm font-bold text-blue-900 mb-3 flex items-center gap-2">
+                                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                                        </svg>
+                                        Existing Sections for this Subject:
+                                    </p>
+                                    <div id="existing-sections-list" class="flex flex-wrap gap-2"></div>
+                                    <p class="text-sm text-blue-800 mt-3 italic font-medium">💡 Choose a unique section name to avoid conflicts</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div>
+                                <label for="section" class="block text-base font-semibold text-gray-800 mb-3">
+                                    Section <span class="text-red-500">*</span>
+                                </label>
+                                <div class="relative">
+                                    <input type="text" id="section" name="section" required
+                                           placeholder="e.g., A, B, 1, 2, BSIT-3A"
+                                           class="block w-full text-base py-3 px-4 rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 transition"
+                                           oninput="checkSectionExists()">
+                                    <div id="section-status-icon" class="hidden absolute right-3 top-1/2 -translate-y-1/2"></div>
+                                </div>
+                                <p class="mt-2 text-sm text-gray-600" id="section-hint">Class section identifier</p>
+                            </div>
+
+                            <div>
+                                <label for="semester" class="block text-base font-semibold text-gray-800 mb-3">
+                                    Semester <span class="text-red-500">*</span>
+                                </label>
+                                <select id="semester" name="semester" required
+                                        class="block w-full text-base py-3 px-4 rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 transition"
+                                        onchange="checkSectionExists(); window.updateExistingSectionsDisplay();">
+                                    <option value="">Select semester...</option>
+                                    <option value="1st">1st Semester</option>
+                                    <option value="2nd">2nd Semester</option>
+                                    <option value="Summer">Summer</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label for="academic_year" class="block text-base font-semibold text-gray-800 mb-3">
+                                    Academic Year <span class="text-red-500">*</span>
+                                </label>
+                                <select id="academic_year" name="academic_year" required
+                                        class="block w-full text-base py-3 px-4 rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 transition"
+                                        onchange="checkSectionExists(); window.updateExistingSectionsDisplay();">
+                                    <option value="">Select year...</option>
+                                    {% for ay in academicYears %}
+                                        <option value="{{ ay.id }}">{{ ay.year }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2: Schedule Time & Days -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center font-semibold text-lg">2</div>
+                        <div>
+                            <h2 class="text-xl font-semibold text-gray-900">Schedule Time & Days</h2>
+                            <p class="text-sm text-gray-500">Set the class meeting days and time</p>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div>
+                            <label for="day_pattern" class="block text-base font-semibold text-gray-800 mb-3">
+                                Day Pattern <span class="text-red-500">*</span>
+                            </label>
+                            <select id="day_pattern" name="day_pattern" required 
+                                    class="block w-full text-base py-3 px-4 rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 transition">
+                                <option value="">Select pattern...</option>
+                                <option value="M-W-F">Mon-Wed-Fri</option>
+                                <option value="T-TH">Tue-Thu</option>
+                                <option value="M-T-TH-F">Mon-Tue-Thu-Fri (No Wed)</option>
+                                <option value="M-T">Mon-Tue</option>
+                                <option value="TH-F">Thu-Fri</option>
+                                <option value="SAT">Saturday Only</option>
+                                <option value="SUN">Sunday Only</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="start_time" class="block text-base font-semibold text-gray-800 mb-3">
+                                Start Time <span class="text-red-500">*</span>
+                            </label>
+                            <input type="time" id="start_time" name="start_time" required 
+                                   min="07:00" max="21:00"
+                                   class="block w-full text-base py-3 px-4 rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 transition"
+                                   onchange="autoSetEndTime()">
+                            <p class="mt-2 text-sm text-gray-600">Classes typically 7 AM - 9 PM</p>
+                        </div>
+
+                        <div>
+                            <label for="end_time" class="block text-base font-semibold text-gray-800 mb-3">
+                                End Time <span class="text-red-500">*</span>
+                            </label>
+                            <input type="time" id="end_time" name="end_time" required 
+                                   min="07:00" max="21:00"
+                                   class="block w-full text-base py-3 px-4 rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 transition">
+                            <p class="mt-2 text-sm text-gray-600">Must be after start time</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3: Room & Enrollment -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center font-semibold text-lg">3</div>
+                        <div>
+                            <h2 class="text-xl font-semibold text-gray-900">Room & Enrollment</h2>
+                            <p class="text-sm text-gray-500">Assign a room and specify enrollment details</p>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="room" class="block text-base font-semibold text-gray-800 mb-3">
+                                Room <span class="text-red-500">*</span>
+                            </label>
+                            <select id="room" name="room" required 
+                                    class="block w-full text-base py-3 px-4 rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 transition">
+                                <option value="">Select room...</option>
+                                {% for room in rooms %}
+                                    <option value="{{ room.id }}" data-capacity="{{ room.capacity }}">
+                                        {{ room.code }}{% if room.name %} - {{ room.name }}{% endif %}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                            <p class="mt-2 text-sm text-gray-600">Available rooms with capacity</p>
+                        </div>
+
+                        <div>
+                            <label for="enrolled_students" class="block text-base font-semibold text-gray-800 mb-3">
+                                Enrolled Students
+                            </label>
+                            <input type="number" id="enrolled_students" name="enrolled_students" 
+                                   placeholder="Number of students" min="0" max="999"
+                                   class="block w-full text-base py-3 px-4 rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 transition">
+                            <p class="mt-2 text-sm text-gray-600">Optional - for capacity tracking</p>
+                        </div>
+
+                        <div class="md:col-span-2">
+                            <label for="notes" class="block text-base font-semibold text-gray-800 mb-3">
+                                Notes (Optional)
+                            </label>
+                            <textarea id="notes" name="notes" rows="4" 
+                                      placeholder="Additional notes, requirements, or special instructions..."
+                                      class="block w-full text-base py-3 px-4 rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 transition"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                    <div class="flex items-center justify-between">
+                        <p class="text-sm text-gray-600">
+                            <span class="text-red-500">*</span> Required fields
+                        </p>
+                        <div class="flex gap-3">
+                            <a href="{{ path('department_head_schedules') }}" 
+                               class="px-6 py-2.5 border border-gray-300 text-gray-700 bg-white rounded-lg hover:bg-gray-50 transition font-medium">
+                                Cancel
+                            </a>
+                            <button type="submit" id="submitBtn"
+                                    class="px-8 py-2.5 bg-green-600 text-white rounded-lg transition font-medium shadow-sm opacity-50 cursor-not-allowed"
+                                    disabled>
+                                <span id="submitBtnText">Fill all fields to continue</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Right Column: Information -->
+        <div class="lg:col-span-1 space-y-6">
+            <!-- Auto Conflict Detection Info -->
+            <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg shadow-sm border border-blue-200 p-6">
+                <div class="flex items-start gap-3">
+                    <svg class="w-6 h-6 text-blue-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                    </svg>
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2">Auto Conflict Detection</h3>
+                        <p class="text-sm text-gray-700 leading-relaxed mb-3">
+                            The system will automatically check for scheduling conflicts when you create this schedule. Conflicts include room overlaps and section time conflicts.
+                        </p>
+                        <div class="space-y-2 text-sm">
+                            <div class="flex items-start gap-2">
+                                <span class="text-red-600 font-bold">🚫</span>
+                                <p class="text-gray-700"><span class="font-semibold">Blocks Creation:</span> Room-time conflicts, duplicate subject-section, section double-booking</p>
+                            </div>
+                            <div class="flex items-start gap-2">
+                                <span class="text-yellow-600 font-bold">⚠️</span>
+                                <p class="text-gray-700"><span class="font-semibold">Shows Warning:</span> Room over-capacity or near capacity</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Live Conflict Detection Results -->
+            <div id="live-conflict-detection" class="hidden bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <div class="flex items-start gap-3 mb-3">
+                    <div id="conflict-icon"></div>
+                    <div class="flex-1">
+                        <h3 id="conflict-title" class="text-lg font-semibold mb-2"></h3>
+                        <div id="conflict-details" class="space-y-2"></div>
+                    </div>
+                </div>
+                <div id="conflict-loading" class="hidden">
+                    <div class="flex items-center gap-2 text-sm text-gray-600">
+                        <svg class="animate-spin h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <span>Checking for conflicts...</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tips Card -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-3">📋 Scheduling Tips</h3>
+                <ul class="space-y-2 text-sm text-gray-700">
+                    <li class="flex items-start gap-2">
+                        <span class="text-green-600 font-bold">✓</span>
+                        <span>Only subjects from your department are available</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <span class="text-green-600 font-bold">✓</span>
+                        <span>Check room availability for your selected time slot</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <span class="text-green-600 font-bold">✓</span>
+                        <span>Avoid scheduling conflicts with existing sections</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <span class="text-green-600 font-bold">✓</span>
+                        <span>Ensure room capacity matches enrollment</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <span class="text-green-600 font-bold">✓</span>
+                        <span>Standard class duration is 1.5 or 3 hours</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Department Info -->
+            <div class="bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg shadow-sm border border-purple-200 p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">🏢 Department Access</h3>
+                <p class="text-sm text-gray-700 leading-relaxed">
+                    You can only create schedules for subjects in your department. Only accessible rooms are shown in the room selection.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('scheduleForm');
+    const subjectSelect = document.getElementById('subject');
+    const sectionInput = document.getElementById('section');
+    const semesterSelect = document.getElementById('semester');
+    const academicYearSelect = document.getElementById('academic_year');
+    const dayPatternSelect = document.getElementById('day_pattern');
+    const startTimeInput = document.getElementById('start_time');
+    const endTimeInput = document.getElementById('end_time');
+    const roomSelect = document.getElementById('room');
+    const enrolledStudentsInput = document.getElementById('enrolled_students');
+    const submitBtn = form.querySelector('button[type="submit"]');
+
+    let existingSchedules = {};
+    let conflictCheckTimeout = null;
+
+    // Auto-set end time to 1 hour after start time
+    window.autoSetEndTime = function() {
+        const startTime = startTimeInput?.value;
+        if (!startTime) return;
+        
+        // Parse start time
+        const [hours, minutes] = startTime.split(':').map(Number);
+        
+        // Add 1 hour
+        let endHours = hours + 1;
+        let endMinutes = minutes;
+        
+        // Handle 24-hour overflow
+        if (endHours >= 24) {
+            endHours = 23;
+            endMinutes = 59;
+        }
+        
+        // Format as HH:MM
+        const endTime = `${String(endHours).padStart(2, '0')}:${String(endMinutes).padStart(2, '0')}`;
+        
+        // Set end time
+        if (endTimeInput) {
+            endTimeInput.value = endTime;
+            
+            // Trigger conflict check
+            checkForConflicts();
+        }
+    };
+
+    // Check for conflicts
+    function checkForConflicts() {
+        console.log('=== checkForConflicts called ===');
+        
+        // Clear existing timeout
+        if (conflictCheckTimeout) {
+            clearTimeout(conflictCheckTimeout);
+        }
+
+        // Set new timeout (debounce)
+        conflictCheckTimeout = setTimeout(() => {
+            console.log('Debounce timeout executed - gathering form data...');
+            
+            // Get all form values
+            const subjectId = subjectSelect?.value || '';
+            const roomId = roomSelect?.value || '';
+            const academicYearId = academicYearSelect?.value || '';
+            const semester = semesterSelect?.value || '';
+            const section = sectionInput?.value || '';
+            const dayPattern = dayPatternSelect?.value || '';
+            const startTime = startTimeInput?.value || '';
+            const endTime = endTimeInput?.value || '';
+            const enrolledStudents = enrolledStudentsInput?.value || 0;
+
+            console.log('Form data gathered:', {
+                subjectId, roomId, academicYearId, semester, section, 
+                dayPattern, startTime, endTime, enrolledStudents
+            });
+
+            // Check if all required fields are filled
+            if (!subjectId || !roomId || !academicYearId || !semester || !section || !dayPattern || !startTime || !endTime) {
+                console.log('Missing required fields - hiding conflict panel');
+                // Hide conflict panel if fields are missing
+                const livePanel = document.getElementById('live-conflict-detection');
+                if (livePanel) {
+                    livePanel.classList.add('hidden');
+                }
+                // Disable submit button when fields are incomplete
+                const submitBtn = document.getElementById('submitBtn');
+                const submitBtnText = document.getElementById('submitBtnText');
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                    submitBtn.classList.remove('hover:bg-green-700', 'hover:shadow-md');
+                }
+                if (submitBtnText) {
+                    submitBtnText.textContent = 'Fill all fields to continue';
+                }
+                return;
+            }
+
+            console.log('All required fields present - making API call...');
+
+            // Disable submit button during check
+            const submitBtn = document.getElementById('submitBtn');
+            const submitBtnText = document.getElementById('submitBtnText');
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                submitBtn.classList.remove('hover:bg-green-700', 'hover:shadow-md');
+            }
+            if (submitBtnText) {
+                submitBtnText.textContent = 'Checking conflicts...';
+            }
+
+            // Disable submit button during check
+            const submitBtn = document.getElementById('submitBtn');
+            const submitBtnText = document.getElementById('submitBtnText');
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                submitBtn.classList.remove('hover:bg-green-700', 'hover:shadow-md');
+            }
+            if (submitBtnText) {
+                submitBtnText.textContent = 'Checking conflicts...';
+            }
+
+            // Show loading state
+            const livePanel = document.getElementById('live-conflict-detection');
+            const loadingDiv = document.getElementById('conflict-loading');
+            const iconDiv = document.getElementById('conflict-icon');
+            const titleDiv = document.getElementById('conflict-title');
+            const detailsDiv = document.getElementById('conflict-details');
+            
+            if (livePanel) {
+                livePanel.classList.remove('hidden');
+                loadingDiv.classList.remove('hidden');
+                iconDiv.innerHTML = '';
+                titleDiv.textContent = '';
+                detailsDiv.innerHTML = '';
+            }
+            
+            // Prepare data for API call
+            const data = {
+                subject_id: subjectId,
+                room_id: roomId,
+                academic_year_id: academicYearId,
+                semester: semester,
+                section: section,
+                day_pattern: dayPattern,
+                start_time: startTime,
+                end_time: endTime,
+                enrolled_students: enrolledStudents
+            };
+            
+            // Make API call
+            fetch('{{ path('department_head_schedules_check_conflicts') }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => {
+                console.log('=== CONFLICT CHECK RESPONSE ===');
+                console.log('Response status:', response.status);
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('=== CONFLICT DATA ===');
+                console.log('Full response:', data);
+                console.log('Has conflicts:', data.has_conflicts);
+                console.log('Conflicts array:', data.conflicts);
+                console.log('Warnings array:', data.warnings);
+                console.log('Debug info:', data.debug);
+                if (loadingDiv) {
+                    loadingDiv.classList.add('hidden');
+                }
+                displayConflictResults(data);
+            })
+            .catch(error => {
+                console.error('Error checking conflicts:', error);
+                if (loadingDiv) {
+                    loadingDiv.classList.add('hidden');
+                }
+                if (livePanel) {
+                    livePanel.classList.add('hidden');
+                }
+            });
+                    livePanel.classList.add('hidden');
+                }
+            });
+        }, 500); // 500ms debounce
+    }
+
+    // Display conflict results
+    function displayConflictResults(data) {
+        console.log('displayConflictResults called with:', data);
+        
+        const livePanel = document.getElementById('live-conflict-detection');
+        const iconDiv = document.getElementById('conflict-icon');
+        const titleDiv = document.getElementById('conflict-title');
+        const detailsDiv = document.getElementById('conflict-details');
+        
+        console.log('Panel elements:', { livePanel, iconDiv, titleDiv, detailsDiv });
+        
+        if (!livePanel || !iconDiv || !titleDiv || !detailsDiv) {
+            console.error('Missing panel elements!');
+            return;
+        }
+        
+        livePanel.classList.remove('hidden');
+        
+        // Check if we have hard conflicts
+        const hasHardConflicts = data.has_hard_conflicts || false;
+        const hardConflicts = data.hard_conflicts || [];
+        const softConflicts = data.soft_conflicts || [];
+        const allConflicts = data.conflicts || [];
+        
+        console.log('Conflict analysis:', { hasHardConflicts, hardConflicts, softConflicts, allConflicts });
+        
+        if (hasHardConflicts || hardConflicts.length > 0) {
+            // Red panel - Hard conflicts (blocks creation)
+            livePanel.className = 'bg-gradient-to-br from-red-50 to-red-100 rounded-lg shadow-sm border-2 border-red-300 p-6';
+            
+            // Keep submit button disabled for conflicts
+            const submitBtn = document.getElementById('submitBtn');
+            const submitBtnText = document.getElementById('submitBtnText');
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                submitBtn.classList.remove('hover:bg-green-700', 'hover:shadow-md');
+            }
+            if (submitBtnText) {
+                submitBtnText.textContent = '⚠️ Cannot Create (Conflicts Detected)';
+            }
+            
+            iconDiv.innerHTML = `
+                <svg class="w-8 h-8 text-red-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+            `;
+            
+            titleDiv.className = 'text-lg font-semibold text-red-900 mb-2';
+            titleDiv.textContent = '⚠️ Conflicts Detected';
+            
+            let conflictHtml = '<p class="text-sm text-red-800 font-medium mb-3">The following conflicts were detected:</p><div class="space-y-2">';
+            
+            const displayConflicts = hardConflicts.length > 0 ? hardConflicts : allConflicts;
+            displayConflicts.forEach(conflict => {
+                const message = conflict.message || conflict;
+                conflictHtml += `
+                    <div class="flex items-start gap-2 p-3 bg-white bg-opacity-60 rounded-lg border border-red-200">
+                        <span class="text-red-600 font-bold text-lg">🚫</span>
+                        <p class="text-sm text-red-900 flex-1">${message}</p>
+                    </div>
+                `;
+            });
+            
+            conflictHtml += '<p class="text-sm text-red-800 font-medium mt-3">⛔ Cannot create schedule with these conflicts. Please change the room, time, or section to resolve conflicts.</p>';
+            conflictHtml += '</div>';
+            detailsDiv.innerHTML = conflictHtml;
+            
+            // Disable submit button
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.classList.remove('bg-green-600', 'hover:bg-green-700');
+                submitBtn.classList.add('bg-gray-400', 'cursor-not-allowed');
+            }
+            
+        } else if (softConflicts.length > 0) {
+            // Yellow panel - Soft conflicts (warnings only)
+            livePanel.className = 'bg-gradient-to-br from-yellow-50 to-amber-100 rounded-lg shadow-sm border-2 border-yellow-300 p-6';
+            
+            iconDiv.innerHTML = `
+                <svg class="w-8 h-8 text-yellow-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                </svg>
+            `;
+            
+            titleDiv.className = 'text-lg font-semibold text-yellow-900 mb-2';
+            titleDiv.textContent = '⚠️ Warnings';
+            
+            let warningHtml = '<p class="text-sm text-yellow-800 font-medium mb-3">Please review the following warnings:</p><div class="space-y-2">';
+            
+            softConflicts.forEach(warning => {
+                const message = warning.message || warning;
+                warningHtml += `
+                    <div class="flex items-start gap-2 p-3 bg-white bg-opacity-60 rounded-lg border border-yellow-200">
+                        <span class="text-yellow-600 font-bold text-lg">⚠️</span>
+                        <p class="text-sm text-yellow-900 flex-1">${message}</p>
+                    </div>
+                `;
+            });
+            
+            warningHtml += '<p class="text-xs text-yellow-700 mt-3 italic">You can still create this schedule, but please verify the warnings above.</p>';
+            warningHtml += '</div>';
+            detailsDiv.innerHTML = warningHtml;
+            
+            // Enable submit button for warnings (warnings don't block)
+            const submitBtn = document.getElementById('submitBtn');
+            const submitBtnText = document.getElementById('submitBtnText');
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                submitBtn.classList.add('hover:bg-green-700', 'hover:shadow-md');
+            }
+            if (submitBtnText) {
+                submitBtnText.textContent = 'Create Schedule (With Warnings)';
+            }
+            
+        } else {
+            // Green panel - No conflicts (show detailed verification)
+            livePanel.className = 'bg-gradient-to-br from-green-50 to-emerald-100 rounded-lg shadow-sm border-2 border-green-300 p-6';
+            
+            // Enable submit button only when no conflicts
+            const submitBtn = document.getElementById('submitBtn');
+            const submitBtnText = document.getElementById('submitBtnText');
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                submitBtn.classList.add('hover:bg-green-700', 'hover:shadow-md');
+            }
+            if (submitBtnText) {
+                submitBtnText.textContent = '✅ Create Schedule';
+            }
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                submitBtn.classList.add('hover:bg-green-700', 'hover:shadow-md');
+            }
+            if (submitBtnText) {
+                submitBtnText.textContent = '✅ Create Schedule';
+            }
+            
+            iconDiv.innerHTML = `
+                <svg class="w-8 h-8 text-green-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+            `;
+            
+            titleDiv.className = 'text-lg font-semibold text-green-900 mb-2';
+            titleDiv.textContent = '✅ No Conflicts Detected';
+            
+            let successHtml = '<p class="text-sm text-green-700 mb-4">This schedule has been verified and is ready to be created.</p>';
+            
+            // Add detailed verification checks
+            successHtml += '<div class="space-y-2 mb-4">';
+            successHtml += '<p class="text-xs font-semibold text-green-800">✓ Verified checks:</p>';
+            
+            // Get form data for display
+            const roomSelect = document.getElementById('room');
+            const dayPatternSelect = document.getElementById('day_pattern');
+            const subjectSelect = document.getElementById('subject');
+            const sectionInput = document.getElementById('section');
+            const startTimeInput = document.getElementById('start_time');
+            const endTimeInput = document.getElementById('end_time');
+            
+            const roomText = roomSelect?.options[roomSelect.selectedIndex]?.text || 'N/A';
+            const subjectText = subjectSelect?.options[subjectSelect.selectedIndex]?.text || 'N/A';
+            const dayText = dayPatternSelect?.options[dayPatternSelect.selectedIndex]?.text || 'N/A';
+            const sectionText = sectionInput?.value || 'N/A';
+            
+            // Format times
+            let timeText = 'N/A';
+            if (startTimeInput?.value && endTimeInput?.value) {
+                const start = new Date('2000-01-01 ' + startTimeInput.value);
+                const end = new Date('2000-01-01 ' + endTimeInput.value);
+                const startFormatted = start.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+                const endFormatted = end.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+                timeText = `${dayText} ${startFormatted} - ${endFormatted}`;
+            }
+            
+            // Room check
+            successHtml += `
+                <div class="flex items-start gap-2 p-3 bg-white bg-opacity-70 rounded-lg border border-green-200">
+                    <span class="text-green-600 text-lg">🏢</span>
+                    <div class="flex-1">
+                        <span class="font-semibold text-xs text-green-900">Room:</span>
+                        <span class="text-xs text-green-800 ml-1">${roomText}</span>
+                    </div>
+                </div>
+            `;
+            
+            // Schedule check
+            successHtml += `
+                <div class="flex items-start gap-2 p-3 bg-white bg-opacity-70 rounded-lg border border-green-200">
+                    <span class="text-green-600 text-lg">📅</span>
+                    <div class="flex-1">
+                        <span class="font-semibold text-xs text-green-900">Schedule:</span>
+                        <span class="text-xs text-green-800 ml-1">${timeText}</span>
+                    </div>
+                </div>
+            `;
+            
+            // Subject & Section check
+            const subjectShort = subjectText.length > 45 ? subjectText.substring(0, 45) + '...' : subjectText;
+            successHtml += `
+                <div class="flex items-start gap-2 p-3 bg-white bg-opacity-70 rounded-lg border border-green-200">
+                    <span class="text-green-600 text-lg">📚</span>
+                    <div class="flex-1">
+                        <span class="font-semibold text-xs text-green-900">Subject & Section:</span>
+                        <span class="text-xs text-green-800 ml-1">${subjectShort} - Section ${sectionText}</span>
+                    </div>
+                </div>
+            `;
+            
+            // No room-time conflicts
+            successHtml += `
+                <div class="flex items-start gap-2 p-3 bg-white bg-opacity-70 rounded-lg border border-green-200">
+                    <span class="text-green-600 text-lg">✓</span>
+                    <div class="flex-1">
+                        <span class="text-xs text-green-800">No room-time conflicts found</span>
+                    </div>
+                </div>
+            `;
+            
+            // No duplicate subject-section
+            successHtml += `
+                <div class="flex items-start gap-2 p-3 bg-white bg-opacity-70 rounded-lg border border-green-200">
+                    <span class="text-green-600 text-lg">✓</span>
+                    <div class="flex-1">
+                        <span class="text-xs text-green-800">No duplicate subject-section</span>
+                    </div>
+                </div>
+            `;
+            
+            // No section time conflicts
+            successHtml += `
+                <div class="flex items-start gap-2 p-3 bg-white bg-opacity-70 rounded-lg border border-green-200">
+                    <span class="text-green-600 text-lg">✓</span>
+                    <div class="flex-1">
+                        <span class="text-xs text-green-800">No section time conflicts</span>
+                    </div>
+                </div>
+            `;
+            
+            successHtml += '</div>';
+            
+            // Ready to create message
+            successHtml += `
+                <div class="p-3 bg-green-100 bg-opacity-70 rounded-lg border border-green-300">
+                    <p class="text-sm text-green-900 font-semibold">✓ Ready to create</p>
+                    <p class="text-xs text-green-800 mt-1">All conflict checks passed successfully.</p>
+                </div>
+            `;
+            
+            detailsDiv.innerHTML = successHtml;
+            
+            // Enable submit button
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('bg-gray-400', 'cursor-not-allowed');
+                submitBtn.classList.add('bg-green-600', 'hover:bg-green-700');
+            }
+        }
+    }
+
+    // Add event listeners for live conflict detection
+    if (subjectSelect) subjectSelect.addEventListener('change', checkForConflicts);
+    if (roomSelect) roomSelect.addEventListener('change', checkForConflicts);
+    if (sectionInput) sectionInput.addEventListener('input', checkForConflicts);
+    if (semesterSelect) semesterSelect.addEventListener('change', checkForConflicts);
+    if (academicYearSelect) academicYearSelect.addEventListener('change', checkForConflicts);
+    if (dayPatternSelect) dayPatternSelect.addEventListener('change', checkForConflicts);
+    if (startTimeInput) startTimeInput.addEventListener('change', checkForConflicts);
+    if (endTimeInput) endTimeInput.addEventListener('change', checkForConflicts);
+    if (enrolledStudentsInput) enrolledStudentsInput.addEventListener('input', checkForConflicts);
+});
+
+// Make these functions globally accessible for inline event handlers
+window.onSubjectChange = function(select) {
+    console.log('=== onSubjectChange called ===');
+    console.log('Selected subject ID:', select.value);
+    console.log('Select element:', select);
+    
+    if (select.value) {
+        window.fetchExistingSections(select.value);
+    } else {
+        console.log('No subject selected, hiding sections');
+        window.hideExistingSections();
+        // Clear section validation when no subject selected
+        if (typeof window.checkSectionExists === 'function') {
+            window.checkSectionExists();
+        }
+    }
+};
+
+window.fetchExistingSections = function(subjectId) {
+    console.log('=== fetchExistingSections called ===');
+    console.log('Subject ID:', subjectId);
+    
+    const url = `{{ path('department_head_schedules_existing_sections', {'subjectId': 0}) }}`.replace('/0', '/' + subjectId);
+    console.log('Fetching from URL:', url);
+    
+    fetch(url)
+        .then(response => {
+            console.log('Response received, status:', response.status);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('=== Fetched existing sections data ===');
+            console.log('Full response:', data);
+            console.log('Sections:', data.sections);
+            console.log('Schedules map:', data.schedules);
+            
+            // Store in global map
+            window.existingSchedulesMap = data.schedules || {};
+            console.log('Stored in window.existingSchedulesMap:', window.existingSchedulesMap);
+            
+            // Display sections
+            window.displayExistingSections(data.sections || []);
+            
+            // Re-validate section field after new data is loaded
+            if (typeof window.checkSectionExists === 'function') {
+                window.checkSectionExists();
+            }
+        })
+        .catch(error => {
+            console.error('=== Error fetching existing sections ===');
+            console.error('Error details:', error);
+            window.hideExistingSections();
+        });
+};
+
+window.displayExistingSections = function(sections) {
+    console.log('=== displayExistingSections called ===');
+    console.log('Sections to display:', sections);
+    updateExistingSectionsDisplay();
+};
+
+// Update the display based on current semester/year selection
+window.updateExistingSectionsDisplay = function() {
+    const semester = document.getElementById('semester').value;
+    const academicYear = document.getElementById('academic_year').value;
+    const infoBox = document.getElementById('existing-sections-info');
+    const listContainer = document.getElementById('existing-sections-list');
+    
+    if (!infoBox || !listContainer) {
+        console.error('ERROR: Could not find existing-sections elements!');
+        return;
+    }
+    
+    // If semester and year are not selected, show all sections
+    if (!semester || !academicYear) {
+        // Show all unique sections
+        const allSections = new Set();
+        Object.values(window.existingSchedulesMap || {}).forEach(schedule => {
+            allSections.add(schedule.section);
+        });
+        
+        if (allSections.size > 0) {
+            const sectionsArray = Array.from(allSections).sort();
+            listContainer.innerHTML = sectionsArray.map(section => 
+                `<span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-blue-100 text-blue-700 border border-blue-300">
+                    Section ${section}
+                </span>`
+            ).join('');
+            infoBox.classList.remove('hidden');
+        } else {
+            window.hideExistingSections();
+        }
+        return;
+    }
+    
+    // Filter sections for current semester and year
+    const currentSections = [];
+    Object.entries(window.existingSchedulesMap || {}).forEach(([key, schedule]) => {
+        if (schedule.semester === semester && schedule.yearId == academicYear) {
+            currentSections.push(schedule.section);
+        }
+    });
+    
+    if (currentSections.length > 0) {
+        currentSections.sort();
+        listContainer.innerHTML = currentSections.map(section => 
+            `<span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-blue-100 text-blue-700 border border-blue-300">
+                Section ${section}
+            </span>`
+        ).join('');
+        infoBox.classList.remove('hidden');
+    } else {
+        window.hideExistingSections();
+    }
+};
+
+window.hideExistingSections = function() {
+    console.log('=== hideExistingSections called ===');
+    const infoBox = document.getElementById('existing-sections-info');
+    if (infoBox) {
+        infoBox.classList.add('hidden');
+        console.log('Info box hidden');
+    } else {
+        console.error('ERROR: Could not find existing-sections-info element');
+    }
+    if (window.existingSchedulesMap) {
+        window.existingSchedulesMap = {};
+        console.log('Cleared existingSchedulesMap');
+    }
+};
+
+// Reinitialize after DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+    window.existingSchedulesMap = {};
+    
+    // Make checkSectionExists also globally accessible
+    window.checkSectionExists = function() {
+        const sectionInput = document.getElementById('section');
+        const semesterSelect = document.getElementById('semester');
+        const academicYearSelect = document.getElementById('academic_year');
+        const subjectSelect = document.getElementById('subject');
+        const hintElement = document.getElementById('section-hint');
+        const statusIcon = document.getElementById('section-status-icon');
+        
+        if (!sectionInput || !semesterSelect || !academicYearSelect || !hintElement || !subjectSelect) {
+            return;
+        }
+        
+        const section = sectionInput.value.trim().toUpperCase();
+        const semester = semesterSelect.value;
+        const academicYear = academicYearSelect.value;
+        const subjectId = subjectSelect.value;
+        
+        console.log('=== checkSectionExists ===');
+        console.log('Section:', section, 'Semester:', semester, 'Year:', academicYear, 'Subject:', subjectId);
+        console.log('existingSchedulesMap:', window.existingSchedulesMap);
+        
+        if (!section || !semester || !academicYear || !subjectId) {
+            hintElement.textContent = 'Class section identifier';
+            hintElement.className = 'mt-1 text-xs text-gray-500';
+            sectionInput.className = 'block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 transition';
+            if (statusIcon) statusIcon.classList.add('hidden');
+            return;
+        }
+        
+        // Check if this exact combination exists using the global map (subject + section + semester + year)
+        const key = `${subjectId}_${section}_${semester}_${academicYear}`;
+        console.log('Looking for key:', key);
+        console.log('Available keys:', Object.keys(window.existingSchedulesMap || {}));
+        const exists = window.existingSchedulesMap ? window.existingSchedulesMap[key] : null;
+        
+        if (exists) {
+            console.log('DUPLICATE FOUND:', exists);
+            
+            // Change input border and background to RED
+            sectionInput.className = 'block w-full rounded-lg border-2 border-red-500 shadow-sm focus:border-red-600 focus:ring-red-500 transition bg-red-50';
+            
+            // Show error icon
+            if (statusIcon) {
+                statusIcon.innerHTML = `
+                    <svg class="w-5 h-5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                    </svg>
+                `;
+                statusIcon.classList.remove('hidden');
+            }
+            
+            hintElement.innerHTML = `<span class="flex items-center gap-1.5">
+                ⚠️ Section ${section} already exists for ${semester} ${exists.year}
+            </span>`;
+            hintElement.className = 'mt-1 text-sm text-red-600 font-medium';
+        } else {
+            console.log('Section available');
+            
+            // Change input border and background to GREEN
+            sectionInput.className = 'block w-full rounded-lg border-2 border-green-500 shadow-sm focus:border-green-600 focus:ring-green-500 transition bg-green-50';
+            
+            // Show success icon
+            if (statusIcon) {
+                statusIcon.innerHTML = `
+                    <svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                    </svg>
+                `;
+                statusIcon.classList.remove('hidden');
+            }
+            
+            hintElement.innerHTML = `<span class="flex items-center gap-1.5">
+                ✅ Section ${section} is available
+            </span>`;
+            hintElement.className = 'mt-1 text-sm text-green-600 font-medium';
+        }
+    };
+});

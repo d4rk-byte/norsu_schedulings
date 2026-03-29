@@ -1,0 +1,619 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Curricula Management{% endblock %}
+
+{% block main_content %}
+    <!-- Page Header -->
+    <div class="mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900 sm:text-4xl">Curricula Management</h1>
+            <p class="mt-2 text-sm text-gray-600">Browse curricula by department</p>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <!-- Total Curricula -->
+        <div class="stats-card bg-white rounded-2xl shadow-sm border border-gray-100 p-6 relative overflow-hidden hover:shadow-md transition-all duration-300">
+            <div class="gradient-primary absolute inset-0 opacity-5"></div>
+            <div class="relative">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Total Curricula</p>
+                        <p class="text-3xl font-bold text-gray-900 mt-1">{{ statistics.total ?? 0 }}</p>
+                        <p class="text-sm text-gray-500 mt-2">Across all departments</p>
+                    </div>
+                    <div class="gradient-primary p-4 rounded-xl">
+                        <svg class="h-8 w-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Published Curricula -->
+        <div class="stats-card bg-white rounded-2xl shadow-sm border border-gray-100 p-6 relative overflow-hidden hover:shadow-md transition-all duration-300">
+            <div class="gradient-success absolute inset-0 opacity-5"></div>
+            <div class="relative">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Published</p>
+                        <p class="text-3xl font-bold text-gray-900 mt-1">{{ statistics.published ?? 0 }}</p>
+                        <p class="text-sm text-green-600 mt-2 flex items-center">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            Active curricula
+                        </p>
+                    </div>
+                    <div class="gradient-success p-4 rounded-xl">
+                        <svg class="h-8 w-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Draft Curricula -->
+        <div class="stats-card bg-white rounded-2xl shadow-sm border border-gray-100 p-6 relative overflow-hidden hover:shadow-md transition-all duration-300">
+            <div class="gradient-warning absolute inset-0 opacity-5"></div>
+            <div class="relative">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Draft</p>
+                        <p class="text-3xl font-bold text-gray-900 mt-1">{{ statistics.draft ?? 0 }}</p>
+                        <p class="text-sm text-amber-600 mt-2 flex items-center">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            Unpublished curricula
+                        </p>
+                    </div>
+                    <div class="gradient-warning p-4 rounded-xl">
+                        <svg class="h-8 w-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total Departments -->
+        <div class="stats-card bg-white rounded-2xl shadow-sm border border-gray-100 p-6 relative overflow-hidden hover:shadow-md transition-all duration-300">
+            <div class="gradient-info absolute inset-0 opacity-5"></div>
+            <div class="relative">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Total Departments</p>
+                        <p class="text-3xl font-bold text-gray-900 mt-1">{{ departments|length }}</p>
+                        {% set active = departments|filter(d => department_stats[d.id].total > 0)|length %}
+                        <p class="text-sm text-gray-500 mt-2">{{ active }} active</p>
+                    </div>
+                    <div class="gradient-info p-4 rounded-xl">
+                        <svg class="h-8 w-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Department Cards -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200">
+        <div class="px-6 py-5 border-b border-gray-200">
+            <h2 class="text-lg font-semibold text-gray-900">Departments</h2>
+            <p class="mt-1 text-sm text-gray-500">Select a department to view and manage its curricula</p>
+        </div>
+
+        <div class="p-6">
+            {% if departments is empty %}
+                <div class="text-center py-12">
+                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                    </svg>
+                    <p class="mt-3 text-sm text-gray-500">No departments found</p>
+                </div>
+            {% else %}
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {% for department in departments %}
+                        {% set stats = department_stats[department.id] ?? {total: 0, published: 0, draft: 0} %}
+                        <div class="bg-white border-2 border-gray-200 rounded-xl hover:border-orange-400 hover:shadow-lg transition-all duration-200 overflow-hidden group flex flex-col">
+                            <div class="p-6 flex flex-col flex-1">
+                                <!-- Department Header -->
+                                <div class="flex items-start justify-between mb-4">
+                                    <div class="flex-1 min-h-[80px]">
+                                        <h3 class="text-lg font-semibold text-gray-900 group-hover:text-orange-600 transition-colors">
+                                            {{ department.name }}
+                                        </h3>
+                                        <p class="text-sm text-gray-500 mt-1">{{ department.code }}</p>
+                                        {% if department.college %}
+                                            <p class="text-xs text-gray-400 mt-1">{{ department.college.name }}</p>
+                                        {% endif %}
+                                    </div>
+                                    <div class="p-3 bg-orange-100 rounded-lg group-hover:bg-orange-200 transition-colors">
+                                        <svg class="h-6 w-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                                        </svg>
+                                    </div>
+                                </div>
+
+                                <!-- Statistics - Grid with equal columns for perfect alignment -->
+                                <div class="grid grid-cols-3 gap-0 mb-5">
+                                    <div class="text-center px-2">
+                                        <p class="text-2xl font-bold text-gray-900 leading-tight">{{ stats.total }}</p>
+                                        <p class="text-xs text-gray-500 mt-1.5">Total</p>
+                                    </div>
+                                    <div class="text-center px-2">
+                                        <p class="text-2xl font-bold text-green-600 leading-tight">{{ stats.published }}</p>
+                                        <p class="text-xs text-gray-500 mt-1.5">Published</p>
+                                    </div>
+                                    <div class="text-center px-2">
+                                        <p class="text-2xl font-bold text-orange-600 leading-tight">{{ stats.draft }}</p>
+                                        <p class="text-xs text-gray-500 mt-1.5">Draft</p>
+                                    </div>
+                                </div>
+
+                                <!-- Actions - Anchored at bottom -->
+                                <div class="flex gap-2 mt-auto">
+                                    {% if department.id %}
+                                        <a href="{{ path('admin_curricula_by_department', {departmentId: department.id}) }}" 
+                                           class="flex-1 inline-flex items-center justify-center px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white text-sm font-medium rounded-lg transition-colors">
+                                            <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                            </svg>
+                                            View Curricula
+                                        </a>
+                                    {% else %}
+                                        <span class="flex-1 inline-flex items-center justify-center px-4 py-2 bg-gray-400 text-white text-sm font-medium rounded-lg cursor-not-allowed opacity-60">
+                                            <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                                            </svg>
+                                            Invalid Department
+                                        </span>
+                                    {% endif %}
+                                    
+                                    {% if department.id %}
+                                        <a href="{{ path('admin_curricula_create', {department_id: department.id}) }}" 
+                                           class="inline-flex items-center justify-center px-4 py-2 bg-white hover:bg-gray-50 border-2 border-orange-600 text-orange-600 text-sm font-medium rounded-lg transition-colors">
+                                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                                            </svg>
+                                        </a>
+                                    {% else %}
+                                        <span class="inline-flex items-center justify-center px-4 py-2 bg-gray-200 text-gray-400 text-sm font-medium rounded-lg cursor-not-allowed">
+                                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                            </svg>
+                                        </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Bulk Upload Curriculum Modal -->
+    <div id="bulkUploadModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+        <div class="relative top-20 mx-auto p-5 border w-full max-w-2xl shadow-lg rounded-lg bg-white">
+            <div class="mt-3">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-2xl font-bold text-blue-900">Upload Curriculum</h3>
+                    <button onclick="closeBulkUploadModal()" class="text-gray-400 hover:text-gray-600 transition">
+                        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+
+                <form id="bulkUploadForm" enctype="multipart/form-data">
+                    <!-- Department Selection -->
+                    <div class="mb-5">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                            Department <span class="text-red-500">*</span>
+                        </label>
+                        <select id="bulk_department_id" name="department_id" required
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            <option value="">Select a department...</option>
+                            {% for department in departments %}
+                                {% if department.id and department.id > 0 %}
+                                    <option value="{{ department.id }}">{{ department.name }} ({{ department.code }})</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                        <p class="mt-1 text-sm text-gray-500">Select the department this curriculum belongs to</p>
+                    </div>
+
+                    <!-- Curriculum Name -->
+                    <div class="mb-5">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                            Curriculum Name <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" id="bulk_curriculum_name" name="curriculum_name" required
+                               placeholder="e.g., Bachelor of Science in Computer Science"
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <p class="mt-1 text-sm text-gray-500">Enter the full curriculum name</p>
+                    </div>
+
+                    <!-- Version -->
+                    <div class="mb-5">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                            Version <span class="text-red-500">*</span>
+                        </label>
+                        <input type="number" id="bulk_version" name="version" required min="1" value="1"
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <p class="mt-1 text-sm text-gray-500">Curriculum version number (default: 1)</p>
+                    </div>
+
+                    <!-- File Upload -->
+                    <div class="mb-5">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                            Curriculum File (CSV) <span class="text-red-500">*</span>
+                        </label>
+                        <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg hover:border-blue-400 transition-colors"
+                             ondrop="handleBulkDrop(event)" ondragover="handleBulkDragOver(event)" ondragleave="handleBulkDragLeave(event)">
+                            <div class="space-y-1 text-center">
+                                <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                                    <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>
+                                <div class="flex text-sm text-gray-600">
+                                    <label for="bulk_file_upload" class="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
+                                        <span>Upload a file</span>
+                                        <input id="bulk_file_upload" name="curriculum_file" type="file" accept=".csv" required class="sr-only" onchange="handleBulkFileSelect(event)">
+                                    </label>
+                                    <p class="pl-1">or drag and drop</p>
+                                </div>
+                                <p class="text-xs text-gray-500">CSV file up to 10MB</p>
+                                <p id="bulk_selected_file" class="text-sm text-blue-600 font-medium mt-2"></p>
+                            </div>
+                        </div>
+                        <div class="mt-2 flex items-center justify-between">
+                            <a href="{{ path('admin_curriculum_download_template') }}" class="text-sm text-blue-600 hover:text-blue-800 font-medium">
+                                <svg class="inline-block w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                                </svg>
+                                Download CSV Template
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Progress Bar -->
+                    <div id="bulk_upload_progress" class="hidden mb-5">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-sm font-medium text-gray-700">Uploading...</span>
+                            <span id="bulk_upload_percentage" class="text-sm font-medium text-blue-600">0%</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2.5">
+                            <div id="bulk_upload_progress_bar" class="bg-blue-600 h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="flex justify-end space-x-3 pt-4 border-t border-gray-200">
+                        <button type="button" onclick="closeBulkUploadModal()"
+                                class="px-6 py-3 bg-gray-200 text-gray-800 rounded-lg font-medium hover:bg-gray-300 transition">
+                            Cancel
+                        </button>
+                        <button type="submit" id="bulk_upload_submit_btn"
+                                class="px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed">
+                            <svg class="inline-block w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                            </svg>
+                            Upload Curriculum
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div id="successModal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+        <div class="flex items-center justify-center min-h-full p-4">
+            <div class="relative bg-white rounded-2xl shadow-2xl max-w-md w-full transform transition-all">
+                <div class="p-8 text-center">
+                <!-- Animated Success Icon -->
+                <div class="mx-auto flex items-center justify-center h-20 w-20 rounded-full bg-green-100 mb-6">
+                    <svg class="h-12 w-12 text-green-600 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                    </svg>
+                </div>
+
+                <!-- Success Message -->
+                <h3 class="text-2xl font-bold text-gray-900 mb-3">
+                    Upload Successful!
+                </h3>
+                <p class="text-gray-600 mb-6" id="successMessage">
+                    Your curriculum has been uploaded successfully.
+                </p>
+
+                <!-- Upload Statistics -->
+                <div class="bg-gradient-to-br from-green-50 to-blue-50 rounded-xl p-6 mb-6">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="text-center">
+                            <p class="text-3xl font-bold text-green-600" id="subjectsCount">0</p>
+                            <p class="text-sm text-gray-600 mt-1">Subjects Added</p>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-3xl font-bold text-blue-600" id="termsCount">0</p>
+                            <p class="text-sm text-gray-600 mt-1">Terms Created</p>
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-4 border-t border-gray-200">
+                        <p class="text-sm text-gray-700">
+                            <span class="font-semibold" id="curriculumName">Curriculum</span>
+                        </p>
+                        <p class="text-xs text-gray-500 mt-1" id="departmentName">Department</p>
+                    </div>
+                </div>
+
+                <!-- Error Messages (if any) -->
+                <div id="errorSection" class="hidden mb-6">
+                    <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-lg">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <svg class="h-5 w-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                                </svg>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm text-yellow-700 font-medium">
+                                    Some rows had errors
+                                </p>
+                                <div id="errorList" class="mt-2 text-sm text-yellow-600 max-h-32 overflow-y-auto">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <button type="button" onclick="closeSuccessModal()" 
+                            class="flex-1 px-6 py-3 bg-gray-200 text-gray-800 rounded-lg font-medium hover:bg-gray-300 transition duration-150">
+                        Stay Here
+                    </button>
+                    <button type="button" id="viewCurriculumBtn"
+                            class="flex-1 px-6 py-3 bg-gradient-to-r from-green-600 to-blue-600 text-white rounded-lg font-medium hover:from-green-700 hover:to-blue-700 transition duration-150 shadow-lg">
+                        View Curriculum
+                    </button>
+                </div>
+
+                <!-- Auto-redirect countdown (optional) -->
+                <p class="mt-4 text-xs text-gray-500" id="redirectCountdown"></p>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        // Bulk Upload Modal Functions
+        function openBulkUploadModal() {
+            console.log('openBulkUploadModal called');
+            const modal = document.getElementById('bulkUploadModal');
+            console.log('Modal element:', modal);
+            if (modal) {
+                modal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+                console.log('Modal should now be visible');
+            } else {
+                console.error('Modal element not found!');
+            }
+        }
+
+        function closeBulkUploadModal() {
+            document.getElementById('bulkUploadModal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+            document.getElementById('bulkUploadForm').reset();
+            document.getElementById('bulk_selected_file').textContent = '';
+            document.getElementById('bulk_upload_progress').classList.add('hidden');
+        }
+
+        // Success Modal Functions
+        function showSuccessModal(data, departmentId) {
+            const modal = document.getElementById('successModal');
+            
+            // Update statistics
+            document.getElementById('subjectsCount').textContent = data.subjects_added || 0;
+            document.getElementById('termsCount').textContent = data.terms_created || 0;
+            
+            // Update curriculum info
+            const curriculumNameEl = document.getElementById('curriculumName');
+            const departmentNameEl = document.getElementById('departmentName');
+            
+            if (data.curriculum_name) {
+                curriculumNameEl.textContent = data.curriculum_name;
+            }
+            if (data.department_name) {
+                departmentNameEl.textContent = data.department_name;
+            }
+
+            // Show errors if any
+            if (data.errors && data.errors.length > 0) {
+                const errorSection = document.getElementById('errorSection');
+                const errorList = document.getElementById('errorList');
+                errorSection.classList.remove('hidden');
+                errorList.innerHTML = data.errors.map(err => `<p class="text-xs">• ${err}</p>`).join('');
+            } else {
+                document.getElementById('errorSection').classList.add('hidden');
+            }
+
+            // Set up view curriculum button
+            const viewBtn = document.getElementById('viewCurriculumBtn');
+            if (departmentId) {
+                viewBtn.onclick = function() {
+                    window.location.href = '/admin/curricula/department/' + departmentId;
+                };
+            }
+
+            // Show modal
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+
+            // Optional: Auto-redirect countdown
+            let countdown = 10;
+            const countdownEl = document.getElementById('redirectCountdown');
+            const countdownInterval = setInterval(() => {
+                countdown--;
+                if (countdown > 0) {
+                    countdownEl.textContent = `Redirecting in ${countdown} seconds...`;
+                } else {
+                    clearInterval(countdownInterval);
+                    if (departmentId) {
+                        window.location.href = '/admin/curricula/department/' + departmentId;
+                    }
+                }
+            }, 1000);
+
+            // Store interval ID to clear it if user closes modal
+            modal.dataset.countdownInterval = countdownInterval;
+        }
+
+        function closeSuccessModal() {
+            const modal = document.getElementById('successModal');
+            
+            // Clear countdown interval if exists
+            if (modal.dataset.countdownInterval) {
+                clearInterval(modal.dataset.countdownInterval);
+                delete modal.dataset.countdownInterval;
+            }
+
+            modal.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+            document.getElementById('redirectCountdown').textContent = '';
+            
+            // Reload current page to show updated statistics
+            window.location.reload();
+        }
+
+        function handleBulkFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const fileSize = (file.size / 1024 / 1024).toFixed(2);
+                document.getElementById('bulk_selected_file').textContent = `Selected: ${file.name} (${fileSize} MB)`;
+            }
+        }
+
+        function handleBulkDragOver(event) {
+            event.preventDefault();
+            event.currentTarget.classList.add('border-blue-500', 'bg-blue-50');
+        }
+
+        function handleBulkDragLeave(event) {
+            event.currentTarget.classList.remove('border-blue-500', 'bg-blue-50');
+        }
+
+        function handleBulkDrop(event) {
+            event.preventDefault();
+            event.currentTarget.classList.remove('border-blue-500', 'bg-blue-50');
+            
+            const file = event.dataTransfer.files[0];
+            if (file && file.name.endsWith('.csv')) {
+                document.getElementById('bulk_file_upload').files = event.dataTransfer.files;
+                const fileSize = (file.size / 1024 / 1024).toFixed(2);
+                document.getElementById('bulk_selected_file').textContent = `Selected: ${file.name} (${fileSize} MB)`;
+            } else {
+                alert('Please upload a CSV file.');
+            }
+        }
+
+        // Handle Form Submission
+        document.getElementById('bulkUploadForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const formData = new FormData(this);
+            const submitBtn = document.getElementById('bulk_upload_submit_btn');
+            const progressDiv = document.getElementById('bulk_upload_progress');
+            const progressBar = document.getElementById('bulk_upload_progress_bar');
+            const progressText = document.getElementById('bulk_upload_percentage');
+
+            // Validate
+            const departmentId = document.getElementById('bulk_department_id').value;
+            const curriculumName = document.getElementById('bulk_curriculum_name').value;
+            const version = document.getElementById('bulk_version').value;
+            const file = document.getElementById('bulk_file_upload').files[0];
+
+            if (!departmentId || departmentId === '' || departmentId === '0') {
+                alert('Please select a valid department.');
+                return;
+            }
+
+            if (!curriculumName || !version || !file) {
+                alert('Please fill in all required fields.');
+                return;
+            }
+
+            // Show progress
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<svg class="inline-block w-5 h-5 mr-2 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>Uploading...';
+            progressDiv.classList.remove('hidden');
+
+            try {
+                const response = await fetch('{{ path('admin_curriculum_bulk_upload') }}', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    // Animate progress to 100%
+                    let progress = 0;
+                    const interval = setInterval(() => {
+                        progress += 10;
+                        progressBar.style.width = progress + '%';
+                        progressText.textContent = progress + '%';
+                        
+                        if (progress >= 100) {
+                            clearInterval(interval);
+                            
+                            // Close upload modal
+                            closeBulkUploadModal();
+                            
+                            // Get department name for display
+                            const departmentSelect = document.getElementById('bulk_department_id');
+                            const departmentName = departmentSelect.options[departmentSelect.selectedIndex].text;
+                            
+                            // Add curriculum name and department name to result
+                            result.curriculum_name = curriculumName;
+                            result.department_name = departmentName;
+                            
+                            // Show success modal with data
+                            setTimeout(() => {
+                                showSuccessModal(result, departmentId);
+                            }, 300);
+                        }
+                    }, 100);
+                } else {
+                    // Show error message
+                    alert('Error: ' + (result.message || 'Upload failed'));
+                    progressDiv.classList.add('hidden');
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<svg class="inline-block w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>Upload Curriculum';
+                }
+            } catch (error) {
+                console.error('Upload error:', error);
+                alert('Error uploading curriculum. Please try again.');
+                progressDiv.classList.add('hidden');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<svg class="inline-block w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>Upload Curriculum';
+            }
+        });
+
+        // Prevent Enter key from submitting forms (global handler for all inputs except submit buttons)
+        document.addEventListener('keypress', function(e) {
+            if (e.which === 13 && e.target.tagName === 'INPUT' && e.target.type !== 'submit') {
+                e.preventDefault();
+                return false;
+            }
+        });
+    </script>
+{% endblock %}

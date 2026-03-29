@@ -1,0 +1,7 @@
+controllers:
+    resource:
+        path: ../src/Controller/
+        namespace: App\Controller
+    type: attribute
+
+# Health check endpoint is handled by App\Controller\HealthController via attributes

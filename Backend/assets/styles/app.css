@@ -1,0 +1,114 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Import Inter font from Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
+
+/* Custom components for scheduling system */
+@layer components {
+  /* Schedule grid components */
+  .schedule-grid {
+    @apply grid grid-cols-schedule gap-1 bg-gray-50 p-4 rounded-lg shadow-sm;
+  }
+  
+  .time-slot {
+    @apply px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 cursor-pointer;
+  }
+  
+  .time-slot-available {
+    @apply bg-schedule-available text-white hover:bg-green-600 hover:shadow-md;
+  }
+  
+  .time-slot-booked {
+    @apply bg-schedule-booked text-white cursor-not-allowed opacity-75;
+  }
+  
+  .time-slot-pending {
+    @apply bg-schedule-pending text-white hover:bg-amber-600 hover:shadow-md;
+  }
+  
+  .time-slot-blocked {
+    @apply bg-schedule-blocked text-white cursor-not-allowed;
+  }
+  
+  /* Calendar components */
+  .calendar-day {
+    @apply w-10 h-10 rounded-lg flex items-center justify-center text-sm font-medium transition-colors;
+  }
+  
+  .calendar-day-today {
+    @apply bg-primary-500 text-white;
+  }
+  
+  .calendar-day-selected {
+    @apply bg-primary-100 text-primary-700 ring-2 ring-primary-500;
+  }
+  
+  .calendar-day-other-month {
+    @apply text-gray-400;
+  }
+  
+  /* Form components */
+  .form-input {
+    @apply block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm;
+  }
+  
+  .form-select {
+    @apply block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm;
+  }
+  
+  .form-error {
+    @apply text-red-600 text-sm mt-1 block;
+  }
+  
+  .invalid-feedback {
+    @apply text-red-600 text-sm mt-1 block;
+  }
+  
+  .form-control.is-invalid {
+    @apply border-red-300 focus:border-red-500 focus:ring-red-500;
+  }
+  
+  .btn {
+    @apply inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm transition-colors duration-200;
+  }
+  
+  .btn-primary {
+    @apply bg-primary-600 text-white hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500;
+  }
+  
+  .btn-secondary {
+    @apply bg-gray-600 text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500;
+  }
+  
+  .btn-success {
+    @apply bg-green-600 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500;
+  }
+  
+  .btn-danger {
+    @apply bg-red-600 text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500;
+  }
+  
+  /* Card components */
+  .card {
+    @apply bg-white overflow-hidden shadow-sm rounded-lg;
+  }
+  
+  .card-header {
+    @apply px-4 py-5 border-b border-gray-200 sm:px-6;
+  }
+  
+  .card-body {
+    @apply px-4 py-5 sm:p-6;
+  }
+  
+  /* Navigation components */
+  .nav-link {
+    @apply text-gray-700 hover:text-primary-600 hover:bg-gray-50 flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors;
+  }
+  
+  .nav-link-active {
+    @apply text-primary-600 bg-primary-50;
+  }
+}

@@ -1,0 +1,330 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Departments Management{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <!-- DataTables CSS - Local -->
+    <link rel="stylesheet" href="{{ asset('vendor/css/jquery.dataTables.min.css') }}">
+    <style>
+        /* Override DataTables default row striping (uses box-shadow on cells) */
+        table.dataTable tbody tr {
+            background-color: #ffffff !important;
+        }
+        table.dataTable tbody tr > * {
+            box-shadow: none !important;
+        }
+        table.dataTable tbody tr:hover {
+            background-color: #f9fafb !important;
+        }
+    </style>
+{% endblock %}
+
+{% block main_content %}
+    <!-- Page Header -->
+    <div class="mb-8">
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between">
+            <div class="flex-1 min-w-0">
+                <h1 class="text-3xl font-bold text-gray-900 sm:text-4xl">
+                    Departments Management
+                </h1>
+                <p class="mt-2 text-sm text-gray-500">
+                    Manage academic departments and their assigned colleges
+                </p>
+            </div>
+            <div class="mt-5 flex lg:mt-0 lg:ml-4">
+                <a href="{{ path('admin_departments_create') }}" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg shadow-sm text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800">
+                    <svg class="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                    </svg>
+                    Add New Department
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="ml-4 flex-1">
+                    <p class="text-sm font-medium text-gray-600">Total Departments</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ statistics.total }}</p>
+                    <p class="text-xs text-green-600 mt-1">{{ statistics.active }} active</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="ml-4 flex-1">
+                    <p class="text-sm font-medium text-gray-600">Total Faculty</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ statistics.total_faculty }}</p>
+                    <p class="text-xs text-gray-500 mt-1">Across all departments</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="ml-4 flex-1">
+                    <p class="text-sm font-medium text-gray-600">With Department Head</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ statistics.with_head }}</p>
+                    <p class="text-xs text-gray-500 mt-1">{{ statistics.without_head }} without head</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="ml-4 flex-1">
+                    <p class="text-sm font-medium text-gray-600">Recently Added</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ statistics.recent }}</p>
+                    <p class="text-xs text-gray-500 mt-1">Last 7 days</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Departments Table -->
+    <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+        <!-- Filters Bar -->
+        <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+            <div class="flex items-center justify-between gap-4">
+                <h3 class="text-lg font-semibold text-gray-900">Departments Directory</h3>
+                
+                <div class="flex items-center gap-3" id="filtersContainer">
+                    <!-- Search will be inserted here by JavaScript -->
+                    
+                    <!-- College Filter -->
+                    <div class="filter-group">
+                        <label for="collegeFilter" class="sr-only">Filter by college</label>
+                        <select id="collegeFilter" class="w-48 rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm py-2 px-3 pr-8 bg-white hover:bg-gray-50 transition-colors">
+                            <option value="" selected>All Colleges</option>
+                            {% for college in colleges %}
+                                <option value="{{ college.name }}">{{ college.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Status Filter -->
+                    <div class="filter-group">
+                        <label for="statusFilter" class="sr-only">Filter by status</label>
+                        <select id="statusFilter" class="w-32 rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm py-2 px-3 pr-8 bg-white hover:bg-gray-50 transition-colors">
+                            <option value="" selected>All Status</option>
+                            <option value="Active">Active</option>
+                            <option value="Inactive">Inactive</option>
+                        </select>
+                    </div>
+
+                    <!-- Clear Filters Button -->
+                    <button type="button" id="clearFilters" class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">
+                        <svg class="-ml-0.5 mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                        Clear
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Table Content -->
+        <div class="overflow-x-auto">
+            <table id="departmentsTable" class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Department Info</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">College</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Department Head</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Faculty Count</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% if departments is empty %}
+                        <tr>
+                            <td colspan="6" class="px-6 py-12 text-center">
+                                <p class="text-gray-500">No departments found</p>
+                                <a href="{{ path('admin_departments_create') }}" class="mt-4 inline-flex items-center px-4 py-2 border border-transparent rounded-lg text-sm font-medium text-white bg-blue-600 hover:bg-blue-700">
+                                    Add New Department
+                                </a>
+                            </td>
+                        </tr>
+                    {% else %}
+                        {% for department in departments %}
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0 h-10 w-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                                            <span class="text-xl">🏛️</span>
+                                        </div>
+                                        <div class="ml-4">
+                                            <div class="text-sm font-medium text-gray-900">{{ department.name }}</div>
+                                            <div class="text-sm text-gray-500">{{ department.code }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    {% if department.college %}
+                                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-indigo-100 text-indigo-800">
+                                            {{ department.college.name }}
+                                        </span>
+                                    {% else %}
+                                        <span class="text-sm text-gray-400">Not assigned</span>
+                                    {% endif %}
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div class="text-sm text-gray-900">{{ department.headName|default('Not assigned') }}</div>
+                                    {% if department.contactEmail %}
+                                        <div class="text-xs text-gray-500">{{ department.contactEmail }}</div>
+                                    {% endif %}
+                                </td>
+                                <td class="px-6 py-4 text-sm text-gray-900">
+                                    {{ department.users|length }}
+                                </td>
+                                <td class="px-6 py-4">
+                                    {% if department.isActive %}
+                                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Active</span>
+                                    {% else %}
+                                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">Inactive</span>
+                                    {% endif %}
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center gap-2">
+                                        <a href="{{ path('admin_departments_view', {id: department.id}) }}" 
+                                           class="text-indigo-600 hover:text-indigo-900 inline-flex items-center justify-center w-8 h-8 rounded-lg hover:bg-indigo-50 transition" 
+                                           title="View">
+                                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                            </svg>
+                                        </a>
+                                        <a href="{{ path('admin_departments_edit', {id: department.id}) }}" 
+                                           class="text-gray-600 hover:text-gray-900 inline-flex items-center justify-center w-8 h-8 rounded-lg hover:bg-gray-100 transition" 
+                                           title="Edit">
+                                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                            </svg>
+                                        </a>
+                                        <form method="POST" action="{{ path('admin_departments_delete', {id: department.id}) }}" class="inline m-0" onsubmit="return confirm('Delete this department?')">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('delete_department_' ~ department.id) }}">
+                                            <button type="submit" 
+                                                    class="text-red-600 hover:text-red-900 inline-flex items-center justify-center w-8 h-8 rounded-lg hover:bg-red-50 transition" 
+                                                    title="Delete">
+                                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                                </svg>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script src="{{ asset('vendor/js/jquery.min.js') }}"></script>
+<script src="{{ asset('vendor/js/jquery.dataTables.min.js') }}"></script>
+
+<script>
+$(document).ready(function() {
+    // Prevent any accidental form submissions on the page
+    $('body').on('keypress', 'input:not([type="submit"])', function(e) {
+        if (e.keyCode === 13) {
+            e.preventDefault();
+            return false;
+        }
+    });
+    
+    {% if departments is not empty %}
+    if ($.fn.DataTable.isDataTable('#departmentsTable')) {
+        $('#departmentsTable').DataTable().destroy();
+    }
+    
+    const table = $('#departmentsTable').DataTable({
+        paging: false,
+        info: false,
+        lengthChange: false,
+        order: [[0, 'asc']],
+        columnDefs: [{ orderable: false, targets: 5 }],
+        dom: 'frt',
+        language: {
+            search: "_INPUT_",
+            searchPlaceholder: "Search departments..."
+        }
+    });
+
+    // Move search to filters container and style it
+    $('.dataTables_filter').prependTo('#filtersContainer');
+    $('.dataTables_filter input').addClass('w-64 pr-3 py-2 border border-gray-300 rounded-lg text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors font-normal').css('padding-left', '2.5rem');
+    $('.dataTables_filter').addClass('relative flex items-center').prepend('<svg class="absolute left-4 h-4 w-4 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>');
+    
+    // Prevent Enter key from submitting
+    $('.dataTables_filter input').on('keypress', function(e) {
+        if (e.keyCode === 13) {
+            e.preventDefault();
+            return false;
+        }
+    });
+
+    // Reset filter values
+    $('#collegeFilter').val('');
+    $('#statusFilter').val('');
+
+    // College filter
+    $('#collegeFilter').on('change', function() {
+        table.column(1).search($(this).val()).draw();
+    });
+
+    // Status filter
+    $('#statusFilter').on('change', function() {
+        table.column(4).search($(this).val()).draw();
+    });
+
+    // Clear all filters
+    $('#clearFilters').on('click', function() {
+        $('#collegeFilter').val('');
+        $('#statusFilter').val('');
+        table.search('').columns().search('').draw();
+        $('.dataTables_filter input').val('');
+    });
+    {% endif %}
+});
+</script>
+{% endblock %}

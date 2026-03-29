@@ -1,0 +1,30 @@
+# ========================
+# Symfony Backend
+# ========================
+Backend/.env
+Backend/.env.local
+Backend/.env.prod
+Backend/.env.*.local
+Backend/vendor/
+Backend/var/
+Backend/public/uploads/
+
+# ========================
+# Next.js Frontend
+# ========================
+Frontend/.env
+Frontend/.env.local
+Frontend/.env.production
+Frontend/.env.*.local
+Frontend/node_modules/
+Frontend/.next/
+
+# ========================
+# General
+# ========================
+.DS_Store
+Thumbs.db
+*.log
+*.pem
+*.key
+*.cert

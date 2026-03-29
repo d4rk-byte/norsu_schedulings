@@ -1,0 +1,1982 @@
+{% extends isDepartmentHead is defined and isDepartmentHead ? 'department_head/base.html.twig' : 'admin/base.html.twig' %}
+
+{% block title %}Create New Schedule{% endblock %}
+
+{% block main_content %}
+<div class="max-w-7xl mx-auto">
+    <!-- Breadcrumb -->
+    {% if not (isDepartmentHead is defined and isDepartmentHead) %}
+        {% if selectedDepartment %}
+        <div class="mb-4">
+            <nav class="flex" aria-label="Breadcrumb">
+                <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                    <li class="inline-flex items-center">
+                        <a href="{{ path('app_schedule_index') }}" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600">
+                            <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
+                            </svg>
+                            Schedules
+                        </a>
+                    </li>
+                    <li>
+                        <div class="flex items-center">
+                            <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+                            </svg>
+                            <span class="ml-1 text-sm font-medium text-gray-500">{{ selectedDepartment.name }}</span>
+                        </div>
+                    </li>
+                    <li aria-current="page">
+                        <div class="flex items-center">
+                            <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+                            </svg>
+                            <span class="ml-1 text-sm font-medium text-blue-600">Create Schedule</span>
+                        </div>
+                    </li>
+                </ol>
+            </nav>
+        </div>
+        {% endif %}
+    {% else %}
+        <!-- Department Head Breadcrumb -->
+        <nav class="mb-6 flex" aria-label="Breadcrumb">
+            <ol class="inline-flex items-center space-x-2 text-sm">
+                <li class="inline-flex items-center">
+                    <a href="{{ path('department_head_dashboard') }}" class="text-gray-600 hover:text-blue-600 transition">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
+                        </svg>
+                    </a>
+                </li>
+                <li>
+                    <div class="flex items-center">
+                        <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+                        </svg>
+                        <a href="{{ path('department_head_schedules') }}" class="ml-2 text-gray-600 hover:text-blue-600 transition">Department Schedules</a>
+                    </div>
+                </li>
+                <li>
+                    <div class="flex items-center">
+                        <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+                        </svg>
+                        <span class="ml-2 text-gray-900 font-medium">Create Schedule</span>
+                    </div>
+                </li>
+            </ol>
+        </nav>
+    {% endif %}
+
+    <!-- Page Header -->
+    <div class="mb-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">Create New Schedule</h1>
+                {% if selectedDepartment %}
+                <p class="mt-2 text-sm text-gray-600">
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                        <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0zM6 18a1 1 0 001-1v-2.065a8.935 8.935 0 00-2-.712V17a1 1 0 001 1z"/>
+                        </svg>
+                        {{ selectedDepartment.college.name }} - {{ selectedDepartment.name }}
+                    </span>
+                </p>
+                {% else %}
+                <p class="mt-2 text-sm text-gray-600">Fill in the details below to create a new class schedule</p>
+                {% endif %}
+            </div>
+            <div class="flex gap-2">
+                <a href="{{ isDepartmentHead is defined and isDepartmentHead ? path('department_head_schedules') : path('app_schedule_index') }}" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition">
+                    <svg class="mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                    </svg>
+                    Back to Schedules
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Flash Messages for Conflicts and Errors -->
+    {% for message in app.flashes('error') %}
+        <div class="mb-6 bg-red-50 border-l-4 border-red-500 rounded-lg p-5 shadow-sm animate-shake">
+            <div class="flex items-start">
+                <div class="flex-shrink-0">
+                    <svg class="h-6 w-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                    </svg>
+                </div>
+                <div class="ml-3 flex-1">
+                    <h3 class="text-sm font-semibold text-red-800">Scheduling Conflict Detected</h3>
+                    <div class="mt-2 text-sm text-red-700">
+                        {{ message|raw }}
+                    </div>
+                </div>
+                <button type="button" class="ml-auto flex-shrink-0 text-red-500 hover:text-red-700" onclick="this.parentElement.parentElement.remove()">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    {% endfor %}
+
+    {% for message in app.flashes('warning') %}
+        <div class="mb-6 bg-yellow-50 border-l-4 border-yellow-400 rounded-lg p-5 shadow-sm">
+            <div class="flex items-start">
+                <div class="flex-shrink-0">
+                    <svg class="h-6 w-6 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                    </svg>
+                </div>
+                <div class="ml-3 flex-1">
+                    <h3 class="text-sm font-semibold text-yellow-800">Warning</h3>
+                    <div class="mt-2 text-sm text-yellow-700">
+                        {{ message|raw }}
+                    </div>
+                </div>
+                <button type="button" class="ml-auto flex-shrink-0 text-yellow-500 hover:text-yellow-700" onclick="this.parentElement.parentElement.remove()">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    {% endfor %}
+
+    {% for message in app.flashes('success') %}
+        <div class="mb-6 bg-green-50 border-l-4 border-green-500 rounded-lg p-5 shadow-sm">
+            <div class="flex items-start">
+                <div class="flex-shrink-0">
+                    <svg class="h-6 w-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </div>
+                <div class="ml-3 flex-1">
+                    <h3 class="text-sm font-semibold text-green-800">Success</h3>
+                    <div class="mt-2 text-sm text-green-700">
+                        {{ message|raw }}
+                    </div>
+                </div>
+                <button type="button" class="ml-auto flex-shrink-0 text-green-500 hover:text-green-700" onclick="this.parentElement.parentElement.remove()">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    {% endfor %}
+
+    <!-- Active Semester Notice -->
+    {% if activeAcademicYear and activeSemester %}
+    <div class="mb-6 bg-blue-50 border-l-4 border-blue-500 rounded-lg p-5 shadow-sm">
+        <div class="flex items-start">
+            <div class="flex-shrink-0">
+                <svg class="h-6 w-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+            </div>
+            <div class="ml-3 flex-1">
+                <h3 class="text-sm font-semibold text-blue-800">📅 Active Semester Pre-selected</h3>
+                <div class="mt-2 text-sm text-blue-700">
+                    The form is pre-filled with the active semester: <strong>{{ activeSemester }} {{ activeAcademicYear.year }}</strong>. 
+                    You can change these values if needed.
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Semester Filter Notice -->
+    {% if semesterFilter is defined and semesterFilter %}
+    <div class="mb-6 bg-purple-50 border-l-4 border-purple-500 rounded-lg p-5 shadow-sm">
+        <div class="flex items-start">
+            <div class="flex-shrink-0">
+                <svg class="h-6 w-6 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
+                </svg>
+            </div>
+            <div class="ml-3 flex-1">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-sm font-semibold text-purple-800"> Subject Filter Active</h3>
+                    <select id="semester-view-filter" class="text-xs px-3 py-1.5 border border-purple-300 rounded-lg bg-white text-purple-700 font-medium focus:outline-none focus:ring-2 focus:ring-purple-500 transition" onchange="filterSubjectsBySemester()">
+                        <option value="active" selected>Active Semester Only</option>
+                        <option value="all">All Semesters</option>
+                    </select>
+                </div>
+                <div class="mt-2 text-sm text-purple-700">
+                    <span id="filter-status-text">Showing only <strong>{{ semesterFilter }}</strong> semester subjects.</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Left Column: Form -->
+        <div class="lg:col-span-2">
+            <form method="post" action="{{ isDepartmentHead is defined and isDepartmentHead ? path('department_head_schedules_create') : path('app_schedule_new') }}" id="scheduleForm" class="space-y-6" novalidate">
+                
+                <!-- Step 1: Subject Details -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center font-semibold text-lg">1</div>
+                        <div>
+                            <h2 class="text-xl font-semibold text-gray-900">Subject & Section Details</h2>
+                            <p class="text-sm text-gray-500">Select the subject and specify section information</p>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label for="subject" class="block text-sm font-medium text-gray-700 mb-2">
+                                Subject <span class="text-red-500">*</span>
+                            </label>
+                            <select id="subject" name="subject" required 
+                                    class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 transition"
+                                    style="max-height: 300px; overflow-y: auto;"
+                                    size="1"
+                                    onchange="updateSubjectInfo();">
+                                <option value="">Choose a subject...</option>
+                                {% for subject in subjects %}
+                                    <option value="{{ subject.id }}" 
+                                            data-subject-code="{{ subject.code }}"
+                                            data-subject-title="{{ subject.title }}"
+                                            data-subject-units="{{ subject.units }}"
+                                            data-subject-semester="{{ subject.semester }}"
+                                            data-year-level="{{ subject.yearLevel ?? '' }}"
+                                            class="subject-option subject-semester-{{ subject.semester }}">
+                                        {{ subject.code }} - {{ subject.title }} ({{ subject.units }} units)
+                                    </option>
+                                {% endfor %}
+                            </select>
+                            <p class="mt-1 text-xs text-gray-500">Select the subject for this schedule (scroll to see all)</p>
+                        </div>
+
+                        <!-- Section Count Selector -->
+                        <div class="bg-gradient-to-r from-purple-50 to-indigo-50 border-2 border-purple-200 rounded-lg p-4">
+                            <label for="section_count" class="block text-sm font-semibold text-purple-900 mb-2">
+                                📊 How many sections do you want to create?
+                            </label>
+                            <select id="section_count" name="section_count"
+                                    class="block w-full rounded-lg border-purple-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 transition text-sm"
+                                    onchange="generateSectionColumns()">
+                                <option value="" selected>Select number of sections...</option>
+                                <option value="1">1 Section</option>
+                                <option value="2">2 Sections</option>
+                                <option value="3">3 Sections</option>
+                                <option value="4">4 Sections</option>
+                                <option value="5">5 Sections</option>
+                                <option value="6">6 Sections</option>
+                                <option value="7">7 Sections</option>
+                                <option value="8">8 Sections</option>
+                                <option value="9">9 Sections</option>
+                                <option value="10">10 Sections</option>
+                            </select>
+                            <p class="mt-2 text-xs text-purple-700 italic">💡 Select multiple sections to create them all at once with different details</p>
+                        </div>
+
+                        <!-- Existing Sections Info -->
+                        <div id="existing-sections-info" class="hidden bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-3 shadow-sm mb-4">
+                            <div class="flex items-start gap-2">
+                                <div class="flex-1">
+                                    <p class="text-xs font-bold text-blue-900 mb-1.5">
+                                        Existing Sections for this Subject:
+                                    </p>
+                                    <div id="existing-sections-list" class="flex flex-wrap gap-1.5"></div>
+                                    <p class="text-xs text-blue-700 mt-1.5 italic">
+                                        <svg class="w-3 h-3 inline mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                                        </svg>
+                                        <span id="next-section-hint">New sections will automatically start from the next available letter</span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    Semester <span class="text-red-500">*</span>
+                                    {% if activeSemester %}
+                                        <span class="ml-2 text-xs text-purple-600 font-normal">(Active semester)</span>
+                                    {% endif %}
+                                </label>
+                                {% if activeSemester %}
+                                    <div class="block w-full rounded-lg border border-purple-200 bg-purple-50 px-4 py-2.5 text-gray-900 font-medium">
+                                        {{ activeSemester == '1st' ? '1st Semester' : (activeSemester == '2nd' ? '2nd Semester' : 'Summer') }}
+                                    </div>
+                                    <input type="hidden" id="semester" name="semester" value="{{ activeSemester }}">
+                                {% else %}
+                                    <select id="semester" name="semester" required
+                                            class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 transition"
+                                            onchange="checkSectionExists(); updateExistingSectionsDisplay(); refreshAllRoomSchedules(); recheckAllSections();">
+                                        <option value="">Select semester...</option>
+                                        <option value="1st">1st Semester</option>
+                                        <option value="2nd">2nd Semester</option>
+                                        <option value="Summer">Summer</option>
+                                    </select>
+                                {% endif %}
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    Academic Year <span class="text-red-500">*</span>
+                                    {% if activeAcademicYear %}
+                                        <span class="ml-2 text-xs text-purple-600 font-normal">(Active year)</span>
+                                    {% endif %}
+                                </label>
+                                {% if activeAcademicYear %}
+                                    <div class="block w-full rounded-lg border border-purple-200 bg-purple-50 px-4 py-2.5 text-gray-900 font-medium">
+                                        {{ activeAcademicYear.year }}
+                                    </div>
+                                    <input type="hidden" id="academic_year" name="academic_year" value="{{ activeAcademicYear.id }}">
+                                {% else %}
+                                    <select id="academic_year" name="academic_year" required
+                                            class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 transition"
+                                            onchange="checkSectionExists(); updateExistingSectionsDisplay(); refreshAllRoomSchedules(); recheckAllSections();">
+                                        <option value="">Select year...</option>
+                                        {% for ay in academicYears %}
+                                            <option value="{{ ay.id }}">{{ ay.year }}</option>
+                                        {% endfor %}
+                                    </select>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2: Section Details (Dynamic Columns) -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center font-semibold text-lg">2</div>
+                        <div>
+                            <h2 class="text-xl font-semibold text-gray-900">Section Details</h2>
+                            <p class="text-sm text-gray-500">Configure each section with specific details</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Dynamic Section Columns Container -->
+                    <div id="sections-container" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- Columns will be generated by JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                    <div class="flex items-center justify-between">
+                        <p class="text-sm text-gray-600">
+                            <span class="text-red-500">*</span> Required fields
+                        </p>
+                        <div class="flex gap-3">
+                            <a href="{{ isDepartmentHead is defined and isDepartmentHead ? path('department_head_schedules') : path('app_schedule_index') }}" 
+                               class="px-6 py-2.5 border border-gray-300 text-gray-700 bg-white rounded-lg hover:bg-gray-50 transition font-medium">
+                                Cancel
+                            </a>
+                            <button type="submit" id="submitBtn"
+                                    class="px-8 py-2.5 bg-green-600 text-white rounded-lg transition font-medium shadow-sm opacity-50 cursor-not-allowed"
+                                    disabled>
+                                <span id="submitBtnText">Fill all fields to continue</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Right Column: Preview & Information -->
+        <div class="lg:col-span-1 space-y-6">
+            <!-- Auto Conflict Detection Info -->
+            <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg shadow-sm border border-blue-200 p-6">
+                <div class="flex items-start gap-3">
+                    <svg class="w-6 h-6 text-blue-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                    </svg>
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2">Auto Conflict Detection</h3>
+                        <p class="text-sm text-gray-700 leading-relaxed mb-3">
+                            The system will automatically check for scheduling conflicts when you create this schedule. 
+                            Conflicts include room overlaps and section time conflicts.
+                        </p>
+                        <div class="space-y-2 text-sm">
+                            <div class="flex items-start gap-2">
+                                <span class="text-red-600 font-bold">🚫</span>
+                                <p class="text-gray-700"><span class="font-semibold">Blocks Creation:</span> Room-time conflicts, duplicate subject-section, section double-booking</p>
+                            </div>
+                            <div class="flex items-start gap-2">
+                                <span class="text-yellow-600 font-bold">⚠️</span>
+                                <p class="text-gray-700"><span class="font-semibold">Shows Warning:</span> Room over-capacity or near capacity</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Live Conflict Detection Results -->
+            <div id="live-conflict-detection" class="hidden bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <div class="flex items-start gap-3 mb-3">
+                    <div id="conflict-icon"></div>
+                    <div class="flex-1">
+                        <h3 id="conflict-title" class="text-lg font-semibold mb-2"></h3>
+                        <div id="conflict-details" class="space-y-2"></div>
+                    </div>
+                </div>
+                <div id="conflict-loading" class="hidden">
+                    <div class="flex items-center gap-2 text-sm text-gray-600">
+                        <svg class="animate-spin h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <span>Checking for conflicts...</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Helpful Tips -->
+            <div class="bg-amber-50 rounded-lg shadow-sm border border-amber-200 p-5">
+                <h4 class="text-sm font-semibold text-amber-900 mb-3 flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                    </svg>
+                    Tips for Better Scheduling
+                </h4>
+                <ul class="space-y-2 text-xs text-amber-900">
+                    <li class="flex items-start gap-2">
+                        <span class="text-amber-600">•</span>
+                        <span>Verify room capacity matches enrollment</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <span class="text-amber-600">•</span>
+                        <span>Check that times don't overlap with other classes</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <span class="text-amber-600">•</span>
+                        <span>Standard class duration is 1-3 hours</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <span class="text-amber-600">•</span>
+                        <span>MWF classes are typically 1 hour each</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <span class="text-amber-600">•</span>
+                        <span>TTH classes are typically 1.5 hours each</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// ========== DIAGNOSTIC TESTS ==========
+// Run tests on page load to verify day overlap logic
+console.log('\n========== TESTING DAY OVERLAP FUNCTION ==========');
+
+// Test helper function
+function testDaysOverlap(pattern1, pattern2, expected) {
+    const days1 = pattern1.split('-');
+    const days2 = pattern2.split('-');
+    const result = days1.some(day => days2.includes(day));
+    const status = result === expected ? '✅ PASS' : '❌ FAIL';
+    console.log(`${status}: daysOverlap("${pattern1}", "${pattern2}") = ${result} (expected: ${expected})`);
+    if (result !== expected) {
+        console.log(`  days1: [${days1.join(', ')}]`);
+        console.log(`  days2: [${days2.join(', ')}]`);
+    }
+    return result === expected;
+}
+
+// Critical test cases
+testDaysOverlap('M-T-TH-F', 'T-TH', true);  // Should overlap on T and TH
+testDaysOverlap('M-W-F', 'T-TH', false);    // Should NOT overlap
+testDaysOverlap('M-T-W-TH-F', 'M-W-F', true); // Should overlap on M, W, F
+testDaysOverlap('T-TH', 'T-TH', true);      // Should overlap (exact match)
+testDaysOverlap('M-W', 'T-TH', false);      // Should NOT overlap
+
+console.log('========== DAY OVERLAP TESTS COMPLETE ==========\n');
+// ========== END DIAGNOSTIC TESTS ==========
+
+// Store existing schedules data
+let existingSchedules = {};
+let currentSubjectId = null; // Track which subject we're creating schedules for
+let subjectYearLevels = {}; // Store year level for each subject ID
+
+// Store all room schedules (for cross-subject conflict detection)
+let allRoomSchedules = {};
+
+// Rooms data for dropdowns
+const roomsData = [
+    {% for room in rooms %}
+    {id: {{ room.id }}, code: {{ room.code|json_encode|raw }}, name: {{ room.name|default('')|json_encode|raw }}, capacity: {{ room.capacity|default(0) }}}{{ loop.last ? '' : ',' }}
+    {% endfor %}
+];
+
+// Time slots (7:00 AM - 8:30 PM in 90-minute intervals)
+const timeSlots = [
+    {start: '07:00', end: '08:30', label: '7:00 AM - 8:30 AM'},
+    {start: '08:30', end: '10:00', label: '8:30 AM - 10:00 AM'},
+    {start: '10:00', end: '11:30', label: '10:00 AM - 11:30 AM'},
+    {start: '11:30', end: '13:00', label: '11:30 AM - 1:00 PM'},
+    {start: '13:00', end: '14:30', label: '1:00 PM - 2:30 PM'},
+    {start: '14:30', end: '16:00', label: '2:30 PM - 4:00 PM'},
+    {start: '16:00', end: '17:30', label: '4:00 PM - 5:30 PM'},
+    {start: '17:30', end: '19:00', label: '5:30 PM - 7:00 PM'},
+    {start: '19:00', end: '20:30', label: '7:00 PM - 8:30 PM'}
+];
+
+// Generate section columns dynamically
+function generateSectionColumns() {
+    const countSelect = document.getElementById('section_count');
+    const count = parseInt(countSelect.value);
+    const container = document.getElementById('sections-container');
+    
+    // If no selection, clear and return
+    if (!count || isNaN(count)) {
+        container.innerHTML = '<p class="text-center text-gray-500 py-8">Please select how many sections you want to create above</p>';
+        return;
+    }
+    
+    // Clear existing columns
+    container.innerHTML = '';
+    
+    // Get existing sections for CURRENT SUBJECT ONLY to determine starting letter
+    const existingSections = Object.values(existingSchedules)
+        .filter(s => s.subjectId == currentSubjectId)
+        .map(s => s.section.toUpperCase());
+    const startingIndex = getNextAvailableSectionIndex(existingSections);
+    
+    console.log('Existing sections (for current subject):', existingSections);
+    console.log('Starting section index:', startingIndex);
+    
+    // Generate columns based on count
+    for (let i = 0; i < count; i++) {
+        const sectionLetter = String.fromCharCode(65 + startingIndex + i); // A, B, C, ... starting from next available
+        const columnHtml = createSectionColumn(i, sectionLetter);
+        container.insertAdjacentHTML('beforeend', columnHtml);
+    }
+    
+    // Update submit button text
+    const submitBtn = document.getElementById('submitBtnText');
+    if (count === 1) {
+        submitBtn.textContent = 'Create Schedule';
+    } else {
+        submitBtn.textContent = `Create ${count} Sections`;
+    }
+    
+    // Recheck all sections after generation
+    recheckAllSections();
+}
+
+// Helper: Find the next available section letter
+function getNextAvailableSectionIndex(existingSections) {
+    if (!existingSections || existingSections.length === 0) {
+        return 0; // Start with 'A' if no sections exist
+    }
+    
+    // Find the highest section letter
+    let maxIndex = -1;
+    existingSections.forEach(section => {
+        const sectionStr = String(section).trim().toUpperCase();
+        // Handle single letter sections (A, B, C, etc.)
+        if (sectionStr.length === 1 && sectionStr >= 'A' && sectionStr <= 'Z') {
+            const index = sectionStr.charCodeAt(0) - 65; // A=0, B=1, etc.
+            if (index > maxIndex) {
+                maxIndex = index;
+            }
+        }
+    });
+    
+    // Return next available index
+    return maxIndex + 1;
+}
+
+// Create a single section column HTML
+function createSectionColumn(index, defaultSection) {
+    return `
+        <div id="section-column-${index}" class="border-2 border-gray-200 rounded-lg p-5 bg-gradient-to-br from-white to-gray-50 hover:border-blue-300 transition relative shadow-sm min-h-[420px]">
+            
+            <!-- Conflict Details Sidebar -->
+            <div id="conflict-details-${index}" class="hidden absolute top-0 right-3 bg-white border-2 border-red-400 rounded-lg shadow-lg p-3 z-10 max-w-xs">
+                <div class="flex items-start gap-2 mb-2">
+                    <svg class="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                    </svg>
+                    <div>
+                        <h4 class="font-bold text-sm text-red-700 mb-1">Conflicts Detected</h4>
+                        <div id="conflict-list-${index}" class="space-y-1 text-xs text-gray-700"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="font-semibold text-lg text-gray-800">Section ${index + 1}</h3>
+                <div class="flex items-center gap-2">
+                    <span id="conflict-badge-${index}" class="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-500 cursor-pointer" onclick="toggleConflictDetails(${index})">Unchecked</span>
+                    <span class="text-xs text-gray-500">#${index + 1}</span>
+                </div>
+            </div>
+            
+            <div class="space-y-4">
+                <!-- Section Name -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1.5">
+                        Section Name <span class="text-red-500">*</span>
+                    </label>
+                    <div class="relative">
+                        <input type="text" name="sections[${index}][section]" 
+                               value="${defaultSection}"
+                               placeholder="e.g., A, B, 1, 2"
+                               required
+                               oninput="recheckAllSections()"
+                               onblur="validateSectionName(${index})"
+                               class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-2.5 px-3">
+                        <div id="section-status-${index}" class="hidden absolute right-2 top-1/2 -translate-y-1/2"></div>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-1" id="section-hint-${index}">Section identifier</p>
+                </div>
+                
+                <!-- Room -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1.5">
+                        Room <span class="text-red-500">*</span>
+                    </label>
+                    <select name="sections[${index}][room]" required
+                            onchange="fetchRoomSchedules(this.value); recheckAllSections();"
+                            class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-2.5 px-3">
+                        <option value="">Select room...</option>
+                        ${roomsData.map(room => `
+                            <option value="${room.id}" data-capacity="${room.capacity}">
+                                ${room.code}${room.name ? ' - ' + room.name.replace(/[<>"']/g, '') : ''}
+                            </option>
+                        `).join('')}
+                    </select>
+                </div>
+                
+                <!-- Day Pattern -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1.5">
+                        Day Pattern <span class="text-red-500">*</span>
+                    </label>
+                    <select name="sections[${index}][day_pattern]" required
+                            onchange="recheckAllSections()"
+                            class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-2.5 px-3">
+                        <option value="">Select...</option>
+                        <option value="M-W-F">Mon-Wed-Fri</option>
+                        <option value="T-TH">Tue-Thu</option>
+                        <option value="M-T-TH-F">Mon-Tue-Thu-Fri (No Wed)</option>
+                        <option value="M-T">Mon-Tue</option>
+                        <option value="TH-F">Thu-Fri</option>
+                        <option value="SAT">Saturday Only</option>
+                        <option value="SUN">Sunday Only</option>
+                    </select>
+                </div>
+                
+                <!-- Time Slot -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1.5">
+                        Time Slot <span class="text-red-500">*</span>
+                    </label>
+                    <select name="sections[${index}][time_slot]" required
+                            onchange="setTimeValues(${index}, this.value); recheckAllSections();"
+                            class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-2.5 px-3">
+                        <option value="">Select time...</option>
+                        ${timeSlots.map((slot, idx) => `
+                            <option value="${idx}" data-start="${slot.start}" data-end="${slot.end}">
+                                ${slot.label}
+                            </option>
+                        `).join('')}
+                    </select>
+                    <input type="hidden" name="sections[${index}][start_time]" id="start-time-${index}">
+                    <input type="hidden" name="sections[${index}][end_time]" id="end-time-${index}">
+                </div>
+                
+                <!-- Enrolled Students -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1.5">
+                        Enrolled Students
+                    </label>
+                    <input type="number" name="sections[${index}][enrolled_students]" 
+                           placeholder="0"
+                           min="0" max="999"
+                           class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-2.5 px-3">
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+// Set start and end time hidden values based on selected time slot
+function setTimeValues(index, slotIndex) {
+    if (slotIndex === '') return;
+    
+    const slot = timeSlots[slotIndex];
+    document.getElementById(`start-time-${index}`).value = slot.start;
+    document.getElementById(`end-time-${index}`).value = slot.end;
+}
+
+// Validate section name for duplicates
+function validateSectionName(index) {
+    const input = document.querySelector(`input[name="sections[${index}][section]"]`);
+    const section = input.value.trim().toUpperCase();
+    const subjectId = document.getElementById('subject').value;
+    const semester = document.getElementById('semester').value;
+    const academicYear = document.getElementById('academic_year').value;
+    const hintElement = document.getElementById(`section-hint-${index}`);
+    const statusIcon = document.getElementById(`section-status-${index}`);
+    
+    if (!section || !subjectId || !semester || !academicYear) {
+        input.className = 'block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm';
+        if (statusIcon) statusIcon.classList.add('hidden');
+        if (hintElement) hintElement.textContent = 'Section identifier';
+        return;
+    }
+    
+    // Check if this section already exists
+    const key = `${subjectId}_${section}_${semester}_${academicYear}`;
+    const exists = existingSchedules[key];
+    
+    if (exists) {
+        input.className = 'block w-full rounded-md border-2 border-red-500 shadow-sm focus:border-red-600 focus:ring-red-500 text-sm bg-red-50';
+        if (statusIcon) {
+            statusIcon.innerHTML = '<svg class="w-4 h-4 text-red-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/></svg>';
+            statusIcon.classList.remove('hidden');
+        }
+        if (hintElement) {
+            hintElement.innerHTML = '⚠️ Already exists';
+            hintElement.className = 'text-xs text-red-600 mt-0.5 font-medium';
+        }
+    } else {
+        input.className = 'block w-full rounded-md border-2 border-green-500 shadow-sm focus:border-green-600 focus:ring-green-500 text-sm bg-green-50';
+        if (statusIcon) {
+            statusIcon.innerHTML = '<svg class="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>';
+            statusIcon.classList.remove('hidden');
+        }
+        if (hintElement) {
+            hintElement.innerHTML = '✅ Available';
+            hintElement.className = 'text-xs text-green-600 mt-0.5 font-medium';
+        }
+    }
+}
+
+// Fetch room schedules for conflict detection across all subjects
+function fetchRoomSchedules(roomId) {
+    const semester = document.getElementById('semester').value;
+    const academicYear = document.getElementById('academic_year').value;
+    
+    if (!roomId || !semester || !academicYear) {
+        return;
+    }
+    
+    const isDepartmentHead = {{ isDepartmentHead is defined and isDepartmentHead ? 'true' : 'false' }};
+    const url = isDepartmentHead 
+        ? `/department-head/schedules/room-schedules/${roomId}/${semester}/${academicYear}`
+        : `/admin/schedule/room-schedules/${roomId}/${semester}/${academicYear}`;
+    
+    fetch(url)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log(`=== ROOM ${roomId} SCHEDULES ===`, data.schedules);
+            // Store room schedules indexed by room ID
+            allRoomSchedules[roomId] = data.schedules || [];
+            
+            // Recheck all sections after getting room data
+            recheckAllSections();
+        })
+        .catch(error => {
+            console.error('Error fetching room schedules:', error);
+            allRoomSchedules[roomId] = [];
+        });
+}
+
+// Fetch all room schedules when semester or year changes
+function refreshAllRoomSchedules() {
+    const sectionCount = parseInt(document.getElementById('section_count')?.value || 1);
+    
+    // Get unique room IDs from all sections
+    const roomIds = new Set();
+    for (let i = 0; i < sectionCount; i++) {
+        const roomSelect = document.querySelector(`select[name="sections[${i}][room]"]`);
+        if (roomSelect && roomSelect.value) {
+            roomIds.add(roomSelect.value);
+        }
+    }
+    
+    // Fetch schedules for each room
+    roomIds.forEach(roomId => fetchRoomSchedules(roomId));
+}
+
+// Check for conflicts in a specific section column
+function checkSectionConflict(index) {
+    const subjectId = document.getElementById('subject').value;
+    const semester = document.getElementById('semester').value;
+    const academicYear = document.getElementById('academic_year').value;
+    const subjectSelect = document.getElementById('subject');
+    const selectedSubject = subjectSelect.options[subjectSelect.selectedIndex];
+    const subjectCode = selectedSubject?.getAttribute('data-subject-code') || '';
+    
+    const sectionInput = document.querySelector(`input[name="sections[${index}][section]"]`);
+    const roomSelect = document.querySelector(`select[name="sections[${index}][room]"]`);
+    const dayPatternSelect = document.querySelector(`select[name="sections[${index}][day_pattern]"]`);
+    const startTimeInput = document.getElementById(`start-time-${index}`);
+    const endTimeInput = document.getElementById(`end-time-${index}`);
+    
+    console.log(`\n=== CHECKING CONFLICTS FOR SECTION ${index + 1} ===`);
+    console.log(`Subject: ${subjectCode} (ID: ${subjectId})`);
+    console.log(`Semester: ${semester}, Academic Year: ${academicYear}`);
+    
+    const badge = document.getElementById(`conflict-badge-${index}`);
+    const column = document.getElementById(`section-column-${index}`);
+    const conflictDetailsDiv = document.getElementById(`conflict-details-${index}`);
+    const conflictList = document.getElementById(`conflict-list-${index}`);
+    
+    if (!sectionInput || !roomSelect || !dayPatternSelect || !startTimeInput || !endTimeInput) {
+        console.log(`Section ${index}: Missing elements`);
+        return;
+    }
+    
+    const section = sectionInput.value.trim().toUpperCase();
+    const roomId = roomSelect.value;
+    const roomText = roomSelect.options[roomSelect.selectedIndex]?.text || '';
+    const dayPattern = dayPatternSelect.value;
+    const startTime = startTimeInput.value;
+    const endTime = endTimeInput.value;
+    
+    console.log(`\n=== Checking Section ${index + 1} ===`);
+    console.log('Subject:', subjectCode, '(ID:', subjectId, ')');
+    console.log('Section:', section, 'Room:', roomId, roomText);
+    console.log('Day:', dayPattern, 'Time:', startTime, '-', endTime);
+    console.log('Semester:', semester, 'Academic Year:', academicYear);
+    console.log('Subject Year Level:', subjectYearLevels[subjectId]);
+    
+    // Check if all required fields are filled
+    if (!subjectId || !semester || !academicYear || !section || !roomId || !dayPattern || !startTime || !endTime) {
+        console.log(`Section ${index + 1}: Incomplete fields`);
+        badge.className = 'text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-500 cursor-pointer';
+        badge.textContent = 'Incomplete';
+        
+        // Remove all border color classes and set to gray
+        column.classList.remove('border-green-500', 'border-red-500', 'border-gray-200', 'border-2');
+        column.classList.add('border-gray-200', 'border-2');
+        
+        conflictDetailsDiv.classList.add('hidden');
+        return;
+    }
+    
+    let hasConflict = false;
+    let conflictDetails = [];
+    
+    // 1. Check for duplicate section name
+    const sectionKey = `${subjectId}_${section}_${semester}_${academicYear}`;
+    if (existingSchedules[sectionKey]) {
+        hasConflict = true;
+        const schedule = existingSchedules[sectionKey];
+        conflictDetails.push({
+            type: 'duplicate',
+            message: `<strong>${subjectCode} - Section ${section}</strong><br><span class="text-red-600">Already exists in the system</span>`
+        });
+    }
+    
+    // 2. Check for room-time conflicts with existing schedules
+    console.log(`\n--- Checking ${Object.keys(existingSchedules).length} existing schedules for conflicts ---`);
+    
+    for (const [key, schedule] of Object.entries(existingSchedules)) {
+        if (schedule.semester === semester && schedule.yearId == academicYear) {
+            // Check if same room
+            if (schedule.roomId == roomId) {
+                // Check if days overlap
+                if (daysOverlap(dayPattern, schedule.dayPattern)) {
+                    // Check if times overlap
+                    if (timesOverlap(startTime, endTime, schedule.startTime, schedule.endTime)) {
+                        hasConflict = true;
+                        conflictDetails.push({
+                            type: 'room',
+                            message: `<strong>${schedule.subjectCode} - Section ${schedule.section}</strong><br><span class="text-red-600">Room ${roomText.split(' - ')[0]} is occupied</span><br><span class="text-xs text-gray-600">${schedule.dayPattern} ${formatTimeAMPM(schedule.startTime)}-${formatTimeAMPM(schedule.endTime)}</span><br><span class="text-xs text-blue-600 italic">💡 Note: May be from another department</span>`
+                        });
+                        break;
+                    }
+                }
+            }
+            
+            // Check for block sectioning conflict (same section, same year level, different subject, overlapping schedule)
+            // Block sectioning means: students in the SAME section of the SAME year take ALL their classes together
+            // CONFLICT: Year 3 Section A at 7:00-8:30 M-W-F (ITS 308) vs Year 3 Section A at 7:00-8:30 M-W-F (ITS 310)
+            // NO CONFLICT: Year 2 Section A at 7:00-8:30 M-W-F vs Year 3 Section A at 7:00-8:30 M-W-F (different years)
+            // NO CONFLICT: Year 3 Section A at 7:00-8:30 T-TH vs Year 3 Section A at 7:00-8:30 M-W-F (different days)
+            if (schedule.section === section && schedule.subjectId != subjectId) {
+                const scheduleYearLevel = schedule.yearLevel || null;
+                const currentYearLevel = subjectYearLevels[subjectId] || null;
+                
+                console.log(`Block sectioning check: ${schedule.subjectCode} Year ${scheduleYearLevel} Section ${schedule.section} vs ${subjectCode} Year ${currentYearLevel} Section ${section}`);
+                console.log(`  Days: ${schedule.dayPattern} vs ${dayPattern}`);
+                console.log(`  Times: ${schedule.startTime}-${schedule.endTime} vs ${startTime}-${endTime}`);
+                
+                // Only check if both have year level AND they match
+                if (scheduleYearLevel && currentYearLevel && scheduleYearLevel === currentYearLevel) {
+                    // Same year level - check day and time overlap
+                    const daysMatch = daysOverlap(dayPattern, schedule.dayPattern);
+                    const timesMatch = timesOverlap(startTime, endTime, schedule.startTime, schedule.endTime);
+                    
+                    console.log(`  Same year (${currentYearLevel}) - Days overlap: ${daysMatch}, Times overlap: ${timesMatch}`);
+                    
+                    if (daysMatch && timesMatch) {
+                        console.log(`  ❌ CONFLICT: Same section, same year, overlapping schedule`);
+                        hasConflict = true;
+                        conflictDetails.push({
+                            type: 'block_sectioning',
+                            message: `<strong>${schedule.subjectCode} - Section ${schedule.section}</strong><br><span class="text-red-600">⚠️ BLOCK SECTIONING CONFLICT: Year ${currentYearLevel} Section ${section} students cannot attend both classes</span><br><span class="text-xs text-gray-600">${schedule.dayPattern} ${formatTimeAMPM(schedule.startTime)}-${formatTimeAMPM(schedule.endTime)}</span>`
+                        });
+                    } else {
+                        console.log(`  ✓ No conflict: Different days or times`);
+                    }
+                } else {
+                    console.log(`  ✓ No conflict: Different year levels (${scheduleYearLevel} vs ${currentYearLevel}) or missing year data`);
+                }
+            }
+        }
+    }
+    
+    // 3. Check for room conflicts across ALL subjects (from cached data)
+    if (!hasConflict && roomId && allRoomSchedules[roomId]) {
+        const roomSchedules = allRoomSchedules[roomId];
+        for (const schedule of roomSchedules) {
+            // Check if days overlap
+            if (daysOverlap(dayPattern, schedule.dayPattern)) {
+                // Check if times overlap
+                if (timesOverlap(startTime, endTime, schedule.startTime, schedule.endTime)) {
+                    hasConflict = true;
+                    conflictDetails.push({
+                        type: 'room_global',
+                        message: `<strong>${schedule.subjectCode} - Section ${schedule.section}</strong><br><span class="text-red-600">Room ${roomText.split(' - ')[0]} is occupied</span><br><span class="text-xs text-gray-600">${schedule.dayPattern} ${formatTimeAMPM(schedule.startTime)}-${formatTimeAMPM(schedule.endTime)}</span><br><span class="text-xs text-blue-600 italic">💡 Note: May be from another department</span>`
+                    });
+                    break;
+                }
+            }
+        }
+    }
+    
+    // 4. Check for conflicts with other columns in this form
+    const sectionCount = parseInt(document.getElementById('section_count').value);
+    console.log(`Checking against ${sectionCount} sections`);
+    
+    for (let i = 0; i < sectionCount; i++) {
+        if (i === index) continue; // Skip self
+        
+        const otherSectionInput = document.querySelector(`input[name="sections[${i}][section]"]`);
+        const otherRoomSelect = document.querySelector(`select[name="sections[${i}][room]"]`);
+        const otherDaySelect = document.querySelector(`select[name="sections[${i}][day_pattern]"]`);
+        const otherStartTime = document.getElementById(`start-time-${i}`);
+        const otherEndTime = document.getElementById(`end-time-${i}`);
+        
+        if (!otherSectionInput || !otherRoomSelect || !otherDaySelect || !otherStartTime || !otherEndTime) {
+            console.log(`Section ${i + 1}: Missing elements, skipping`);
+            continue;
+        }
+        
+        const otherSection = otherSectionInput.value.trim().toUpperCase();
+        const otherRoom = otherRoomSelect.value;
+        const otherRoomText = otherRoomSelect.options[otherRoomSelect.selectedIndex]?.text || '';
+        const otherDay = otherDaySelect.value;
+        const otherStart = otherStartTime.value;
+        const otherEnd = otherEndTime.value;
+        
+        console.log(`Comparing with Section ${i + 1}:`, {otherSection, otherRoom, otherDay, otherStart, otherEnd});
+        
+        if (!otherSection || !otherRoom || !otherDay || !otherStart || !otherEnd) {
+            console.log(`Section ${i + 1}: Incomplete fields, skipping`);
+            continue;
+        }
+        
+        // Check duplicate section name within form
+        if (section === otherSection) {
+            console.log(`CONFLICT: Duplicate section name ${section}`);
+            hasConflict = true;
+            conflictDetails.push({
+                type: 'duplicate_form',
+                message: `<strong>${subjectCode} - Section ${section}</strong><br><span class="text-red-600">Duplicate with Section ${i + 1} in this form</span>`
+            });
+        }
+        
+        // Check room-time conflict within form
+        console.log(`Room check: ${otherRoom} == ${roomId}?`, otherRoom == roomId);
+        console.log(`Days overlap: ${dayPattern} vs ${otherDay}?`, daysOverlap(dayPattern, otherDay));
+        console.log(`Times overlap: ${startTime}-${endTime} vs ${otherStart}-${otherEnd}?`, timesOverlap(startTime, endTime, otherStart, otherEnd));
+        
+        if (otherRoom == roomId && daysOverlap(dayPattern, otherDay) && timesOverlap(startTime, endTime, otherStart, otherEnd)) {
+            console.log(`CONFLICT: Room-time conflict detected!`);
+            hasConflict = true;
+            conflictDetails.push({
+                type: 'room_form',
+                message: `<strong>${subjectCode} - Section ${otherSection}</strong><br><span class="text-red-600">Room ${otherRoomText.split(' - ')[0]} conflict with Section ${i + 1}</span><br><span class="text-xs text-gray-600">${otherDay} ${formatTimeAMPM(otherStart)}-${formatTimeAMPM(otherEnd)}</span>`
+            });
+        }
+        
+        // Check block sectioning conflict (same section, different subjects, same time)
+        // Students in the same section cannot attend both classes
+        if (section === otherSection && daysOverlap(dayPattern, otherDay) && timesOverlap(startTime, endTime, otherStart, otherEnd)) {
+            console.log(`CONFLICT: Block sectioning conflict detected!`);
+            hasConflict = true;
+            conflictDetails.push({
+                type: 'block_sectioning',
+                message: `<strong>${subjectCode} - Section ${section}</strong><br><span class="text-red-600">⚠️ BLOCK SECTIONING: Section ${section} students cannot attend both classes at the same time</span><br><span class="text-xs text-gray-600">${dayPattern} ${formatTimeAMPM(startTime)}-${formatTimeAMPM(endTime)}</span>`
+            });
+        }
+    }
+    
+    console.log(`Section ${index + 1} final result: hasConflict=${hasConflict}, conflictCount=${conflictDetails.length}`);
+    
+    // Update visual indicator and details
+    if (hasConflict) {
+        badge.className = 'text-xs px-2 py-1 rounded-full bg-red-100 text-red-700 font-medium cursor-pointer hover:bg-red-200';
+        badge.textContent = `❌ ${conflictDetails.length} Conflict${conflictDetails.length > 1 ? 's' : ''}`;
+        
+        // Remove all border color classes and add red
+        column.classList.remove('border-gray-200', 'border-green-500', 'border-red-500', 'border-2');
+        column.classList.add('border-red-500', 'border-2');
+        
+        // Populate conflict details and show them
+        conflictList.innerHTML = conflictDetails.map(detail => `
+            <div class="bg-red-50 p-2 rounded border border-red-200 mb-1">
+                ${detail.message}
+            </div>
+        `).join('');
+        
+        // Show the conflict details panel
+        conflictDetailsDiv.classList.remove('hidden');
+    } else {
+        badge.textContent = '✅ No Conflict';
+        badge.className = 'text-xs px-2 py-1 rounded-full bg-green-100 text-green-700 font-medium cursor-pointer';
+        
+        // Remove all border color classes and add green
+        column.classList.remove('border-gray-200', 'border-red-500', 'border-green-500', 'border-2');
+        column.classList.add('border-green-500', 'border-2');
+        
+        conflictDetailsDiv.classList.add('hidden');
+    }
+    
+    // Return conflict status for submit button control
+    return hasConflict;
+}
+
+// Toggle conflict details visibility
+function toggleConflictDetails(index) {
+    const detailsDiv = document.getElementById(`conflict-details-${index}`);
+    if (detailsDiv) {
+        detailsDiv.classList.toggle('hidden');
+    }
+}
+
+// Helper: Check if day patterns overlap
+// Helper: Check if day patterns overlap
+function daysOverlap(pattern1, pattern2) {
+    const days1 = pattern1.split('-');
+    const days2 = pattern2.split('-');
+    const overlap = days1.some(day => days2.includes(day));
+    console.log(`  daysOverlap("${pattern1}", "${pattern2}"):`);
+    console.log(`    days1: [${days1.join(', ')}]`);
+    console.log(`    days2: [${days2.join(', ')}]`);
+    console.log(`    overlap: ${overlap}`);
+    return overlap;
+}
+
+// Helper: Check if time ranges overlap
+function timesOverlap(start1, end1, start2, end2) {
+    const s1 = timeToMinutes(start1);
+    const e1 = timeToMinutes(end1);
+    const s2 = timeToMinutes(start2);
+    const e2 = timeToMinutes(end2);
+    return (s1 < e2 && e1 > s2);
+}
+
+// Helper: Convert time string to minutes
+function timeToMinutes(timeStr) {
+    const [hours, minutes] = timeStr.split(':').map(Number);
+    return hours * 60 + minutes;
+}
+
+// Helper: Convert 24-hour time to 12-hour format with AM/PM
+function formatTimeAMPM(timeStr) {
+    if (!timeStr) return '';
+    const [hours, minutes] = timeStr.split(':').map(Number);
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    const displayHours = hours % 12 || 12; // Convert 0 to 12 for midnight
+    const displayMinutes = minutes.toString().padStart(2, '0');
+    return `${displayHours}:${displayMinutes} ${ampm}`;
+}
+
+// Recheck all sections for conflicts
+function recheckAllSections() {
+    const sectionCount = parseInt(document.getElementById('section_count')?.value || 1);
+    let anyConflict = false;
+    
+    for (let i = 0; i < sectionCount; i++) {
+        const hasConflict = checkSectionConflict(i);
+        if (hasConflict) {
+            anyConflict = true;
+        }
+    }
+    
+    // Update submit button state
+    updateSubmitButton(anyConflict);
+}
+
+// Update submit button based on conflict status
+function updateSubmitButton(hasConflicts) {
+    const submitBtn = document.getElementById('submitBtn');
+    const submitBtnText = document.getElementById('submitBtnText');
+    
+    if (hasConflicts) {
+        submitBtn.disabled = true;
+        submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+        submitBtn.classList.remove('hover:bg-green-700', 'hover:shadow-md');
+        submitBtnText.textContent = '⚠️ Cannot Create (Conflicts Detected)';
+    } else {
+        submitBtn.disabled = false;
+        submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+        submitBtn.classList.add('hover:bg-green-700', 'hover:shadow-md');
+        
+        const sectionCount = parseInt(document.getElementById('section_count')?.value || 1);
+        if (sectionCount === 1) {
+            submitBtnText.textContent = 'Create Schedule';
+        } else {
+            submitBtnText.textContent = `Create ${sectionCount} Sections`;
+        }
+    }
+}
+
+// Initialize: Wait for user to select number of sections (don't auto-generate)
+document.addEventListener('DOMContentLoaded', function() {
+    // Don't generate sections automatically - wait for user selection
+    // generateSectionColumns();
+});
+
+
+// Update subject info and show existing sections
+function updateSubjectInfo() {
+    const select = document.getElementById('subject');
+    const selectedOption = select.options[select.selectedIndex];
+    
+    if (select.value) {
+        console.log('Subject selected, fetching existing sections for ID:', select.value);
+        
+        // Fetch and display existing sections for this subject
+        fetchExistingSections(select.value);
+        
+        // Recheck all sections for conflicts
+        recheckAllSections();
+    } else {
+        hideExistingSections();
+    }
+}
+
+// Fetch existing sections for the selected subject
+function fetchExistingSections(subjectId) {
+    console.log('=== FETCHING EXISTING SECTIONS ===');
+    console.log('Subject ID:', subjectId);
+    currentSubjectId = subjectId; // Store the current subject ID
+    
+    const isDepartmentHead = {{ isDepartmentHead is defined and isDepartmentHead ? 'true' : 'false' }};
+    const url = isDepartmentHead 
+        ? `/department-head/schedules/existing-sections/${subjectId}`
+        : `/admin/schedule/existing-sections/${subjectId}`;
+    
+    console.log('Fetching from URL:', url);
+    
+    fetch(url)
+        .then(response => {
+            console.log('Response status:', response.status);
+            if (!response.ok) {
+                if (response.status === 403) {
+                    console.error('403 Forbidden - Subject may not belong to your department');
+                }
+                // Try to get the error message from the response
+                return response.json().then(errData => {
+                    console.error('Backend error:', errData);
+                    throw new Error(`HTTP ${response.status}: ${errData.error || 'Unknown error'}`);
+                }).catch(() => {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('=== RECEIVED DATA FROM BACKEND ===');
+            console.log('Raw data:', data);
+            console.log('Schedules map:', data.schedules);
+            console.log('Schedules map keys:', Object.keys(data.schedules || {}));
+            console.log('Sections array:', data.sections);
+            console.log('Count:', data.count);
+            
+            existingSchedules = data.schedules || {};
+            
+            console.log('=== PROCESSING SCHEDULE DATA ===');
+            console.log('Raw schedules received:', data.schedules);
+            console.log('Number of schedules:', Object.keys(existingSchedules).length);
+            
+            // Extract year levels for each subject for block sectioning checks
+            Object.entries(existingSchedules).forEach(([key, schedule]) => {
+                console.log(`Schedule ${key}:`, schedule);
+                console.log(`  Subject ID: ${schedule.subjectId}, Year Level: ${schedule.yearLevel}`);
+                
+                if (schedule.subjectId && schedule.yearLevel) {
+                    subjectYearLevels[schedule.subjectId] = schedule.yearLevel;
+                    console.log(`  → Mapped subject ${schedule.subjectId} to year level ${schedule.yearLevel}`);
+                }
+            });
+            
+            // CRITICAL FIX: Also get year level for the CURRENT subject being selected
+            const subjectSelect = document.getElementById('subject');
+            const selectedOption = subjectSelect.options[subjectSelect.selectedIndex];
+            const currentSubjectYearLevel = selectedOption?.getAttribute('data-year-level');
+            
+            if (currentSubjectYearLevel && currentSubjectYearLevel !== '') {
+                subjectYearLevels[currentSubjectId] = parseInt(currentSubjectYearLevel);
+                console.log(`  → Mapped CURRENT subject ${currentSubjectId} to year level ${currentSubjectYearLevel} (from dropdown)`);
+            }
+            
+            console.log('=== YEAR LEVEL MAPPING COMPLETE ===');
+            console.log('Subject Year Levels:', subjectYearLevels);
+            console.log('Current Subject ID:', currentSubjectId);
+            console.log('Current Subject Year Level:', subjectYearLevels[currentSubjectId]);
+            
+            // Regenerate section columns with correct starting letters
+            const sectionCount = document.getElementById('section_count').value;
+            if (sectionCount) {
+                generateSectionColumns();
+            }
+            
+            // Display existing sections info
+            displayExistingSections(data.sections || []);
+            
+            console.log('=== STORED IN existingSchedules ===');
+            console.log('Keys stored:', Object.keys(existingSchedules));
+            console.log('Full map:', existingSchedules);
+            
+            // Re-validate section field after new data is loaded
+            checkSectionExists();
+        })
+        .catch(error => {
+            console.error('Error fetching existing sections:', error);
+            hideExistingSections();
+        });
+}
+
+// Display existing sections for the currently selected semester and year
+function displayExistingSections(sections) {
+    console.log('=== displayExistingSections CALLED ===');
+    console.log('Sections array passed in:', sections);
+    console.log('existingSchedules object:', existingSchedules);
+    updateExistingSectionsDisplay();
+}
+
+// Update the display based on current semester/year selection
+function updateExistingSectionsDisplay() {
+    const semesterElement = document.getElementById('semester');
+    const academicYearElement = document.getElementById('academic_year');
+    const infoBox = document.getElementById('existing-sections-info');
+    const listContainer = document.getElementById('existing-sections-list');
+    
+    if (!semesterElement || !academicYearElement || !infoBox || !listContainer) {
+        console.error('Required DOM elements not found');
+        return;
+    }
+    
+    const semester = semesterElement.value;
+    const academicYear = academicYearElement.value;
+    
+    console.log('=== UPDATE EXISTING SECTIONS DISPLAY ===');
+    console.log('Semester:', semester, 'Academic Year:', academicYear);
+    console.log('existingSchedules keys:', Object.keys(existingSchedules));
+    console.log('existingSchedules values:', Object.values(existingSchedules));
+    
+    // Check if we have any schedules at all
+    if (!existingSchedules || Object.keys(existingSchedules).length === 0) {
+        console.log('No existing schedules found - nothing to display');
+        hideExistingSections();
+        return;
+    }
+    
+    // If semester and year are not selected, show all sections for current subject only
+    if (!semester || !academicYear) {
+        // Show all unique sections for the current subject only
+        const allSections = new Set();
+        Object.values(existingSchedules).forEach(schedule => {
+            if (schedule.subjectId == currentSubjectId) {
+                allSections.add(schedule.section);
+            }
+        });
+        
+        console.log('No filter - showing all sections:', Array.from(allSections));
+        
+        if (allSections.size > 0) {
+            const sectionsArray = Array.from(allSections).sort();
+            listContainer.innerHTML = sectionsArray.map(section => 
+                `<span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-blue-100 text-blue-700 border border-blue-300">
+                    Section ${section}
+                </span>`
+            ).join('');
+            infoBox.classList.remove('hidden');
+            console.log('Displayed all sections successfully');
+        } else {
+            console.log('No sections to display');
+            hideExistingSections();
+        }
+        return;
+    }
+    
+    // Filter sections for current semester, year, AND subject
+    const currentSections = [];
+    Object.entries(existingSchedules).forEach(([key, schedule]) => {
+        console.log('Checking schedule key:', key);
+        console.log('  - schedule.semester:', schedule.semester, '(type:', typeof schedule.semester, ') vs', semester, '(type:', typeof semester, ')');
+        console.log('  - schedule.yearId:', schedule.yearId, '(type:', typeof schedule.yearId, ') vs', academicYear, '(type:', typeof academicYear, ')');
+        console.log('  - schedule.subjectId:', schedule.subjectId, 'vs currentSubjectId:', currentSubjectId);
+        
+        // Use type-safe comparison: convert both to strings for comparison
+        const semesterMatch = String(schedule.semester) === String(semester);
+        const yearMatch = String(schedule.yearId) === String(academicYear);
+        const subjectMatch = schedule.subjectId == currentSubjectId;
+        
+        console.log('  - semesterMatch:', semesterMatch, 'yearMatch:', yearMatch, 'subjectMatch:', subjectMatch);
+        
+        if (semesterMatch && yearMatch && subjectMatch) {
+            currentSections.push(schedule.section);
+            console.log('  ✓ MATCHED - added section:', schedule.section);
+        }
+    });
+    
+    console.log('Filtered sections for', semester, academicYear, ':', currentSections);
+    
+    if (currentSections.length > 0) {
+        currentSections.sort();
+        console.log('Displaying', currentSections.length, 'sections:', currentSections);
+        
+        const yearText = Object.values(existingSchedules).find(s => s.yearId == academicYear)?.year || '';
+        const sectionsHTML = currentSections.map(section => 
+            `<span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-blue-100 text-blue-700 border border-blue-300">
+                Section ${section}
+            </span>`
+        ).join('');
+        
+        console.log('Generated HTML:', sectionsHTML);
+        listContainer.innerHTML = sectionsHTML;
+        
+        // Update hint to show next available section
+        const nextIndex = getNextAvailableSectionIndex(currentSections.map(s => s.toUpperCase()));
+        const nextSection = String.fromCharCode(65 + nextIndex);
+        const hintElement = document.getElementById('next-section-hint');
+        if (hintElement) {
+            hintElement.textContent = `New sections will automatically start from Section ${nextSection}`;
+        }
+        
+        console.log('Removing hidden class from infoBox');
+        infoBox.classList.remove('hidden');
+        console.log('✓ Successfully displayed existing sections');
+    } else {
+        console.log('No sections match current filter - hiding');
+        hideExistingSections();
+    }
+}
+
+// Hide existing sections info
+function hideExistingSections() {
+    document.getElementById('existing-sections-info').classList.add('hidden');
+    // DO NOT clear existingSchedules - we need it for conflict detection!
+    // Even if current subject has no sections, other subjects' schedules are needed
+    // for block sectioning conflict detection
+}
+
+// Check if section already exists (NOT USED in block sectioning mode)
+function checkSectionExists() {
+    const sectionInput = document.getElementById('section');
+    
+    // Element doesn't exist in block sectioning mode, skip
+    if (!sectionInput) {
+        return;
+    }
+    
+    const section = sectionInput.value.trim().toUpperCase();
+    const subjectSelect = document.getElementById('subject');
+    const subjectId = subjectSelect ? subjectSelect.value : '';
+    const semester = document.getElementById('semester').value;
+    const academicYear = document.getElementById('academic_year').value;
+    const hintElement = document.getElementById('section-hint');
+    const statusIcon = document.getElementById('section-status-icon');
+    
+    console.log('=== CHECK SECTION EXISTS ===');
+    console.log('Input Section:', sectionInput.value);
+    console.log('Normalized Section:', section);
+    console.log('Subject ID:', subjectId);
+    console.log('Semester value:', semester);
+    console.log('Academic Year ID:', academicYear);
+    console.log('existingSchedules map:', existingSchedules);
+    console.log('All keys in map:', Object.keys(existingSchedules || {}));
+    
+    if (!section) {
+        hintElement.textContent = 'Class section identifier';
+        hintElement.className = 'mt-1 text-xs text-gray-500';
+        sectionInput.className = 'block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 transition';
+        if (statusIcon) statusIcon.classList.add('hidden');
+        return;
+    }
+    
+    // If no semester/year/subject selected, just show neutral message
+    if (!semester || !academicYear || !subjectId) {
+        hintElement.textContent = 'Select subject, semester & academic year to check availability';
+        hintElement.className = 'mt-1 text-xs text-gray-500';
+        sectionInput.className = 'block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 transition';
+        if (statusIcon) statusIcon.classList.add('hidden');
+        return;
+    }
+    
+    // Check if this exact combination exists (subject + section + semester + year)
+    const key = `${subjectId}_${section}_${semester}_${academicYear}`;
+    console.log('=== DUPLICATE CHECK ===');
+    console.log('Looking for key:', key);
+    console.log('Keys available:', Object.keys(existingSchedules || {}));
+    
+    // Also try to find manually to debug
+    const manualCheck = Object.entries(existingSchedules).find(([k, v]) => {
+        console.log(`Comparing key "${k}" with "${key}"`);
+        console.log(`  - Section match: "${v.section.toUpperCase()}" === "${section}" = ${v.section.toUpperCase() === section}`);
+        console.log(`  - Semester match: "${v.semester}" === "${semester}" = ${v.semester === semester}`);
+        console.log(`  - Year match: ${v.yearId} == ${academicYear} = ${v.yearId == academicYear}`);
+        return k === key;
+    });
+    
+    const exists = existingSchedules[key];
+    console.log('Direct lookup result:', exists);
+    console.log('Manual check result:', manualCheck);
+    
+    if (exists) {
+        console.log('🚫 DUPLICATE FOUND:', exists);
+        
+        // Change input border and background to RED
+        sectionInput.className = 'block w-full rounded-lg border-2 border-red-500 shadow-sm focus:border-red-600 focus:ring-red-500 transition bg-red-50';
+        
+        // Show error icon
+        if (statusIcon) {
+            statusIcon.innerHTML = `
+                <svg class="w-5 h-5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                </svg>
+            `;
+            statusIcon.classList.remove('hidden');
+        }
+        
+        hintElement.innerHTML = `<span class="flex items-center gap-1.5">
+            ⚠️ Section ${section} already exists for ${semester} ${exists.year}
+        </span>`;
+        hintElement.className = 'mt-1 text-sm text-red-600 font-medium';
+    } else {
+        console.log('✅ Section available for selected semester/year');
+        
+        // Change input border and background to GREEN
+        sectionInput.className = 'block w-full rounded-lg border-2 border-green-500 shadow-sm focus:border-green-600 focus:ring-green-500 transition bg-green-50';
+        
+        // Show success icon
+        if (statusIcon) {
+            statusIcon.innerHTML = `
+                <svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                </svg>
+            `;
+            statusIcon.classList.remove('hidden');
+        }
+        
+        hintElement.innerHTML = `<span class="flex items-center gap-1.5">
+            ✅ Section ${section} is available
+        </span>`;
+        hintElement.className = 'mt-1 text-sm text-green-600 font-medium';
+    }
+}
+
+// Check for room conflicts via AJAX
+function checkRoomConflicts() {
+    const room = document.getElementById('room').value;
+    const dayPattern = document.getElementById('day_pattern').value;
+    const startTime = document.getElementById('start_time').value;
+    const endTime = document.getElementById('end_time').value;
+    const semester = document.getElementById('semester').value;
+    const academicYear = document.getElementById('academic_year').value;
+    const hintElement = document.getElementById('room-conflict-hint');
+    
+    // Reset hint if missing required fields
+    if (!room || !dayPattern || !startTime || !endTime || !semester || !academicYear) {
+        hintElement.textContent = 'Select all schedule details to check room availability';
+        hintElement.className = 'mt-1 text-xs text-gray-500';
+        return;
+    }
+    
+    // Show checking status
+    hintElement.innerHTML = '<span class="flex items-center gap-1"><svg class="animate-spin h-3 w-3" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Checking room availability...</span>';
+    hintElement.className = 'mt-1 text-xs text-blue-600';
+    
+    // Determine the correct URL based on user role
+    const isDepartmentHead = {{ isDepartmentHead is defined and isDepartmentHead ? 'true' : 'false' }};
+    const checkUrl = isDepartmentHead 
+        ? '{{ path('department_head_schedules_check_room_conflicts') }}'
+        : '/admin/schedule/check-room-conflicts';
+    
+    // Make AJAX request to check conflicts
+    fetch(checkUrl, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify({
+            room: room,
+            dayPattern: dayPattern,
+            startTime: startTime,
+            endTime: endTime,
+            semester: semester,
+            academicYear: academicYear
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.hasConflict) {
+            hintElement.innerHTML = `<span class="flex items-center gap-1">
+                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                </svg>
+                🚫 Room conflict: ${data.conflictMessage}
+            </span>`;
+            hintElement.className = 'mt-1 text-xs text-red-600 font-medium';
+        } else {
+            hintElement.innerHTML = `<span class="flex items-center gap-1">
+                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                </svg>
+                ✓ Room is available
+            </span>`;
+            hintElement.className = 'mt-1 text-xs text-green-600 font-medium';
+        }
+    })
+    .catch(error => {
+        console.error('Error checking room conflicts:', error);
+        hintElement.textContent = 'Error checking room availability';
+        hintElement.className = 'mt-1 text-xs text-red-600';
+    });
+}
+
+// Auto-calculate end time (1 hour 30 minutes after start by default)
+function calculateEndTime() {
+    const startTime = document.getElementById('start_time').value;
+    if (startTime) {
+        const [hours, minutes] = startTime.split(':');
+        const startMinutes = parseInt(hours) * 60 + parseInt(minutes);
+        const endMinutes = startMinutes + 90; // Add 1 hour 30 minutes
+        const endHour = Math.floor(endMinutes / 60) % 24;
+        const endMin = endMinutes % 60;
+        const endTime = endHour.toString().padStart(2, '0') + ':' + endMin.toString().padStart(2, '0');
+        document.getElementById('end_time').value = endTime;
+        updateDuration();
+    }
+}
+
+// Update duration display
+function updateDuration() {
+    const startTime = document.getElementById('start_time').value;
+    const endTime = document.getElementById('end_time').value;
+    const hintEl = document.getElementById('duration-hint');
+    
+    if (startTime && endTime) {
+        const start = new Date('2000-01-01 ' + startTime);
+        const end = new Date('2000-01-01 ' + endTime);
+        const diff = (end - start) / (1000 * 60); // minutes
+        
+        if (diff > 0) {
+            const hours = Math.floor(diff / 60);
+            const minutes = diff % 60;
+            let durationText = 'Duration: ';
+            if (hours > 0) durationText += hours + (hours === 1 ? ' hour' : ' hours');
+            if (minutes > 0) durationText += (hours > 0 ? ' ' : '') + minutes + ' min';
+            hintEl.textContent = durationText;
+            hintEl.className = 'mt-1 text-xs text-green-600 font-medium';
+        } else {
+            hintEl.textContent = 'End time must be after start time';
+            hintEl.className = 'mt-1 text-xs text-red-600 font-medium';
+        }
+    } else {
+        hintEl.textContent = 'Duration: --';
+        hintEl.className = 'mt-1 text-xs text-gray-500';
+    }
+}
+
+// Check room capacity vs enrolled students
+function checkCapacity() {
+    const roomSelect = document.getElementById('room');
+    const enrolledInput = document.getElementById('enrolled_students');
+    const warningEl = document.getElementById('capacity-warning');
+    
+    if (roomSelect.value && enrolledInput.value) {
+        const selectedOption = roomSelect.options[roomSelect.selectedIndex];
+        const capacity = parseInt(selectedOption.getAttribute('data-capacity') || 0);
+        const enrolled = parseInt(enrolledInput.value);
+        
+        if (enrolled > capacity) {
+            warningEl.textContent = `⚠️ Exceeds room capacity by ${enrolled - capacity}`;
+            warningEl.className = 'mt-1 text-xs text-red-600 font-medium';
+        } else if (capacity > 0) {
+            const remaining = capacity - enrolled;
+            warningEl.textContent = `✓ ${remaining} seats remaining`;
+            warningEl.className = 'mt-1 text-xs text-green-600';
+        }
+    } else {
+        warningEl.textContent = '';
+    }
+}
+
+// Note: Preview and duration functions removed as they're not used in block sectioning mode
+
+// Form submission
+document.getElementById('scheduleForm').addEventListener('submit', function(e) {
+    const submitBtn = document.getElementById('submitBtn');
+    const submitText = document.getElementById('submitBtnText');
+    
+    submitBtn.disabled = true;
+    submitText.textContent = 'Creating...';
+    
+    // Re-enable after 3 seconds in case of error
+    setTimeout(() => {
+        submitBtn.disabled = false;
+        submitText.textContent = 'Create Schedule';
+    }, 3000);
+});
+
+// Live Conflict Detection - NOT USED IN BLOCK SECTIONING MODE
+// This function is kept commented out for potential future use
+/*
+let conflictCheckTimeout;
+
+function checkForConflicts() {
+    console.log('=== checkForConflicts called ===');
+    
+    // Get form values
+    const subject = document.getElementById('subject')?.value || '';
+    const section = document.getElementById('section')?.value || '';
+    const semester = document.getElementById('semester')?.value || '';
+    const academicYear = document.getElementById('academic_year')?.value || '';
+    const room = document.getElementById('room')?.value || '';
+    const dayPattern = document.getElementById('day_pattern')?.value || '';
+    const startTime = document.getElementById('start_time')?.value || '';
+    const endTime = document.getElementById('end_time')?.value || '';
+
+    console.log('Form data:', { subject, section, semester, academicYear, room, dayPattern, startTime, endTime });
+
+    // Only check if we have all required fields
+    if (!subject || !room || !dayPattern || !startTime || !endTime || !semester || !academicYear) {
+        console.log('Missing required fields, hiding conflict detection');
+        document.getElementById('live-conflict-detection').classList.add('hidden');
+        return;
+    }
+
+    // Show loading
+    const conflictBox = document.getElementById('live-conflict-detection');
+    const loadingEl = document.getElementById('conflict-loading');
+    conflictBox.classList.remove('hidden');
+    loadingEl.classList.remove('hidden');
+
+    // Clear existing timeout
+    clearTimeout(conflictCheckTimeout);
+
+    // Debounce the API call
+    conflictCheckTimeout = setTimeout(() => {
+        const conflictCheckUrl = {% if isDepartmentHead is defined and isDepartmentHead %}'{{ path('department_head_schedules_check_conflicts') }}'{% else %}'{{ path('app_schedule_check_conflict') }}'{% endif %};
+        fetch(conflictCheckUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({
+                subject: subject,
+                section: section,
+                semester: semester,
+                academic_year: academicYear,
+                room: room,
+                day_pattern: dayPattern,
+                start_time: startTime,
+                end_time: endTime
+            })
+        })
+        .then(response => {
+            console.log('Conflict check response status:', response.status);
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('=== CONFLICT CHECK RESPONSE ===');
+            console.log('Full response:', data);
+            console.log('Has conflicts:', data.has_conflicts);
+            console.log('Conflicts array:', data.conflicts);
+            console.log('Warnings array:', data.warnings);
+            console.log('Debug info:', data.debug);
+            loadingEl.classList.add('hidden');
+            displayConflictResults(data);
+        })
+        .catch(error => {
+            console.error('Error checking conflicts:', error);
+            loadingEl.classList.add('hidden');
+            document.getElementById('live-conflict-detection').classList.add('hidden');
+        });
+    }, 500);
+}
+*/
+
+// displayConflictResults and getCheckedItems also commented out - not used in block sectioning
+/*
+function displayConflictResults(data) {
+    const conflictBox = document.getElementById('live-conflict-detection');
+    const iconEl = document.getElementById('conflict-icon');
+    const titleEl = document.getElementById('conflict-title');
+    const detailsEl = document.getElementById('conflict-details');
+
+    if (data.has_conflicts) {
+        // Show conflicts
+        iconEl.innerHTML = `<svg class="w-6 h-6 text-red-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+        </svg>`;
+        titleEl.textContent = '⚠️ Conflicts Detected';
+        titleEl.className = 'text-lg font-semibold text-red-800 mb-2';
+        conflictBox.className = 'bg-red-50 border-l-4 border-red-500 rounded-lg shadow-sm p-6';
+
+        let html = '<div class="space-y-3">';
+        html += '<p class="text-sm font-semibold text-red-800">The following conflicts were detected:</p>';
+        html += '<ul class="space-y-2 text-sm">';
+        data.conflicts.forEach(conflict => {
+            html += `<li class="flex items-start gap-2 bg-white bg-opacity-50 p-2 rounded">
+                <span class="text-red-600 font-bold mt-0.5">🚫</span>
+                <span class="text-red-700">${conflict}</span>
+            </li>`;
+        });
+        html += '</ul>';
+        html += '<div class="mt-4 p-3 bg-red-100 rounded-lg">';
+        html += '<p class="text-sm text-red-900 font-semibold">⛔ Cannot create schedule with these conflicts.</p>';
+        html += '<p class="text-xs text-red-800 mt-1">Please change the room, time, or section to resolve conflicts.</p>';
+        html += '</div>';
+        html += '</div>';
+        detailsEl.innerHTML = html;
+
+        // Disable submit button
+        document.getElementById('submitBtn').disabled = true;
+    } else if (data.warnings && data.warnings.length > 0) {
+        // Show warnings only
+        iconEl.innerHTML = `<svg class="w-6 h-6 text-yellow-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+        </svg>`;
+        titleEl.textContent = '⚠️ Warnings Detected';
+        titleEl.className = 'text-lg font-semibold text-yellow-800 mb-2';
+        conflictBox.className = 'bg-yellow-50 border-l-4 border-yellow-400 rounded-lg shadow-sm p-6';
+
+        let html = '<div class="space-y-3">';
+        html += '<p class="text-sm font-semibold text-yellow-800">Please review the following warnings:</p>';
+        html += '<ul class="space-y-2 text-sm">';
+        data.warnings.forEach(warning => {
+            html += `<li class="flex items-start gap-2 bg-white bg-opacity-50 p-2 rounded">
+                <span class="text-yellow-600 font-bold mt-0.5">⚠️</span>
+                <span class="text-yellow-700">${warning}</span>
+            </li>`;
+        });
+        html += '</ul>';
+        
+        // Add checked items
+        html += '<div class="mt-4 space-y-2">';
+        html += '<p class="text-xs font-semibold text-yellow-800">✓ Checked for conflicts:</p>';
+        html += '<div class="grid grid-cols-2 gap-2 text-xs text-yellow-700">';
+        html += getCheckedItems();
+        html += '</div>';
+        html += '</div>';
+        
+        html += '<div class="mt-4 p-3 bg-yellow-100 rounded-lg">';
+        html += '<p class="text-sm text-yellow-900 font-semibold">✓ You can still create this schedule</p>';
+        html += '<p class="text-xs text-yellow-800 mt-1">Review the warnings before submitting.</p>';
+        html += '</div>';
+        html += '</div>';
+        detailsEl.innerHTML = html;
+
+        // Enable submit button
+        document.getElementById('submitBtn').disabled = false;
+    } else {
+        // No conflicts - show detailed check results
+        iconEl.innerHTML = `<svg class="w-6 h-6 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>`;
+        titleEl.textContent = '✅ No Conflicts Detected';
+        titleEl.className = 'text-lg font-semibold text-green-800 mb-2';
+        conflictBox.className = 'bg-green-50 border-l-4 border-green-500 rounded-lg shadow-sm p-6';
+        
+        let html = '<div class="space-y-3">';
+        html += '<p class="text-sm text-green-700">This schedule has been verified and is ready to be created.</p>';
+        
+        // Show what was checked
+        html += '<div class="mt-4 space-y-2">';
+        html += '<p class="text-xs font-semibold text-green-800">✓ Verified checks:</p>';
+        html += '<div class="grid grid-cols-1 gap-2">';
+        html += getCheckedItems();
+        html += '</div>';
+        html += '</div>';
+        
+        html += '<div class="mt-4 p-3 bg-green-100 rounded-lg">';
+        html += '<p class="text-sm text-green-900 font-semibold">✓ Ready to create</p>';
+        html += '<p class="text-xs text-green-800 mt-1">All conflict checks passed successfully.</p>';
+        html += '</div>';
+        html += '</div>';
+        
+        detailsEl.innerHTML = html;
+
+        // Enable submit button
+        document.getElementById('submitBtn').disabled = false;
+    }
+}
+
+function getCheckedItems() {
+    const room = document.getElementById('room');
+    const dayPattern = document.getElementById('day_pattern');
+    const startTime = document.getElementById('start_time').value;
+    const endTime = document.getElementById('end_time').value;
+    const section = document.getElementById('section').value;
+    const subject = document.getElementById('subject');
+    
+    const roomText = room.options[room.selectedIndex]?.text || 'N/A';
+    const subjectText = subject.options[subject.selectedIndex]?.text || 'N/A';
+    const dayText = dayPattern.options[dayPattern.selectedIndex]?.text || 'N/A';
+    
+    const start = new Date('2000-01-01 ' + startTime);
+    const end = new Date('2000-01-01 ' + endTime);
+    const startFormatted = start.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+    const endFormatted = end.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+    
+    let html = '';
+    html += `<div class="flex items-start gap-2 bg-white bg-opacity-50 p-2 rounded">
+        <span class="text-green-600 mt-0.5">🏢</span>
+        <div class="flex-1">
+            <span class="font-semibold text-xs">Room:</span>
+            <span class="text-xs ml-1">${roomText}</span>
+        </div>
+    </div>`;
+    
+    html += `<div class="flex items-start gap-2 bg-white bg-opacity-50 p-2 rounded">
+        <span class="text-green-600 mt-0.5">📅</span>
+        <div class="flex-1">
+            <span class="font-semibold text-xs">Schedule:</span>
+            <span class="text-xs ml-1">${dayText} ${startFormatted} - ${endFormatted}</span>
+        </div>
+    </div>`;
+    
+    html += `<div class="flex items-start gap-2 bg-white bg-opacity-50 p-2 rounded">
+        <span class="text-green-600 mt-0.5">📚</span>
+        <div class="flex-1">
+            <span class="font-semibold text-xs">Subject & Section:</span>
+            <span class="text-xs ml-1">${subjectText.substring(0, 40)} - Section ${section}</span>
+        </div>
+    </div>`;
+    
+    html += `<div class="flex items-start gap-2 bg-white bg-opacity-50 p-2 rounded">
+        <span class="text-green-600 mt-0.5">✓</span>
+        <div class="flex-1">
+            <span class="text-xs">No room-time conflicts found</span>
+        </div>
+    </div>`;
+    
+    html += `<div class="flex items-start gap-2 bg-white bg-opacity-50 p-2 rounded">
+        <span class="text-green-600 mt-0.5">✓</span>
+        <div class="flex-1">
+            <span class="text-xs">No duplicate subject-section</span>
+        </div>
+    </div>`;
+    
+    html += `<div class="flex items-start gap-2 bg-white bg-opacity-50 p-2 rounded">
+        <span class="text-green-600 mt-0.5">✓</span>
+        <div class="flex-1">
+            <span class="text-xs">No section time conflicts</span>
+        </div>
+    </div>`;
+    
+    return html;
+}
+*/
+
+// Note: Live conflict checking for old single-section form removed
+// Block sectioning uses recheckAllSections() instead
+
+// Filter subjects by semester dropdown
+function filterSubjectsBySemester() {
+    const filterSelect = document.getElementById('semester-view-filter');
+    const subjectSelect = document.getElementById('subject');
+    const filterStatusText = document.getElementById('filter-status-text');
+    const activeSemester = '{{ activeSemester|default("") }}';
+    
+    const filterValue = filterSelect.value;
+    const options = subjectSelect.querySelectorAll('option');
+    
+    let visibleCount = 0;
+    
+    options.forEach(option => {
+        if (option.value === '') {
+            // Keep the "Choose a subject..." option always visible
+            option.style.display = '';
+            return;
+        }
+        
+        const subjectSemester = option.getAttribute('data-subject-semester');
+        
+        if (filterValue === 'active') {
+            // Show only active semester subjects
+            if (subjectSemester === activeSemester) {
+                option.style.display = '';
+                visibleCount++;
+            } else {
+                option.style.display = 'none';
+            }
+        } else {
+            // Show all subjects
+            option.style.display = '';
+            visibleCount++;
+        }
+    });
+    
+    // Update status text
+    if (filterValue === 'active') {
+        filterStatusText.innerHTML = `Showing only <strong>${activeSemester}</strong> semester subjects. (${visibleCount} subjects)`;
+    } else {
+        filterStatusText.innerHTML = `Showing <strong>all</strong> semester subjects for reference. (${visibleCount} subjects)`;
+    }
+    
+    // Reset the subject selection if current selection is now hidden
+    const currentSelection = subjectSelect.value;
+    if (currentSelection) {
+        const currentOption = subjectSelect.querySelector(`option[value="${currentSelection}"]`);
+        if (currentOption && currentOption.style.display === 'none') {
+            subjectSelect.value = '';
+            updateSubjectInfo();
+        }
+    }
+}
+
+// Auto-update existing sections display if semester/year are pre-selected
+window.addEventListener('DOMContentLoaded', function() {
+    const semester = document.getElementById('semester').value;
+    const academicYear = document.getElementById('academic_year').value;
+    
+    // Apply the default filter on page load
+    filterSubjectsBySemester();
+    
+    // If both are pre-selected (active semester), update the display
+    if (semester && academicYear) {
+        console.log('Active semester pre-selected:', semester, academicYear);
+        updateExistingSectionsDisplay();
+    }
+});
+</script>
+
+{% endblock %}

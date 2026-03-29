@@ -1,0 +1,309 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Edit College: {{ college.name }}{% endblock %}
+
+{% block main_content %}
+    <!-- Page Header -->
+    <div class="mb-8">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900 sm:text-4xl">
+                    Edit College
+                </h1>
+                <p class="mt-2 text-sm text-gray-600">
+                    Update information for <span class="font-semibold">{{ college.name }}</span>
+                </p>
+            </div>
+            <div class="flex items-center space-x-3">
+                {% if college.isActive %}
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 8 8">
+                            <circle cx="4" cy="4" r="3"/>
+                        </svg>
+                        Active
+                    </span>
+                {% else %}
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                        <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 8 8">
+                            <circle cx="4" cy="4" r="3"/>
+                        </svg>
+                        Inactive
+                    </span>
+                {% endif %}
+                <a href="{{ path('admin_colleges') }}" 
+                   class="inline-flex items-center px-6 py-3 border border-gray-300 rounded-lg text-base font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 shadow-sm transition duration-150">
+                    <svg class="mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                    </svg>
+                    Back to Colleges
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Form Card -->
+    <div class="max-w-4xl mx-auto">
+        <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-indigo-50 to-purple-50">
+                <h3 class="text-lg font-semibold text-gray-900">College Information</h3>
+                <p class="text-sm text-gray-600 mt-1">Fields marked with <span class="text-red-500">*</span> are required</p>
+            </div>
+
+        <div class="p-8">
+            {{ form_start(form, {'action': path('admin_colleges_edit', {'id': college.id}), 'attr': {'class': 'space-y-6', 'id': 'college-form', 'autocomplete': 'off', 'enctype': 'multipart/form-data'}}) }}
+
+            <!-- College Code -->
+            <div>
+                <label for="{{ form.code.vars.id }}" class="block text-sm font-medium text-gray-700 mb-2">
+                    College Code <span class="text-red-500">*</span>
+                </label>
+                {{ form_widget(form.code, {
+                    'attr': {
+                        'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 uppercase',
+                        'placeholder': 'e.g., CAS, COED, CBMA',
+                        'maxlength': '10',
+                        'id': 'college-code',
+                        'data-original-code': college.code
+                    }
+                }) }}
+                {{ form_errors(form.code, {'attr': {'class': 'text-red-600 text-sm mt-1'}}) }}
+                <p class="text-xs text-gray-500 mt-1">
+                    <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    Unique code (2-10 uppercase alphanumeric characters)
+                </p>
+                <div id="code-availability" class="text-sm mt-2 hidden"></div>
+            </div>
+
+            <!-- College Name -->
+            <div>
+                <label for="{{ form.name.vars.id }}" class="block text-sm font-medium text-gray-700 mb-2">
+                    College Name <span class="text-red-500">*</span>
+                </label>
+                {{ form_widget(form.name, {
+                    'attr': {
+                        'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200',
+                        'placeholder': 'e.g., College of Arts and Sciences'
+                    }
+                }) }}
+                {{ form_errors(form.name, {'attr': {'class': 'text-red-600 text-sm mt-1'}}) }}
+                <p class="text-xs text-gray-500 mt-1">
+                    <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    Full official name of the college (3-255 characters)
+                </p>
+            </div>
+
+            <!-- Description -->
+            <div>
+                <label for="{{ form.description.vars.id }}" class="block text-sm font-medium text-gray-700 mb-2">
+                    Description <span class="text-gray-400">(Optional)</span>
+                </label>
+                {{ form_widget(form.description, {
+                    'attr': {
+                        'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200',
+                        'placeholder': 'Brief description of the college, its mission, or programs offered',
+                        'rows': '4'
+                    }
+                }) }}
+                {{ form_errors(form.description, {'attr': {'class': 'text-red-600 text-sm mt-1'}}) }}
+                <p class="text-xs text-gray-500 mt-1">
+                    <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    Provide additional context about the college
+                </p>
+            </div>
+
+            <!-- Dean -->
+            <div>
+                <label for="{{ form.dean.vars.id }}" class="block text-sm font-medium text-gray-700 mb-2">
+                    Dean <span class="text-gray-400">(Optional)</span>
+                </label>
+                {{ form_widget(form.dean, {
+                    'attr': {
+                        'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200',
+                        'placeholder': 'e.g., Dr. Juan Dela Cruz'
+                    }
+                }) }}
+                {{ form_errors(form.dean, {'attr': {'class': 'text-red-600 text-sm mt-1'}}) }}
+                <p class="text-xs text-gray-500 mt-1">
+                    <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    Name of the college dean
+                </p>
+            </div>
+
+            <!-- Logo Upload -->
+            <div>
+                <label for="{{ form.logoFile.vars.id }}" class="block text-sm font-medium text-gray-700 mb-2">
+                    College Logo <span class="text-gray-400">(Optional)</span>
+                </label>
+                {% if college.logo %}
+                    <div class="mb-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                        <p class="text-xs text-gray-600 mb-2">Current Logo:</p>
+                        <img src="{{ asset('images/' ~ college.logo) }}" alt="{{ college.name }} logo" class="h-20 w-20 rounded-lg object-cover border border-gray-300">
+                    </div>
+                {% endif %}
+                {{ form_widget(form.logoFile, {
+                    'attr': {
+                        'class': 'w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100',
+                        'accept': 'image/*'
+                    }
+                }) }}
+                {{ form_errors(form.logoFile, {'attr': {'class': 'text-red-600 text-sm mt-1'}}) }}
+                <p class="text-xs text-gray-500 mt-1">
+                    <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                    Upload new logo to replace current (max 2MB, JPG/PNG/GIF/WebP)
+                </p>
+            </div>
+
+
+
+            {{ form_rest(form) }}
+
+            <!-- Form Actions -->
+            <div class="flex items-center justify-between pt-6 border-t border-gray-200">
+                <div class="flex items-center space-x-2">
+                    <a href="{{ path('admin_colleges_view', {id: college.id}) }}" class="inline-flex items-center px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors duration-200">
+                        <svg class="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                        </svg>
+                        View Details
+                    </a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="{{ path('admin_colleges') }}" class="inline-flex items-center px-6 py-3 border border-gray-300 rounded-xl shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200">
+                        <svg class="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                        Cancel
+                    </a>
+                    <button type="submit" class="inline-flex items-center px-6 py-3 border border-transparent rounded-xl shadow-sm text-sm font-medium text-white gradient-primary hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200">
+                        <svg class="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        Save Changes
+                    </button>
+                </div>
+            </div>
+
+            {{ form_end(form) }}
+        </div>
+    </div>
+
+    <!-- College Info -->
+    <div class="max-w-4xl mx-auto mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="bg-white rounded-lg shadow p-4 border border-gray-100">
+            <div class="text-sm text-gray-500">Created</div>
+            <div class="text-lg font-semibold text-gray-900 mt-1">
+                {{ college.createdAt|date('M d, Y') }}
+            </div>
+        </div>
+        <div class="bg-white rounded-lg shadow p-4 border border-gray-100">
+            <div class="text-sm text-gray-500">Last Updated</div>
+            <div class="text-lg font-semibold text-gray-900 mt-1">
+                {{ college.updatedAt|date('M d, Y') }}
+            </div>
+        </div>
+        <div class="bg-white rounded-lg shadow p-4 border border-gray-100">
+            <div class="text-sm text-gray-500">College ID</div>
+            <div class="text-lg font-semibold text-gray-900 mt-1">
+                #{{ college.id }}
+            </div>
+        </div>
+    </div>
+
+    <!-- Help Section -->
+    <div class="max-w-4xl mx-auto mt-8 bg-yellow-50 rounded-2xl p-6 border border-yellow-100">
+        <div class="flex">
+            <div class="flex-shrink-0">
+                <svg class="h-6 w-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                </svg>
+            </div>
+            <div class="ml-3">
+                <h3 class="text-sm font-medium text-yellow-800">Important Notes</h3>
+                <div class="mt-2 text-sm text-yellow-700">
+                    <ul class="list-disc list-inside space-y-1">
+                        <li>Changing the college code may affect related departments and users</li>
+                        <li>Deactivating this college will hide it from dropdowns and faculty assignments</li>
+                        <li>You cannot delete a college that has departments assigned to it</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        // Live code availability check (excluding current college)
+        const codeInput = document.getElementById('college-code');
+        const codeAvailability = document.getElementById('code-availability');
+        const originalCode = codeInput.dataset.originalCode;
+        const collegeId = {{ college.id }};
+        let checkTimeout;
+
+        codeInput.addEventListener('input', function() {
+            clearTimeout(checkTimeout);
+            // Remove any non-alphanumeric characters, convert to uppercase
+            let code = this.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+            this.value = code; // Force uppercase and remove invalid chars
+
+            // Don't check if code hasn't changed
+            if (code === originalCode) {
+                codeAvailability.classList.add('hidden');
+                codeInput.classList.remove('border-red-300', 'border-green-300');
+                return;
+            }
+
+            if (code.length >= 2) {
+                checkTimeout = setTimeout(() => {
+                    checkCodeAvailability(code);
+                }, 500);
+            } else {
+                codeAvailability.classList.add('hidden');
+            }
+        });
+
+        // Additional validation on form submit to ensure clean data
+        document.getElementById('college-form').addEventListener('submit', function(e) {
+            const code = codeInput.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+            codeInput.value = code;
+        });
+
+        function checkCodeAvailability(code) {
+            fetch('{{ path('admin_api_colleges_check_code') }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ code: code, exclude_id: collegeId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                codeAvailability.classList.remove('hidden');
+                if (data.available) {
+                    codeAvailability.innerHTML = '<span class="text-green-600 flex items-center"><svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>' + data.message + '</span>';
+                    codeInput.classList.remove('border-red-300');
+                    codeInput.classList.add('border-green-300');
+                } else {
+                    codeAvailability.innerHTML = '<span class="text-red-600 flex items-center"><svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/></svg>' + data.message + '</span>';
+                    codeInput.classList.remove('border-green-300');
+                    codeInput.classList.add('border-red-300');
+                }
+            })
+            .catch(error => {
+                console.error('Error checking code availability:', error);
+            });
+        }
+    </script>
+{% endblock %}

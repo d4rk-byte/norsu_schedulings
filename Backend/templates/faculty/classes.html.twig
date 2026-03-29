@@ -1,0 +1,163 @@
+{% extends 'faculty/base.html.twig' %}
+
+{% block title %}My Classes - Smart Scheduling System{% endblock %}
+
+{% block page_title %}My Classes{% endblock %}
+
+{% block main_content %}
+    <!-- Page Header -->
+    <div class="mb-6">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900">My Classes</h1>
+                <p class="mt-1 text-sm text-gray-500">Manage your current semester classes and students</p>
+            </div>
+            <div class="mt-4 sm:mt-0">
+                <form method="get" action="{{ path('faculty_classes') }}">
+                    <select name="semester" onchange="this.form.submit()" class="block w-full sm:w-auto px-4 py-2 border border-gray-300 rounded-lg shadow-sm text-sm focus:ring-blue-500 focus:border-blue-500">
+                        <option value="1st" {% if selectedSemester == '1st' %}selected{% endif %}>1st Semester</option>
+                        <option value="2nd" {% if selectedSemester == '2nd' %}selected{% endif %}>2nd Semester</option>
+                        <option value="Summer" {% if selectedSemester == 'Summer' %}selected{% endif %}>Summer</option>
+                    </select>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <div class="flex items-center">
+                <div class="bg-gradient-to-br from-blue-500 to-blue-600 p-3 rounded-lg">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                    </svg>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm text-gray-600">Total Classes</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ stats.total_classes }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <div class="flex items-center">
+                <div class="bg-gradient-to-br from-green-500 to-green-600 p-3 rounded-lg">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                    </svg>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm text-gray-600">Total Students</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ stats.total_students }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <div class="flex items-center">
+                <div class="bg-gradient-to-br from-orange-500 to-orange-600 p-3 rounded-lg">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm text-gray-600">Teaching Hours</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ stats.teaching_hours }} hrs</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <div class="flex items-center">
+                <div class="bg-gradient-to-br from-purple-500 to-purple-600 p-3 rounded-lg">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
+                    </svg>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm text-gray-600">Pending Tasks</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ stats.pending_tasks }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Classes List -->
+    <div class="grid grid-cols-1 gap-6">
+        {% if schedules is empty %}
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-12 text-center">
+                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                </svg>
+                <h3 class="mt-2 text-sm font-medium text-gray-900">No classes found</h3>
+                <p class="mt-1 text-sm text-gray-500">You don't have any classes for the selected semester.</p>
+            </div>
+        {% else %}
+            {% for result in schedules %}
+                {% set schedule = result is iterable and result[0] is defined ? result[0] : result %}
+                {% set studentCount = result is iterable and result.studentCount is defined ? result.studentCount : schedule.enrolledStudents %}
+                
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow">
+                    <div class="p-6">
+                        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between">
+                            <div class="flex items-start space-x-4">
+                                <div class="bg-gradient-to-br from-blue-500 to-blue-600 p-4 rounded-xl">
+                                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                                    </svg>
+                                </div>
+                                <div class="flex-1">
+                                    <h3 class="text-lg font-semibold text-gray-900">
+                                        {{ schedule.subject.code }} - {{ schedule.subject.title }}
+                                    </h3>
+                                    <p class="text-sm text-gray-600 mt-1">
+                                        {{ schedule.subject.department ? schedule.subject.department.name : 'N/A' }}
+                                    </p>
+                                    <div class="mt-3 flex flex-wrap gap-4 text-sm text-gray-600">
+                                        <span class="flex items-center">
+                                            <svg class="w-4 h-4 mr-1 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                                            </svg>
+                                            {{ studentCount }} Students
+                                        </span>
+                                        <span class="flex items-center">
+                                            <svg class="w-4 h-4 mr-1 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                            </svg>
+                                            {{ schedule.dayPatternLabel }} {{ schedule.startTime|date('g:i A') }} - {{ schedule.endTime|date('g:i A') }}
+                                        </span>
+                                        <span class="flex items-center">
+                                            <svg class="w-4 h-4 mr-1 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                                            </svg>
+                                            {{ schedule.room ? (schedule.room.code ~ (schedule.room.name ? ' - ' ~ schedule.room.name : '')) : 'TBA' }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-4 lg:mt-0 flex flex-wrap gap-2">
+                                <a href="#" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg text-sm font-medium hover:shadow-lg transition-shadow">
+                                    View Details
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 px-6 py-4 border-t border-gray-100">
+                        <div class="flex items-center justify-between text-sm">
+                            <div class="flex items-center space-x-4">
+                                <span class="flex items-center text-blue-600">
+                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                    </svg>
+                                    {{ schedule.semester }} - {{ currentAcademicYear ? currentAcademicYear.year : 'N/A' }}
+                                </span>
+                            </div>
+                            <span class="text-gray-500">Section: {{ schedule.section ?? 'N/A' }}</span>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+{% endblock %}

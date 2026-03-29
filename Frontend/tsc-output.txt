@@ -1,0 +1,13 @@
+src/app/admin/curricula/[id]/subjects/page.tsx(161,23): error TS18047: 'curriculum' is possibly 'null'.
+src/app/admin/schedules/[id]/edit/page.tsx(177,74): error TS2339: Property 'isCurrent' does not exist on type '{ id: number; year: string; }'.
+src/app/department-head/curricula/[id]/page.tsx(134,31): error TS2322: Type '{ children: (false | Element)[]; key: number; id: string; }' is not assignable to type 'IntrinsicAttributes & CardProps'.
+  Property 'id' does not exist on type 'IntrinsicAttributes & CardProps'.
+src/app/department-head/faculty-assignments/page.tsx(132,27): error TS2339: Property 'department' does not exist on type '{ id: number; fullName: string; employeeId: string | null; position: string | null; }'.
+src/app/department-head/faculty-assignments/page.tsx(452,16): error TS2322: Type '"secondary"' is not assignable to type 'BadgeVariant | undefined'.
+src/app/department-head/reports/room-utilization/page.tsx(179,33): error TS2322: Type '"error"' is not assignable to type 'BadgeVariant | undefined'.
+src/app/department-head/settings/page.tsx(45,13): error TS2345: Argument of type 'Dispatch<SetStateAction<DepartmentHeadSettingsView | null>>' is not assignable to parameter of type '(value: Record<string, unknown>) => void | PromiseLike<void>'.
+  Types of parameters 'value' and 'value' are incompatible.
+    Type 'Record<string, unknown>' is not assignable to type 'SetStateAction<DepartmentHeadSettingsView | null>'.
+      Property 'currentAcademicYear' is missing in type 'Record<string, unknown>' but required in type 'DepartmentHeadSettingsView'.
+src/contexts/AuthContext.tsx(63,5): error TS2741: Property 'deletedAt' is missing in type '{ id: number; username: string; email: string; firstName: null; middleName: null; lastName: null; fullName: string; role: number; roleString: string; roleDisplayName: string; employeeId: null; position: null; ... 7 more ...; updatedAt: null; }' but required in type 'User'.
+src/contexts/AuthContext.tsx(109,11): error TS2741: Property 'deletedAt' is missing in type '{ id: any; username: any; email: any; firstName: any; middleName: any; lastName: any; fullName: any; role: any; roleString: any; roleDisplayName: any; employeeId: any; position: any; address: any; otherDesignation: any; ... 5 more ...; updatedAt: any; }' but required in type 'User'.

@@ -1,0 +1,1 @@
+# API login is handled by App\Controller\Api\ApiLoginController via attribute routing

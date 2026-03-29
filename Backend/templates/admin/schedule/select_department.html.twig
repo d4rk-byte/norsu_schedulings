@@ -1,0 +1,145 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Create Schedule - Select Department{% endblock %}
+
+{% block main_content %}
+<div class="max-w-7xl mx-auto">
+    <!-- Page Header -->
+    <div class="mb-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900">📅 Create New Schedule</h1>
+                <p class="mt-1 text-sm text-gray-600">Select a college and department to start scheduling</p>
+            </div>
+            <a href="{{ path('app_schedule_index') }}" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                <svg class="mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                </svg>
+                Back to Schedules
+            </a>
+        </div>
+    </div>
+
+    <!-- Progress Steps -->
+    <div class="mb-8">
+        <div class="flex items-center justify-center">
+            <div class="flex items-center">
+                <!-- Step 1: Active -->
+                <div class="flex items-center">
+                    <div class="flex items-center justify-center w-10 h-10 bg-blue-600 rounded-full text-white font-semibold">
+                        1
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm font-medium text-blue-600">Select Department</p>
+                    </div>
+                </div>
+                
+                <!-- Connector -->
+                <div class="w-24 h-1 mx-4 bg-gray-200"></div>
+                
+                <!-- Step 2: Upcoming -->
+                <div class="flex items-center">
+                    <div class="flex items-center justify-center w-10 h-10 bg-gray-200 rounded-full text-gray-500 font-semibold">
+                        2
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm font-medium text-gray-500">Create Schedule</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- College Filter -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+        <label for="college-select" class="block text-sm font-medium text-gray-700 mb-3">
+            🏛️ Filter by College (Optional)
+        </label>
+        <select id="college-select" onchange="filterByCollege()" 
+                class="block w-full max-w-md rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+            <option value="">All Colleges</option>
+            <option value="1">CCIS - College of Computing and Information Sciences</option>
+            <option value="2">CAS - College of Arts and Sciences</option>
+            <option value="3">CBA - College of Business Administration</option>
+            <option value="4">CED - College of Education</option>
+            <option value="5">COE - College of Engineering</option>
+        </select>
+    </div>
+
+    <!-- Department Selection Grid -->
+    <div>
+        <h2 class="text-lg font-semibold text-gray-900 mb-4">🏢 Select Department</h2>
+        <p class="text-sm text-gray-600 mb-6">Choose the department you want to create a schedule for</p>
+        
+        <div id="departments-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for department in departments %}
+                <a href="{{ path('app_schedule_new', {'department': department.id}) }}" 
+                   class="department-card group block p-6 bg-white border-2 border-gray-200 rounded-lg shadow-sm hover:border-blue-500 hover:shadow-lg transition-all duration-200"
+                   data-college="{{ department.college.id }}">
+                    
+                    <!-- Department Icon & Info -->
+                    <div class="flex items-start gap-4">
+                        <div class="flex-shrink-0">
+                            <div class="w-14 h-14 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                                <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                                </svg>
+                            </div>
+                        </div>
+                        
+                        <div class="flex-1 min-w-0">
+                            <h3 class="text-lg font-semibold text-gray-900 group-hover:text-blue-600 transition-colors mb-1">
+                                {{ department.name }}
+                            </h3>
+                            <p class="text-sm text-gray-500 mb-3">
+                                {{ department.college.name }}
+                            </p>
+                            
+                            <!-- Stats -->
+                            <div class="flex items-center gap-4 text-xs text-gray-600">
+                                <div class="flex items-center gap-1">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                                    </svg>
+                                    <span>{{ department.subjects|length }} subjects</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Arrow Icon -->
+                        <div class="flex-shrink-0">
+                            <svg class="w-6 h-6 text-gray-400 group-hover:text-blue-600 group-hover:translate-x-1 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                            </svg>
+                        </div>
+                    </div>
+                </a>
+            {% else %}
+                <div class="col-span-full text-center py-12">
+                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                    </svg>
+                    <h3 class="mt-4 text-lg font-medium text-gray-900">No departments found</h3>
+                    <p class="mt-2 text-sm text-gray-500">Please create departments first before scheduling.</p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<script>
+function filterByCollege() {
+    const collegeId = document.getElementById('college-select').value;
+    const cards = document.querySelectorAll('.department-card');
+    
+    cards.forEach(card => {
+        if (!collegeId || card.dataset.college === collegeId) {
+            card.classList.remove('hidden');
+        } else {
+            card.classList.add('hidden');
+        }
+    });
+}
+</script>
+
+{% endblock %}

@@ -1,0 +1,686 @@
+{% extends isDepartmentHead is defined and isDepartmentHead ? 'department_head/base.html.twig' : 'admin/base.html.twig' %}
+
+{% block title %}Edit Schedule{% endblock %}
+
+{% block main_content %}
+<div class="max-w-7xl mx-auto">
+    <!-- Page Header -->
+    <div class="mb-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">Edit Schedule</h1>
+                <p class="mt-2 text-sm text-gray-600">Update the schedule details below</p>
+            </div>
+            <div class="flex gap-2">
+                <a href="{{ isDepartmentHead is defined and isDepartmentHead ? path('department_head_schedules') : path('app_schedule_index') }}" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition">
+                    <svg class="mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                    </svg>
+                    Back to Schedules
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Flash Messages -->
+    {% for message in app.flashes('error') %}
+        <div class="mb-6 bg-red-50 border-l-4 border-red-500 rounded-lg p-5 shadow-sm">
+            <div class="flex items-start">
+                <div class="flex-shrink-0">
+                    <svg class="h-6 w-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                    </svg>
+                </div>
+                <div class="ml-3 flex-1">
+                    <h3 class="text-sm font-semibold text-red-800">Error</h3>
+                    <div class="mt-2 text-sm text-red-700">{{ message|raw }}</div>
+                </div>
+                <button type="button" class="ml-auto flex-shrink-0 text-red-500 hover:text-red-700" onclick="this.parentElement.parentElement.remove()">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    {% endfor %}
+
+    {% for message in app.flashes('success') %}
+        <div class="mb-6 bg-green-50 border-l-4 border-green-500 rounded-lg p-5 shadow-sm">
+            <div class="flex items-start">
+                <div class="flex-shrink-0">
+                    <svg class="h-6 w-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </div>
+                <div class="ml-3 flex-1">
+                    <h3 class="text-sm font-semibold text-green-800">Success</h3>
+                    <div class="mt-2 text-sm text-green-700">{{ message|raw }}</div>
+                </div>
+                <button type="button" class="ml-auto flex-shrink-0 text-green-500 hover:text-green-700" onclick="this.parentElement.parentElement.remove()">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    {% endfor %}
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Left Column: Form -->
+        <div class="lg:col-span-2">
+            <form method="post" action="{{ isDepartmentHead is defined and isDepartmentHead ? path('department_head_schedules_edit', {id: schedule.id}) : path('app_schedule_edit', {id: schedule.id}) }}" id="scheduleForm" class="space-y-6" novalidate>
+                
+                <!-- Step 1: Subject Details -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center font-semibold text-lg">1</div>
+                        <div>
+                            <h2 class="text-xl font-semibold text-gray-900">Subject & Section Details</h2>
+                            <p class="text-sm text-gray-500">Update the subject and section information</p>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label for="subject" class="block text-sm font-medium text-gray-700 mb-2">
+                                Subject <span class="text-red-500">*</span>
+                            </label>
+                            <select id="subject" name="subject" required 
+                                    class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 transition"
+                                    onchange="updateSubjectInfo()">
+                                <option value="">Choose a subject...</option>
+                                {% for subject in subjects %}
+                                    <option value="{{ subject.id }}" 
+                                            {% if schedule.subject and schedule.subject.id == subject.id %}selected{% endif %}
+                                            data-subject-code="{{ subject.code }}"
+                                            data-subject-title="{{ subject.title }}"
+                                            data-subject-units="{{ subject.units }}">
+                                        {{ subject.code }} - {{ subject.title }} ({{ subject.units }} units)
+                                    </option>
+                                {% endfor %}
+                            </select>
+                            <p class="mt-1 text-xs text-gray-500">Select the subject for this schedule (scroll to see all)</p>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label for="section" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Section <span class="text-red-500">*</span>
+                                </label>
+                                <input type="text" id="section" name="section" required value="{{ schedule.section }}"
+                                       placeholder="e.g., A, B, 1, 2, BSIT-3A"
+                                       class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 transition">
+                                <p class="mt-1 text-xs text-gray-500">Class section identifier</p>
+                            </div>
+
+                            <div>
+                                <label for="semester" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Semester <span class="text-red-500">*</span>
+                                </label>
+                                <select id="semester" name="semester" required
+                                        class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 transition"
+                                        onchange="updatePreview()">
+                                    <option value="">Select semester...</option>
+                                    <option value="1st" {% if schedule.semester == '1st' %}selected{% endif %}>1st Semester</option>
+                                    <option value="2nd" {% if schedule.semester == '2nd' %}selected{% endif %}>2nd Semester</option>
+                                    <option value="Summer" {% if schedule.semester == 'Summer' %}selected{% endif %}>Summer</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label for="academic_year" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Academic Year <span class="text-red-500">*</span>
+                                </label>
+                                <select id="academic_year" name="academic_year" required
+                                        class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 transition"
+                                        onchange="updatePreview()">
+                                    <option value="">Select year...</option>
+                                    {% for ay in academicYears %}
+                                        <option value="{{ ay.id }}" {% if schedule.academicYear and schedule.academicYear.id == ay.id %}selected{% endif %}>{{ ay.year }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2: Schedule Time & Days -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center font-semibold text-lg">2</div>
+                        <div>
+                            <h2 class="text-xl font-semibold text-gray-900">Schedule Time & Days</h2>
+                            <p class="text-sm text-gray-500">Set the class meeting days and time</p>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label for="day_pattern" class="block text-sm font-medium text-gray-700 mb-2">
+                                Day Pattern <span class="text-red-500">*</span>
+                            </label>
+                            <select id="day_pattern" name="day_pattern" required 
+                                    class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 transition"
+                                    onchange="updatePreview()">
+                                <option value="">Select pattern...</option>
+                                <option value="M-W-F" {% if schedule.dayPattern == 'M-W-F' %}selected{% endif %}>Mon-Wed-Fri</option>
+                                <option value="T-TH" {% if schedule.dayPattern == 'T-TH' %}selected{% endif %}>Tue-Thu</option>
+                                <option value="M-T-TH-F" {% if schedule.dayPattern == 'M-T-TH-F' %}selected{% endif %}>Mon-Tue-Thu-Fri (No Wed)</option>
+                                <option value="M-T" {% if schedule.dayPattern == 'M-T' %}selected{% endif %}>Mon-Tue</option>
+                                <option value="TH-F" {% if schedule.dayPattern == 'TH-F' %}selected{% endif %}>Thu-Fri</option>
+                                <option value="SAT" {% if schedule.dayPattern == 'SAT' %}selected{% endif %}>Saturday Only</option>
+                                <option value="SUN" {% if schedule.dayPattern == 'SUN' %}selected{% endif %}>Sunday Only</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="time_slot" class="block text-sm font-medium text-gray-700 mb-2">
+                                Time Slot <span class="text-red-500">*</span>
+                            </label>
+                            <select id="time_slot" name="time_slot" required
+                                    onchange="updateTimeFromSlot(); updatePreview();"
+                                    class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 transition">
+                                <option value="">Select time slot...</option>
+                                <option value="07:00-08:30" {% if schedule.startTime|date('H:i') == '07:00' and schedule.endTime|date('H:i') == '08:30' %}selected{% endif %}>7:00 AM - 8:30 AM</option>
+                                <option value="08:30-10:00" {% if schedule.startTime|date('H:i') == '08:30' and schedule.endTime|date('H:i') == '10:00' %}selected{% endif %}>8:30 AM - 10:00 AM</option>
+                                <option value="10:00-11:30" {% if schedule.startTime|date('H:i') == '10:00' and schedule.endTime|date('H:i') == '11:30' %}selected{% endif %}>10:00 AM - 11:30 AM</option>
+                                <option value="11:30-13:00" {% if schedule.startTime|date('H:i') == '11:30' and schedule.endTime|date('H:i') == '13:00' %}selected{% endif %}>11:30 AM - 1:00 PM</option>
+                                <option value="13:00-14:30" {% if schedule.startTime|date('H:i') == '13:00' and schedule.endTime|date('H:i') == '14:30' %}selected{% endif %}>1:00 PM - 2:30 PM</option>
+                                <option value="14:30-16:00" {% if schedule.startTime|date('H:i') == '14:30' and schedule.endTime|date('H:i') == '16:00' %}selected{% endif %}>2:30 PM - 4:00 PM</option>
+                                <option value="16:00-17:30" {% if schedule.startTime|date('H:i') == '16:00' and schedule.endTime|date('H:i') == '17:30' %}selected{% endif %}>4:00 PM - 5:30 PM</option>
+                                <option value="17:30-19:00" {% if schedule.startTime|date('H:i') == '17:30' and schedule.endTime|date('H:i') == '19:00' %}selected{% endif %}>5:30 PM - 7:00 PM</option>
+                                <option value="19:00-20:30" {% if schedule.startTime|date('H:i') == '19:00' and schedule.endTime|date('H:i') == '20:30' %}selected{% endif %}>7:00 PM - 8:30 PM</option>
+                            </select>
+                            <input type="hidden" id="start_time" name="start_time" value="{{ schedule.startTime|date('H:i') }}">
+                            <input type="hidden" id="end_time" name="end_time" value="{{ schedule.endTime|date('H:i') }}">
+                            <p class="mt-1 text-xs text-gray-500" id="duration-hint">Duration: 1.5 hours</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3: Room & Notes -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center font-semibold text-lg">3</div>
+                        <div>
+                            <h2 class="text-xl font-semibold text-gray-900">Room & Additional Details</h2>
+                            <p class="text-sm text-gray-500">Assign a room and add notes</p>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label for="room" class="block text-sm font-medium text-gray-700 mb-2">
+                                Room <span class="text-red-500">*</span>
+                            </label>
+                            <select id="room" name="room" required 
+                                    class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 transition"
+                                    onchange="updatePreview()">
+                                <option value="">Select room...</option>
+                                {% for room in rooms %}
+                                    <option value="{{ room.id }}" {% if schedule.room and schedule.room.id == room.id %}selected{% endif %}>
+                                        {{ room.code }}{% if room.name %} - {{ room.name }}{% endif %}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                            <p class="mt-1 text-xs text-gray-500">Available rooms with capacity</p>
+                        </div>
+
+                        <div>
+                            <label for="enrolled_students" class="block text-sm font-medium text-gray-700 mb-2">
+                                Enrolled Students
+                            </label>
+                            <input type="number" id="enrolled_students" name="enrolled_students" 
+                                   value="{{ schedule.enrolledStudents }}"
+                                   placeholder="Number of students" min="0" max="999"
+                                   onchange="checkCapacity()"
+                                   class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 transition">
+                            <p class="mt-1 text-xs" id="capacity-warning"></p>
+                        </div>
+
+                        <div>
+                            <label for="notes" class="block text-sm font-medium text-gray-700 mb-2">
+                                Notes (Optional)
+                            </label>
+                            <textarea id="notes" name="notes" rows="3" 
+                                      placeholder="Additional notes, requirements, or special instructions..."
+                                      class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 transition">{{ schedule.notes }}</textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                    <div class="flex items-center justify-between">
+                        <p class="text-sm text-gray-600">
+                            <span class="text-red-500">*</span> Required fields
+                        </p>
+                        <div class="flex gap-3">
+                            <a href="{{ isDepartmentHead is defined and isDepartmentHead ? path('department_head_schedules') : path('app_schedule_index') }}" 
+                               class="px-6 py-2.5 border border-gray-300 text-gray-700 bg-white rounded-lg hover:bg-gray-50 transition font-medium">
+                                Cancel
+                            </a>
+                            <button type="submit" id="submitBtn"
+                                    class="px-8 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-medium shadow-sm hover:shadow-md">
+                                <span id="submitBtnText">Update Schedule</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Right Column: Preview & Information -->
+        <div class="lg:col-span-1 space-y-6">
+            <!-- Live Conflict Detection Results -->
+            <div id="live-conflict-detection" class="hidden bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <div class="flex items-start gap-3 mb-3">
+                    <div id="conflict-icon"></div>
+                    <div class="flex-1">
+                        <h3 id="conflict-title" class="text-lg font-semibold mb-2"></h3>
+                        <div id="conflict-details" class="space-y-2"></div>
+                    </div>
+                </div>
+                <div id="conflict-loading" class="hidden">
+                    <div class="flex items-center gap-2 text-sm text-gray-600">
+                        <svg class="animate-spin h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <span>Checking for conflicts...</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Schedule Preview -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                    </svg>
+                    Schedule Preview
+                </h3>
+                
+                <div id="schedule-preview" class="space-y-3">
+                    <div class="flex items-start gap-3">
+                        <svg class="w-5 h-5 text-gray-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"/>
+                        </svg>
+                        <div class="flex-1">
+                            <p class="text-xs font-medium text-gray-500">Subject</p>
+                            <p id="preview-subject" class="text-sm text-gray-900 font-medium">
+                                {% if schedule.subject %}{{ schedule.subject.code }} - {{ schedule.subject.title }}{% else %}Not selected{% endif %}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start gap-3">
+                        <svg class="w-5 h-5 text-gray-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>
+                        </svg>
+                        <div class="flex-1">
+                            <p class="text-xs font-medium text-gray-500">Schedule</p>
+                            <p id="preview-schedule" class="text-sm text-gray-900 font-medium">Not set</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start gap-3">
+                        <svg class="w-5 h-5 text-gray-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 110 2h-3a1 1 0 01-1-1v-2a1 1 0 00-1-1H9a1 1 0 00-1 1v2a1 1 0 01-1 1H4a1 1 0 110-2V4zm3 1h2v2H7V5zm2 4H7v2h2V9zm2-4h2v2h-2V5zm2 4h-2v2h2V9z" clip-rule="evenodd"/>
+                        </svg>
+                        <div class="flex-1">
+                            <p class="text-xs font-medium text-gray-500">Room</p>
+                            <p id="preview-room" class="text-sm text-gray-900 font-medium">
+                                {% if schedule.room %}{{ schedule.room.code }}{% if schedule.room.name %} - {{ schedule.room.name }}{% endif %}{% else %}Not selected{% endif %}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Helpful Tips -->
+            <div class="bg-amber-50 rounded-lg shadow-sm border border-amber-200 p-5">
+                <h4 class="text-sm font-semibold text-amber-900 mb-3 flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                    </svg>
+                    Tips for Editing
+                </h4>
+                <ul class="space-y-2 text-xs text-amber-900">
+                    <li class="flex items-start gap-2">
+                        <span class="text-amber-600">•</span>
+                        <span>Changes will be saved immediately</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <span class="text-amber-600">•</span>
+                        <span>Verify room capacity if changing room</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <span class="text-amber-600">•</span>
+                        <span>Check for time conflicts before saving</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <span class="text-amber-600">•</span>
+                        <span>Standard class duration is 1-3 hours</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Live Conflict Detection
+let conflictCheckTimeout;
+const scheduleId = {{ schedule.id }}; // Current schedule ID to exclude from conflict checks
+
+function checkForConflicts() {
+    // Get form values
+    const subject = document.getElementById('subject').value;
+    const section = document.getElementById('section').value;
+    const semester = document.getElementById('semester').value;
+    const academicYear = document.getElementById('academic_year').value;
+    const room = document.getElementById('room').value;
+    const dayPattern = document.getElementById('day_pattern').value;
+    const startTime = document.getElementById('start_time').value;
+    const endTime = document.getElementById('end_time').value;
+
+    // Only check if we have all required fields
+    if (!subject || !room || !dayPattern || !startTime || !endTime || !semester || !academicYear) {
+        document.getElementById('live-conflict-detection').classList.add('hidden');
+        return;
+    }
+
+    // Show loading
+    const conflictBox = document.getElementById('live-conflict-detection');
+    const loadingEl = document.getElementById('conflict-loading');
+    conflictBox.classList.remove('hidden');
+    loadingEl.classList.remove('hidden');
+
+    // Clear existing timeout
+    clearTimeout(conflictCheckTimeout);
+
+    // Debounce the API call
+    conflictCheckTimeout = setTimeout(() => {
+        fetch('{{ isDepartmentHead is defined and isDepartmentHead ? path('department_head_schedules_check_conflicts') : path('app_schedule_check_conflict') }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({
+                schedule_id: scheduleId, // Pass current schedule ID to exclude from checks
+                subject: subject,
+                section: section,
+                semester: semester,
+                academic_year: academicYear,
+                room: room,
+                day_pattern: dayPattern,
+                start_time: startTime,
+                end_time: endTime
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            loadingEl.classList.add('hidden');
+            displayConflictResults(data);
+        })
+        .catch(error => {
+            console.error('Error checking conflicts:', error);
+            loadingEl.classList.add('hidden');
+        });
+    }, 500);
+}
+
+function displayConflictResults(data) {
+    const conflictBox = document.getElementById('live-conflict-detection');
+    const iconEl = document.getElementById('conflict-icon');
+    const titleEl = document.getElementById('conflict-title');
+    const detailsEl = document.getElementById('conflict-details');
+
+    if (data.has_conflicts) {
+        // Show conflicts
+        iconEl.innerHTML = `<svg class="w-6 h-6 text-red-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+        </svg>`;
+        titleEl.textContent = '⚠️ Conflicts Detected';
+        titleEl.className = 'text-lg font-semibold text-red-800 mb-2';
+        conflictBox.className = 'bg-red-50 border-l-4 border-red-500 rounded-lg shadow-sm p-6';
+
+        let html = '<div class="space-y-3">';
+        html += '<p class="text-sm font-semibold text-red-800">The following conflicts were detected:</p>';
+        html += '<ul class="space-y-2 text-sm">';
+        data.conflicts.forEach(conflict => {
+            html += `<li class="flex items-start gap-2 bg-white bg-opacity-50 p-2 rounded">
+                <span class="text-red-600 font-bold mt-0.5">🚫</span>
+                <span class="text-red-700">${conflict}</span>
+            </li>`;
+        });
+        html += '</ul>';
+        html += '<div class="mt-4 p-3 bg-red-100 rounded-lg">';
+        html += '<p class="text-sm text-red-900 font-semibold">⛔ Cannot save schedule with these conflicts.</p>';
+        html += '<p class="text-xs text-red-800 mt-1">Please change the room, time, or section to resolve conflicts.</p>';
+        html += '</div>';
+        html += '</div>';
+        detailsEl.innerHTML = html;
+
+        // Disable submit button
+        document.getElementById('submitBtn').disabled = true;
+    } else if (data.warnings && data.warnings.length > 0) {
+        // Show warnings only
+        iconEl.innerHTML = `<svg class="w-6 h-6 text-yellow-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+        </svg>`;
+        titleEl.textContent = '⚠️ Warnings';
+        titleEl.className = 'text-lg font-semibold text-yellow-800 mb-2';
+        conflictBox.className = 'bg-yellow-50 border-l-4 border-yellow-400 rounded-lg shadow-sm p-6';
+
+        let html = '<div class="space-y-3">';
+        html += '<p class="text-sm font-semibold text-yellow-800">Please review:</p>';
+        html += '<ul class="space-y-2 text-sm">';
+        data.warnings.forEach(warning => {
+            html += `<li class="flex items-start gap-2 bg-white bg-opacity-50 p-2 rounded">
+                <span class="text-yellow-600 font-bold mt-0.5">⚠️</span>
+                <span class="text-yellow-700">${warning}</span>
+            </li>`;
+        });
+        html += '</ul>';
+        html += '<div class="mt-4 p-3 bg-yellow-100 rounded-lg">';
+        html += '<p class="text-sm text-yellow-900 font-semibold">✓ You can still update this schedule</p>';
+        html += '</div>';
+        html += '</div>';
+        detailsEl.innerHTML = html;
+
+        // Enable submit button
+        document.getElementById('submitBtn').disabled = false;
+    } else {
+        // No conflicts
+        iconEl.innerHTML = `<svg class="w-6 h-6 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>`;
+        titleEl.textContent = '✅ No Conflicts';
+        titleEl.className = 'text-lg font-semibold text-green-800 mb-2';
+        conflictBox.className = 'bg-green-50 border-l-4 border-green-500 rounded-lg shadow-sm p-6';
+        
+        let html = '<div class="space-y-3">';
+        html += '<p class="text-sm text-green-700">This schedule has been verified and is ready to be updated.</p>';
+        html += '<div class="mt-4 p-3 bg-green-100 rounded-lg">';
+        html += '<p class="text-sm text-green-900 font-semibold">✓ All checks passed</p>';
+        html += '</div>';
+        html += '</div>';
+        
+        detailsEl.innerHTML = html;
+
+        // Enable submit button
+        document.getElementById('submitBtn').disabled = false;
+    }
+}
+
+// Update subject info preview
+function updateSubjectInfo() {
+    const select = document.getElementById('subject');
+    const selectedOption = select.options[select.selectedIndex];
+    
+    if (select.value) {
+        document.getElementById('preview-subject').textContent = 
+            selectedOption.getAttribute('data-subject-code') + ' - ' + 
+            selectedOption.getAttribute('data-subject-title');
+    } else {
+        document.getElementById('preview-subject').textContent = 'Not selected';
+    }
+    updatePreview();
+    checkForConflicts();
+}
+
+// Update time values from time slot dropdown
+function updateTimeFromSlot() {
+    const timeSlot = document.getElementById('time_slot').value;
+    const startTimeInput = document.getElementById('start_time');
+    const endTimeInput = document.getElementById('end_time');
+    
+    if (timeSlot) {
+        const [start, end] = timeSlot.split('-');
+        startTimeInput.value = start;
+        endTimeInput.value = end;
+        
+        // Update duration display
+        const hintEl = document.getElementById('duration-hint');
+        hintEl.textContent = 'Duration: 1.5 hours';
+        hintEl.className = 'mt-1 text-xs text-green-600 font-medium';
+    }
+}
+
+// Update duration display
+function updateDuration() {
+    const startTime = document.getElementById('start_time').value;
+    const endTime = document.getElementById('end_time').value;
+    const hintEl = document.getElementById('duration-hint');
+    
+    if (startTime && endTime) {
+        const start = new Date('2000-01-01 ' + startTime);
+        const end = new Date('2000-01-01 ' + endTime);
+        const diff = (end - start) / (1000 * 60); // minutes
+        
+        if (diff > 0) {
+            const hours = Math.floor(diff / 60);
+            const minutes = diff % 60;
+            let durationText = 'Duration: ';
+            if (hours > 0) durationText += hours + (hours === 1 ? ' hour' : ' hours');
+            if (minutes > 0) durationText += (hours > 0 ? ' ' : '') + minutes + ' min';
+            hintEl.textContent = durationText;
+            hintEl.className = 'mt-1 text-xs text-green-600 font-medium';
+        } else {
+            hintEl.textContent = 'End time must be after start time';
+            hintEl.className = 'mt-1 text-xs text-red-600 font-medium';
+        }
+    } else {
+        hintEl.textContent = 'Duration: --';
+        hintEl.className = 'mt-1 text-xs text-gray-500';
+    }
+}
+
+// Update comprehensive preview
+function updatePreview() {
+    const dayPattern = document.getElementById('day_pattern').value;
+    const startTime = document.getElementById('start_time').value;
+    const endTime = document.getElementById('end_time').value;
+    const room = document.getElementById('room');
+    
+    // Update schedule preview
+    if (dayPattern && startTime && endTime) {
+        const dayLabels = {
+            'M-W-F': 'Mon/Wed/Fri',
+            'T-TH': 'Tue/Thu',
+            'M-T-TH-F': 'Mon/Tue/Thu/Fri',
+            'M-T': 'Mon/Tue',
+            'TH-F': 'Thu/Fri',
+            'SAT': 'Saturday',
+            'SUN': 'Sunday'
+        };
+        
+        const start = new Date('2000-01-01 ' + startTime);
+        const end = new Date('2000-01-01 ' + endTime);
+        const startFormatted = start.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+        const endFormatted = end.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+        
+        document.getElementById('preview-schedule').textContent = 
+            `${dayLabels[dayPattern] || dayPattern} • ${startFormatted} - ${endFormatted}`;
+    } else {
+        document.getElementById('preview-schedule').textContent = 'Not set';
+    }
+    
+    // Update room preview
+    if (room.value) {
+        const selectedOption = room.options[room.selectedIndex];
+        document.getElementById('preview-room').textContent = selectedOption.text;
+    } else {
+        document.getElementById('preview-room').textContent = 'Not selected';
+    }
+    
+    updateDuration();
+}
+
+// Check room capacity vs enrolled students
+function checkCapacity() {
+    const roomSelect = document.getElementById('room');
+    const enrolledInput = document.getElementById('enrolled_students');
+    const warningEl = document.getElementById('capacity-warning');
+    
+    if (roomSelect.value && enrolledInput.value) {
+        const selectedOption = roomSelect.options[roomSelect.selectedIndex];
+        const capacity = parseInt(selectedOption.textContent.match(/Capacity: (\d+)/)?.[1] || 0);
+        const enrolled = parseInt(enrolledInput.value);
+        
+        if (enrolled > capacity) {
+            warningEl.textContent = `⚠️ Exceeds room capacity by ${enrolled - capacity}`;
+            warningEl.className = 'mt-1 text-xs text-red-600';
+        } else if (enrolled > capacity * 0.9) {
+            warningEl.textContent = `⚠️ Near capacity (${Math.round(enrolled/capacity*100)}% full)`;
+            warningEl.className = 'mt-1 text-xs text-yellow-600';
+        } else {
+            warningEl.textContent = `✓ ${capacity - enrolled} seats available`;
+            warningEl.className = 'mt-1 text-xs text-green-600';
+        }
+    } else {
+        warningEl.textContent = '';
+    }
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    updatePreview();
+    checkCapacity(); // Check capacity on page load
+    checkForConflicts(); // Check conflicts on page load
+});
+
+// Add event listeners for live conflict checking
+document.getElementById('subject').addEventListener('change', checkForConflicts);
+document.getElementById('section').addEventListener('input', checkForConflicts);
+document.getElementById('semester').addEventListener('change', checkForConflicts);
+document.getElementById('academic_year').addEventListener('change', checkForConflicts);
+document.getElementById('room').addEventListener('change', function() {
+    checkForConflicts();
+    checkCapacity();
+});
+document.getElementById('day_pattern').addEventListener('change', checkForConflicts);
+document.getElementById('time_slot').addEventListener('change', checkForConflicts);
+document.getElementById('enrolled_students').addEventListener('input', checkCapacity);
+
+// Form submission
+document.getElementById('scheduleForm').addEventListener('submit', function(e) {
+    const submitBtn = document.getElementById('submitBtn');
+    const submitText = document.getElementById('submitBtnText');
+    
+    submitBtn.disabled = true;
+    submitText.textContent = 'Updating...';
+    
+    // Re-enable after 3 seconds in case of error
+    setTimeout(() => {
+        submitBtn.disabled = false;
+        submitText.textContent = 'Update Schedule';
+    }, 3000);
+});
+</script>
+
+{% endblock %}

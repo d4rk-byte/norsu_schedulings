@@ -1,0 +1,39 @@
+# Git files
+.git
+.gitignore
+.gitattributes
+
+# IDE files
+.vscode
+.idea
+*.sublime-*
+
+# Documentation
+*.md
+DEPLOYMENT.md
+PRODUCTION_READINESS.md
+QUICK_START_PRODUCTION.md
+UNUSED_CODE_ANALYSIS.md
+
+# Build artifacts
+node_modules
+var/cache/*
+var/log/*
+var/sessions/*
+
+# Test files
+tests
+phpunit.dist.xml
+
+# Development files
+.env.local
+.env.*.local
+docker-compose.override.yml
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Other
+ngrok.yml
+watch-css.bat

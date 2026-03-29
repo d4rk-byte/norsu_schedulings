@@ -1,0 +1,197 @@
+{# Enhanced Alert Component for Admin Dashboard #}
+<!-- Flash Messages / Alerts -->
+{% for flash_message in app.flashes('success') %}
+    <div class="mb-6 bg-gradient-to-r from-green-50 to-emerald-50 border-l-4 border-green-500 rounded-lg shadow-lg animate-fade-in-down" role="alert" data-alert="success">
+        <div class="flex items-center justify-between p-4">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+                        <svg class="h-5 w-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="ml-4">
+                    <div class="text-sm font-medium text-green-800">
+                        Success!
+                    </div>
+                    <div class="text-sm text-green-700 mt-1">
+                        {{ flash_message }}
+                    </div>
+                </div>
+            </div>
+            <div class="flex-shrink-0">
+                <button type="button" class="bg-green-50 rounded-md p-2 inline-flex items-center justify-center text-green-400 hover:text-green-500 hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-green-500 transition-colors duration-200" onclick="dismissAlert(this.closest('[data-alert]'))">
+                    <span class="sr-only">Close</span>
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+{% endfor %}
+
+{% for flash_message in app.flashes('error') %}
+    <div class="mb-6 bg-gradient-to-r from-red-50 to-pink-50 border-l-4 border-red-500 rounded-lg shadow-lg animate-fade-in-down" role="alert" data-alert="error">
+        <div class="flex items-center justify-between p-4">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center">
+                        <svg class="h-5 w-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="ml-4">
+                    <div class="text-sm font-medium text-red-800">
+                        Error!
+                    </div>
+                    <div class="text-sm text-red-700 mt-1">
+                        {{ flash_message }}
+                    </div>
+                </div>
+            </div>
+            <div class="flex-shrink-0">
+                <button type="button" class="bg-red-50 rounded-md p-2 inline-flex items-center justify-center text-red-400 hover:text-red-500 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-red-500 transition-colors duration-200" onclick="dismissAlert(this.closest('[data-alert]'))">
+                    <span class="sr-only">Close</span>
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+{% endfor %}
+
+{% for flash_message in app.flashes('info') %}
+    <div class="mb-6 bg-gradient-to-r from-blue-50 to-indigo-50 border-l-4 border-blue-500 rounded-lg shadow-lg animate-fade-in-down" role="alert" data-alert="info">
+        <div class="flex items-center justify-between p-4">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                        <svg class="h-5 w-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="ml-4">
+                    <div class="text-sm font-medium text-blue-800">
+                        Info
+                    </div>
+                    <div class="text-sm text-blue-700 mt-1">
+                        {{ flash_message }}
+                    </div>
+                </div>
+            </div>
+            <div class="flex-shrink-0">
+                <button type="button" class="bg-blue-50 rounded-md p-2 inline-flex items-center justify-center text-blue-400 hover:text-blue-500 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500 transition-colors duration-200" onclick="dismissAlert(this.closest('[data-alert]'))">
+                    <span class="sr-only">Close</span>
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+{% endfor %}
+
+{% for flash_message in app.flashes('warning') %}
+    <div class="mb-6 bg-gradient-to-r from-yellow-50 to-orange-50 border-l-4 border-yellow-500 rounded-lg shadow-lg animate-fade-in-down" role="alert" data-alert="warning">
+        <div class="flex items-center justify-between p-4">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center">
+                        <svg class="h-5 w-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="ml-4">
+                    <div class="text-sm font-medium text-yellow-800">
+                        Warning
+                    </div>
+                    <div class="text-sm text-yellow-700 mt-1">
+                        {{ flash_message }}
+                    </div>
+                </div>
+            </div>
+            <div class="flex-shrink-0">
+                <button type="button" class="bg-yellow-50 rounded-md p-2 inline-flex items-center justify-center text-yellow-400 hover:text-yellow-500 hover:bg-yellow-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-yellow-500 transition-colors duration-200" onclick="dismissAlert(this.closest('[data-alert]'))">
+                    <span class="sr-only">Close</span>
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+{% endfor %}
+
+{# Alert Styles and Scripts #}
+<style>
+    @keyframes fade-in-down {
+        0% {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        100% {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .animate-fade-in-down {
+        animation: fade-in-down 0.4s ease-out;
+    }
+    
+    /* Auto-dismiss alerts after specified time */
+    [data-alert] {
+        position: relative;
+    }
+    
+    /* Add a subtle pulse effect for success alerts */
+    [data-alert="success"] {
+        animation: fade-in-down 0.4s ease-out, pulse-success 3s ease-in-out;
+    }
+    
+    @keyframes pulse-success {
+        0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4); }
+        70% { box-shadow: 0 0 0 10px rgba(34, 197, 94, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+    }
+</style>
+
+<script>
+// Alert dismiss function with animation
+window.dismissAlert = function(alert) {
+    alert.style.opacity = '0';
+    alert.style.transform = 'translateY(-10px)';
+    alert.style.transition = 'all 0.3s ease-out';
+    
+    setTimeout(function() {
+        alert.style.display = 'none';
+    }, 300);
+};
+
+// Auto-dismiss alerts after specified time
+document.addEventListener('DOMContentLoaded', function() {
+    const alerts = document.querySelectorAll('[data-alert]');
+    
+    alerts.forEach(function(alert) {
+        // Auto-dismiss success alerts after 7 seconds
+        if (alert.getAttribute('data-alert') === 'success') {
+            setTimeout(function() {
+                dismissAlert(alert);
+            }, 7000);
+        }
+        
+        // Auto-dismiss info alerts after 5 seconds
+        if (alert.getAttribute('data-alert') === 'info') {
+            setTimeout(function() {
+                dismissAlert(alert);
+            }, 5000);
+        }
+    });
+});
+</script>

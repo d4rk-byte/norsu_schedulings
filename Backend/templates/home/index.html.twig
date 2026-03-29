@@ -1,0 +1,214 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Dashboard - Smart Scheduling System{% endblock %}
+
+{% block page_title %}Dashboard{% endblock %}
+
+{% block navigation %}
+    <div class="flex space-x-4">
+        <a href="{{ path('home') }}" class="nav-link nav-link-active">
+            <svg class="mr-3 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5a2 2 0 012-2h4a2 2 0 012 2v6a2 2 0 01-2 2H10a2 2 0 01-2-2V5z"/>
+            </svg>
+            Dashboard
+        </a>
+        
+        <!-- Show role-based dashboard links -->
+        {% if 'ROLE_ADMIN' in app.user.roles %}
+            <a href="{{ path('admin_dashboard') }}" class="nav-link">
+                <svg class="mr-3 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                </svg>
+                Admin Dashboard
+            </a>
+        {% elseif 'ROLE_DEPARTMENT_HEAD' in app.user.roles %}
+            <a href="{{ path('department_head_dashboard') }}" class="nav-link">
+                <svg class="mr-3 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                </svg>
+                Department Dashboard
+            </a>
+        {% elseif 'ROLE_FACULTY' in app.user.roles %}
+            <a href="{{ path('faculty_dashboard') }}" class="nav-link">
+                <svg class="mr-3 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"/>
+                </svg>
+                Faculty Dashboard
+            </a>
+        {% endif %}
+        
+        <a href="{{ path('app_logout') }}" class="nav-link">
+            <svg class="mr-3 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+            </svg>
+            Logout ({{ app.user.fullName }})
+        </a>
+    </div>
+{% endblock %}
+
+{% block content %}
+    <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        <!-- Welcome message for logged in users -->
+        <div class="mb-8">
+            <div class="bg-green-50 border border-green-200 rounded-lg p-6">
+                <h2 class="text-lg font-semibold text-green-900 mb-2">Welcome back, {{ app.user.fullName }}!</h2>
+                <p class="text-green-800">
+                    You are logged in as: 
+                    {% if 'ROLE_ADMIN' in app.user.roles %}
+                        <span class="font-semibold">Administrator</span>
+                    {% elseif 'ROLE_DEPARTMENT_HEAD' in app.user.roles %}
+                        <span class="font-semibold">Department Head</span>
+                    {% elseif 'ROLE_FACULTY' in app.user.roles %}
+                        <span class="font-semibold">Faculty Member</span>
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+        
+        <!-- Welcome Section -->
+        <div class="mb-8">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="text-lg font-medium text-gray-900">Welcome to Smart Scheduling System</h2>
+                    <p class="mt-1 text-sm text-gray-600">Manage your schedules efficiently with our intelligent scheduling platform.</p>
+                </div>
+                <div class="card-body">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <!-- Stats Cards -->
+                        <div class="bg-primary-50 rounded-lg p-4">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0">
+                                    <svg class="h-8 w-8 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2-2v16a2 2 0 002 2z"/>
+                                    </svg>
+                                </div>
+                                <div class="ml-4">
+                                    <p class="text-sm font-medium text-primary-600">Total Schedules</p>
+                                    <p class="text-2xl font-bold text-primary-900">0</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-green-50 rounded-lg p-4">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0">
+                                    <svg class="h-8 w-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                </div>
+                                <div class="ml-4">
+                                    <p class="text-sm font-medium text-green-600">Active Users</p>
+                                    <p class="text-2xl font-bold text-green-900">0</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-yellow-50 rounded-lg p-4">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0">
+                                    <svg class="h-8 w-8 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                </div>
+                                <div class="ml-4">
+                                    <p class="text-sm font-medium text-yellow-600">Pending Approvals</p>
+                                    <p class="text-2xl font-bold text-yellow-900">0</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-red-50 rounded-lg p-4">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0">
+                                    <svg class="h-8 w-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.732 15.5c-.77.833.192 2.5 1.732 2.5z"/>
+                                    </svg>
+                                </div>
+                                <div class="ml-4">
+                                    <p class="text-sm font-medium text-red-600">Conflicts</p>
+                                    <p class="text-2xl font-bold text-red-900">0</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sample Schedule Grid -->
+        <div class="mb-8">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="text-lg font-medium text-gray-900">Today's Schedule Preview</h3>
+                    <p class="mt-1 text-sm text-gray-600">Sample scheduling interface with Tailwind CSS styling</p>
+                </div>
+                <div class="card-body">
+                    <div class="schedule-grid">
+                        <!-- Time column -->
+                        <div class="font-semibold text-gray-700 text-center py-2">Time</div>
+                        <div class="font-semibold text-gray-700 text-center py-2">Monday</div>
+                        <div class="font-semibold text-gray-700 text-center py-2">Tuesday</div>
+                        <div class="font-semibold text-gray-700 text-center py-2">Wednesday</div>
+                        <div class="font-semibold text-gray-700 text-center py-2">Thursday</div>
+                        <div class="font-semibold text-gray-700 text-center py-2">Friday</div>
+                        <div class="font-semibold text-gray-700 text-center py-2">Saturday</div>
+                        <div class="font-semibold text-gray-700 text-center py-2">Sunday</div>
+
+                        <!-- 9:00 AM Row -->
+                        <div class="text-gray-600 text-sm py-2 px-2">9:00 AM</div>
+                        <div class="time-slot time-slot-available">Available</div>
+                        <div class="time-slot time-slot-booked">Meeting A</div>
+                        <div class="time-slot time-slot-available">Available</div>
+                        <div class="time-slot time-slot-pending">Pending</div>
+                        <div class="time-slot time-slot-available">Available</div>
+                        <div class="time-slot time-slot-blocked">Blocked</div>
+                        <div class="time-slot time-slot-available">Available</div>
+
+                        <!-- 10:00 AM Row -->
+                        <div class="text-gray-600 text-sm py-2 px-2">10:00 AM</div>
+                        <div class="time-slot time-slot-booked">Lecture B</div>
+                        <div class="time-slot time-slot-available">Available</div>
+                        <div class="time-slot time-slot-booked">Workshop</div>
+                        <div class="time-slot time-slot-available">Available</div>
+                        <div class="time-slot time-slot-pending">Review</div>
+                        <div class="time-slot time-slot-available">Available</div>
+                        <div class="time-slot time-slot-available">Available</div>
+
+                        <!-- 11:00 AM Row -->
+                        <div class="text-gray-600 text-sm py-2 px-2">11:00 AM</div>
+                        <div class="time-slot time-slot-available">Available</div>
+                        <div class="time-slot time-slot-available">Available</div>
+                        <div class="time-slot time-slot-available">Available</div>
+                        <div class="time-slot time-slot-booked">Class C</div>
+                        <div class="time-slot time-slot-available">Available</div>
+                        <div class="time-slot time-slot-available">Available</div>
+                        <div class="time-slot time-slot-blocked">Maintenance</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex space-x-4">
+            <a href="{{ path('admin_dashboard') }}" class="btn btn-primary">
+                <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 013 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.623 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"/>
+                </svg>
+                Admin Dashboard
+            </a>
+            <a href="{{ path('dept_head_dashboard') }}" class="btn btn-secondary">
+                <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.25 14.15v4.25c0 1.094-.787 2.036-1.872 2.18-2.087.277-4.216.42-6.378.42s-4.291-.143-6.378-.42c-1.085-.144-1.872-1.086-1.872-2.18v-4.25m16.5 0a2.18 2.18 0 00.75-1.661V8.706c0-1.081-.768-2.015-1.837-2.175a48.114 48.114 0 00-3.413-.387m4.5 8.006c-.194.165-.42.295-.673.38A23.978 23.978 0 0112 15.75c-2.648 0-5.195-.429-7.577-1.22a2.016 2.016 0 01-.673-.38m0 0A2.18 2.18 0 013 12.489V8.706c0-1.081.768-2.015 1.837-2.175a48.111 48.111 0 013.413-.387m7.5 0V5.25A2.25 2.25 0 0013.5 3h-3a2.25 2.25 0 00-2.25 2.25v.894m7.5 0a48.667 48.667 0 00-7.5 0M12 12.75h.008v.008H12v-.008z"/>
+                </svg>
+                Department Head Dashboard
+            </a>
+            <a href="{{ path('faculty_dashboard') }}" class="btn btn-success">
+                <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"/>
+                </svg>
+                Faculty Dashboard
+            </a>
+        </div>
+    </div>
+{% endblock %}

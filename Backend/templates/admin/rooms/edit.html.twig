@@ -1,0 +1,217 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Edit Room: {{ room.name }}{% endblock %}
+
+{% block main_content %}
+    <!-- Page Header -->
+    <div class="mb-8">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900 sm:text-4xl">
+                    Edit Room
+                </h1>
+                <p class="mt-2 text-sm text-gray-600">
+                    Update information for <span class="font-semibold">{{ room.name }}</span>
+                </p>
+            </div>
+            <div class="flex items-center space-x-3">
+                {% if room.isActive %}
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 8 8">
+                            <circle cx="4" cy="4" r="3"/>
+                        </svg>
+                        Active
+                    </span>
+                {% else %}
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                        <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 8 8">
+                            <circle cx="4" cy="4" r="3"/>
+                        </svg>
+                        Inactive
+                    </span>
+                {% endif %}
+                <a href="{{ path('admin_rooms') }}" 
+                   class="inline-flex items-center px-6 py-3 border border-gray-300 rounded-lg text-base font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 shadow-sm transition duration-150">
+                    <svg class="mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                    </svg>
+                    Back to Rooms
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Form Card -->
+    <div class="max-w-4xl mx-auto">
+        <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+            <div class="px-8 py-6 bg-gradient-to-r from-blue-600 to-blue-700">
+                <h2 class="text-xl font-semibold text-white">Room Information</h2>
+                <p class="text-blue-100 text-sm mt-1">Update the details below to modify the room</p>
+            </div>
+
+            <div class="p-8">
+                {{ form_start(form, {'action': path('admin_rooms_edit', {'id': room.id}), 'attr': {'class': 'space-y-6', 'autocomplete': 'off'}}) }}
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Room Code -->
+                    <div>
+                        <label for="{{ form.code.vars.id }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            Room Code <span class="text-red-500">*</span>
+                        </label>
+                        {{ form_widget(form.code, {
+                            'attr': {
+                                'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150',
+                                'placeholder': 'e.g., RM-101'
+                            }
+                        }) }}
+                        {{ form_errors(form.code) }}
+                        <p class="mt-1 text-sm text-gray-500">Unique identifier for the room</p>
+                    </div>
+
+                    <!-- Room Name -->
+                    <div>
+                        <label for="{{ form.name.vars.id }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            Room Name
+                        </label>
+                        {{ form_widget(form.name, {
+                            'attr': {
+                                'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150',
+                                'placeholder': 'e.g., Computer Laboratory 1'
+                            }
+                        }) }}
+                        {{ form_errors(form.name) }}
+                        <p class="mt-1 text-sm text-gray-500">Descriptive name for the room</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Department -->
+                    <div>
+                        <label for="{{ form.department.vars.id }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            Department <span class="text-red-500">*</span>
+                        </label>
+                        {{ form_widget(form.department, {
+                            'attr': {
+                                'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150'
+                            }
+                        }) }}
+                        {{ form_errors(form.department) }}
+                        <p class="mt-1 text-sm text-gray-500">Department that owns this room</p>
+                    </div>
+
+                    <!-- Room Type -->
+                    <div>
+                        <label for="{{ form.type.vars.id }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            Room Type
+                        </label>
+                        {{ form_widget(form.type, {
+                            'attr': {
+                                'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150'
+                            }
+                        }) }}
+                        {{ form_errors(form.type) }}
+                        <p class="mt-1 text-sm text-gray-500">Select the type of room</p>
+                    </div>
+
+                    <!-- Capacity -->
+                    <div>
+                        <label for="{{ form.capacity.vars.id }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            Capacity
+                        </label>
+                        {{ form_widget(form.capacity, {
+                            'attr': {
+                                'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150',
+                                'placeholder': 'e.g., 40'
+                            }
+                        }) }}
+                        {{ form_errors(form.capacity) }}
+                        <p class="mt-1 text-sm text-gray-500">Maximum number of people</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Building -->
+                    <div>
+                        <label for="{{ form.building.vars.id }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            Building
+                        </label>
+                        {{ form_widget(form.building, {
+                            'attr': {
+                                'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150',
+                                'placeholder': 'e.g., Main Building'
+                            }
+                        }) }}
+                        {{ form_errors(form.building) }}
+                        <p class="mt-1 text-sm text-gray-500">Building location</p>
+                    </div>
+
+                    <!-- Floor -->
+                    <div>
+                        <label for="{{ form.floor.vars.id }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            Floor
+                        </label>
+                        {{ form_widget(form.floor, {
+                            'attr': {
+                                'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150',
+                                'placeholder': 'e.g., 1st Floor'
+                            }
+                        }) }}
+                        {{ form_errors(form.floor) }}
+                        <p class="mt-1 text-sm text-gray-500">Floor level</p>
+                    </div>
+                </div>
+
+                <!-- Equipment -->
+                <div>
+                    <label for="{{ form.equipment.vars.id }}" class="block text-sm font-medium text-gray-700 mb-2">
+                        Equipment & Facilities
+                    </label>
+                    {{ form_widget(form.equipment, {
+                        'attr': {
+                            'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150',
+                            'placeholder': 'List available equipment and facilities (e.g., Projector, Whiteboard, Air Conditioning, 30 Computers)',
+                            'rows': 4
+                        }
+                    }) }}
+                    {{ form_errors(form.equipment) }}
+                    <p class="mt-1 text-sm text-gray-500">Describe equipment and facilities available in this room</p>
+                </div>
+
+                <!-- Status -->
+                <div class="flex items-center p-4 bg-gray-50 rounded-lg">
+                    <div class="flex items-center h-5">
+                        {{ form_widget(form.isActive, {
+                            'attr': {
+                                'class': 'w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2'
+                            }
+                        }) }}
+                    </div>
+                    <div class="ml-3">
+                        <label for="{{ form.isActive.vars.id }}" class="text-sm font-medium text-gray-900">
+                            Active Status
+                        </label>
+                        <p class="text-sm text-gray-500">Check to make this room available for scheduling</p>
+                    </div>
+                </div>
+                {{ form_errors(form.isActive) }}
+
+                <!-- Form Buttons -->
+                <div class="flex items-center justify-end space-x-4 pt-6 border-t border-gray-200">
+                    <a href="{{ path('admin_rooms') }}" 
+                       class="px-6 py-3 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150">
+                        Cancel
+                    </a>
+                    <button type="submit" 
+                            class="px-6 py-3 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150">
+                        <svg class="-ml-1 mr-2 h-5 w-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        Update Room
+                    </button>
+                </div>
+
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+{% endblock %}

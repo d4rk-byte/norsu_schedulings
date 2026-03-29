@@ -1,0 +1,177 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}My Profile - Smart Scheduling System{% endblock %}
+
+{% block body %}
+<div class="min-h-screen bg-gray-50 py-8">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900">My Profile</h1>
+            <p class="mt-2 text-sm text-gray-600">View and manage your profile information</p>
+        </div>
+
+        <!-- Flash Messages -->
+        {% for message in app.flashes('success') %}
+            <div class="mb-4 rounded-md bg-green-50 p-4">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <svg class="h-5 w-5 text-green-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm font-medium text-green-800">{{ message }}</p>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+
+        {% for message in app.flashes('error') %}
+            <div class="mb-4 rounded-md bg-red-50 p-4">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <svg class="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm font-medium text-red-800">{{ message }}</p>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+
+        <!-- Profile Card -->
+        <div class="bg-white shadow-sm rounded-lg overflow-hidden">
+            <!-- Profile Header -->
+            <div class="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-8">
+                <div class="flex items-center space-x-4">
+                    <div class="h-20 w-20 rounded-full bg-white flex items-center justify-center">
+                        <span class="text-3xl font-bold text-blue-600">
+                            {{ user.firstName ? user.firstName|slice(0, 1)|upper : user.username|slice(0, 1)|upper }}
+                        </span>
+                    </div>
+                    <div class="text-white">
+                        <h2 class="text-2xl font-bold">{{ user.fullName ?: user.username }}</h2>
+                        <p class="text-blue-100">{{ user.roleString|replace({'_': ' '})|title }}</p>
+                        <p class="text-sm text-blue-100 mt-1">{{ user.email }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Details -->
+            <div class="px-6 py-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Personal Information -->
+                    <div class="space-y-4">
+                        <h3 class="text-lg font-semibold text-gray-900 border-b pb-2">Personal Information</h3>
+                        
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Username</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ user.username }}</dd>
+                        </div>
+
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Full Name</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ user.fullName ?: 'Not set' }}</dd>
+                        </div>
+
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Email</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ user.email }}</dd>
+                        </div>
+
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Employee ID</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ user.employeeId ?: 'Not set' }}</dd>
+                        </div>
+
+                        {% if user.address %}
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Address</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ user.address }}</dd>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Professional Information -->
+                    <div class="space-y-4">
+                        <h3 class="text-lg font-semibold text-gray-900 border-b pb-2">Professional Information</h3>
+                        
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Role</dt>
+                            <dd class="mt-1">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                    {% if user.role == 1 %}bg-purple-100 text-purple-800
+                                    {% elseif user.role == 2 %}bg-blue-100 text-blue-800
+                                    {% elseif user.role == 3 %}bg-green-100 text-green-800
+                                    {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                    {{ user.roleString|replace({'_': ' '})|title }}
+                                </span>
+                            </dd>
+                        </div>
+
+                        {% if user.position %}
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Position</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ user.position }}</dd>
+                        </div>
+                        {% endif %}
+
+                        {% if user.college %}
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">College</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ user.college.name }}</dd>
+                        </div>
+                        {% endif %}
+
+                        {% if user.department %}
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Department</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ user.department.name }}</dd>
+                        </div>
+                        {% endif %}
+
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Account Status</dt>
+                            <dd class="mt-1">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                    {% if user.isActive %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+                                    {% if user.isActive %}Active{% else %}Inactive{% endif %}
+                                </span>
+                            </dd>
+                        </div>
+
+                        {% if user.lastLogin %}
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Last Login</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ user.lastLogin|date('F j, Y g:i A') }}</dd>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="mt-8 pt-6 border-t border-gray-200 flex flex-wrap gap-3">
+                    <a href="{{ path('app_profile_edit') }}" 
+                       class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                        <svg class="mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                        Edit Profile
+                    </a>
+                    
+                    <a href="{{ path('app_profile_change_password') }}" 
+                       class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                        <svg class="mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                        </svg>
+                        Change Password
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

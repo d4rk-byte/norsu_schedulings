@@ -1,0 +1,2086 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Faculty Loading - Admin Dashboard{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <!-- DataTables CSS - Local -->
+    <link rel="stylesheet" href="{{ asset('vendor/css/jquery.dataTables.min.css') }}">
+    <style>
+        /* Custom DataTables styling */
+        .dataTables_wrapper .dataTables_length {
+            margin-bottom: 0;
+        }
+        
+        .dataTables_wrapper .dataTables_length select {
+            padding: 0.5rem 2.5rem 0.5rem 0.75rem;
+            border-radius: 0.5rem;
+            border: 1px solid #d1d5db;
+            background-color: white;
+            font-size: 0.875rem;
+            margin: 0 0.5rem;
+        }
+        
+        .dataTables_wrapper .dataTables_length label {
+            font-size: 0.875rem;
+            color: #4b5563;
+            font-weight: 500;
+        }
+        
+        .dataTables_wrapper .dataTables_info {
+            padding-top: 0;
+            font-size: 0.875rem;
+            color: #4b5563;
+        }
+        
+        .dataTables_wrapper .dataTables_paginate {
+            padding-top: 0;
+        }
+        
+        .dataTables_wrapper .dataTables_paginate .paginate_button {
+            padding: 0.5rem 0.75rem;
+            margin: 0 0.125rem;
+            border-radius: 0.375rem;
+            border: 1px solid #d1d5db;
+            background: white;
+            color: #374151;
+            font-size: 0.875rem;
+            min-width: 2.5rem;
+            text-align: center;
+        }
+        
+        .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+            background: #4f46e5 !important;
+            color: white !important;
+            border: 1px solid #4f46e5 !important;
+        }
+        
+        .dataTables_wrapper .dataTables_paginate .paginate_button:hover:not(.disabled):not(.current) {
+            background: #f3f4f6 !important;
+            color: #374151 !important;
+            border: 1px solid #d1d5db !important;
+        }
+        
+        .dataTables_wrapper .dataTables_paginate .paginate_button.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            color: #9ca3af !important;
+        }
+        
+        .dataTables_wrapper .dataTables_paginate .paginate_button.previous,
+        .dataTables_wrapper .dataTables_paginate .paginate_button.next {
+            background: white;
+            border: 1px solid #d1d5db;
+        }
+        
+        table.dataTable thead th {
+            border-bottom: 2px solid #e5e7eb;
+            padding: 0.75rem;
+            font-weight: 600;
+        }
+        
+        table.dataTable tbody tr:hover {
+            background-color: #f9fafb;
+        }
+        
+        /* Remove default DataTables search box */
+        .dataTables_wrapper .dataTables_filter {
+            display: none;
+        }
+        
+        /* Search input focus animation */
+        #searchInput:focus {
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+        
+        /* Highlight row on hover */
+        #facultyTable tbody tr {
+            transition: background-color 0.15s ease;
+        }
+        
+        #facultyTable tbody tr:hover {
+            background-color: #f9fafb !important;
+        }
+        
+        /* Smooth fade for filtered results */
+        #facultyTable tbody {
+            transition: opacity 0.1s ease;
+        }
+    </style>
+{% endblock %}
+
+{% block main_content %}
+<div class="p-4 lg:p-6">
+    <!-- Page Header -->
+    <div class="mb-6">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+            <div>
+                <h1 class="text-3xl font-bold text-black">
+                    Faculty Loading
+                </h1>
+                <p class="mt-2 text-sm text-gray-600">
+                    {% if selectedDepartment %}
+                        {{ selectedDepartment.name }}
+                        {% if selectedDepartment.departmentGroup %}
+                            <span class="text-blue-600">(Group: {{ selectedDepartment.departmentGroup.name }})</span>
+                        {% endif %}
+                    {% else %}
+                        Select a department to manage faculty assignments
+                    {% endif %}
+                </p>
+            </div>
+            <div class="mt-4 md:mt-0 flex gap-3">
+                {% if selectedDepartment %}
+                    <button onclick="window.location.href='{{ path('app_schedule_faculty_loading') }}?change=1'" 
+                            class="inline-flex items-center px-4 py-2 bg-white border-2 border-gray-300 text-gray-700 font-medium rounded-lg shadow-sm hover:bg-gray-50 hover:border-gray-400 transition-all duration-200">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
+                        </svg>
+                        Change Department
+                    </button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    {% if selectedDepartment %}
+        <!-- Statistics Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <!-- Total Schedules -->
+            <div class="bg-white rounded-xl shadow-md border border-gray-100 p-6 transform hover:shadow-lg transition-all duration-200">
+                <div class="flex items-start gap-4">
+                    <div class="bg-blue-500 rounded-full p-3 flex-shrink-0">
+                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-gray-600 text-sm font-medium mb-1">Total Schedules</p>
+                        <p class="text-3xl font-bold text-black">{{ scheduledSubjects|length }}</p>
+                        <div class="flex items-center mt-2 text-xs">
+                            <svg class="w-4 h-4 text-blue-500 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+                            </svg>
+                            <span class="text-blue-600 font-medium">{{ scheduledSubjects|length }} total schedules</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Assigned -->
+            <div class="bg-white rounded-xl shadow-md border border-gray-100 p-6 transform hover:shadow-lg transition-all duration-200">
+                <div class="flex items-start gap-4">
+                    <div class="bg-green-500 rounded-full p-3 flex-shrink-0">
+                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-gray-600 text-sm font-medium mb-1">Assigned</p>
+                        <p class="text-3xl font-bold text-black">
+                            {% set assignedCount = scheduledSubjects|filter(s => s.faculty is not null)|length %}
+                            {{ assignedCount }}
+                        </p>
+                        <div class="flex items-center mt-2 text-xs">
+                            <svg class="w-4 h-4 text-green-500 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                            </svg>
+                            <span class="text-green-600 font-medium">{{ assignedCount }} schedules assigned</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Unassigned -->
+            <div class="bg-white rounded-xl shadow-md border border-gray-100 p-6 transform hover:shadow-lg transition-all duration-200">
+                <div class="flex items-start gap-4">
+                    <div class="bg-orange-500 rounded-full p-3 flex-shrink-0">
+                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-gray-600 text-sm font-medium mb-1">Unassigned</p>
+                        <p class="text-3xl font-bold text-gray-900">
+                            {% set unassignedCount = scheduledSubjects|filter(s => s.faculty is null)|length %}
+                            {{ unassignedCount }}
+                        </p>
+                        <div class="flex items-center mt-2 text-xs">
+                            <svg class="w-4 h-4 text-orange-500 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                            </svg>
+                            <span class="text-orange-600 font-medium">{{ unassignedCount }} pending assignment</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Faculty Table -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden" 
+             x-data="facultyTable()" x-init="init()">
+            
+            <!-- Table Header with Search and Filters -->
+            <div class="p-4 border-b border-gray-200">
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                    <!-- Left side: Search -->
+                    <div class="flex-1 max-w-md">
+                        <div class="relative flex items-center">
+                            <svg class="absolute left-4 h-4 w-4 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                            </svg>
+                            <input type="text" 
+                                   x-model="search" 
+                                   @input.debounce.300ms="filterData()"
+                                   placeholder="Search faculty..." 
+                                   style="padding-left: 2.5rem !important;"
+                                   class="block w-full pr-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200">
+                        </div>
+                    </div>
+                    
+                    <!-- Right side: Filters -->
+                    <div class="flex items-center gap-3 flex-wrap">
+                        <!-- Status Filter -->
+                        <div class="flex items-center gap-2">
+                            <label for="statusFilter" class="text-sm font-medium text-gray-700">Status:</label>
+                            <select x-model="statusFilter" 
+                                    @change="filterData()"
+                                    id="statusFilter" 
+                                    class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm">
+                                <option value="all">All</option>
+                                <option value="active">Active</option>
+                                <option value="inactive">Inactive</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Show per page -->
+                        <div class="flex items-center gap-2">
+                            <label for="perPage" class="text-sm font-medium text-gray-700">Show:</label>
+                            <select x-model.number="perPage" 
+                                    @change="changePerPage()"
+                                    id="perPage" 
+                                    class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm">
+                                <option value="10">10</option>
+                                <option value="25">25</option>
+                                <option value="50">50</option>
+                                <option value="100">100</option>
+                            </select>
+                            <span class="text-sm text-gray-700">entries</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Active Filters Display -->
+                <div x-show="search || statusFilter !== 'all'" class="mt-3 flex items-center gap-2 flex-wrap">
+                    <span class="text-sm text-gray-600">Active filters:</span>
+                    <template x-if="search">
+                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                            Search: <span x-text="search"></span>
+                            <button @click="search = ''; filterData()" class="ml-1 hover:bg-blue-200 rounded-full p-0.5">
+                                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                                </svg>
+                            </button>
+                        </span>
+                    </template>
+                    <template x-if="statusFilter !== 'all'">
+                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            Status: <span x-text="statusFilter"></span>
+                            <button @click="statusFilter = 'all'; filterData()" class="ml-1 hover:bg-green-200 rounded-full p-0.5">
+                                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                                </svg>
+                            </button>
+                        </span>
+                    </template>
+                </div>
+            </div>
+            
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                                @click="sortBy('fullName')">
+                                <div class="flex items-center gap-2">
+                                    <span>Faculty Member</span>
+                                    <span class="flex flex-col">
+                                        <svg class="w-3 h-3" :class="sortField === 'fullName' && sortDirection === 'asc' ? 'text-blue-600' : 'text-gray-400'" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L10 6.414l-3.293 3.293a1 1 0 01-1.414 0z"/>
+                                        </svg>
+                                        <svg class="w-3 h-3 -mt-1" :class="sortField === 'fullName' && sortDirection === 'desc' ? 'text-blue-600' : 'text-gray-400'" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M14.707 10.293a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 111.414-1.414L10 13.586l3.293-3.293a1 1 0 011.414 0z"/>
+                                        </svg>
+                                    </span>
+                                </div>
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                                @click="sortBy('employeeId')">
+                                <div class="flex items-center gap-2">
+                                    <span>Employee ID</span>
+                                    <span class="flex flex-col">
+                                        <svg class="w-3 h-3" :class="sortField === 'employeeId' && sortDirection === 'asc' ? 'text-blue-600' : 'text-gray-400'" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L10 6.414l-3.293 3.293a1 1 0 01-1.414 0z"/>
+                                        </svg>
+                                        <svg class="w-3 h-3 -mt-1" :class="sortField === 'employeeId' && sortDirection === 'desc' ? 'text-blue-600' : 'text-gray-400'" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M14.707 10.293a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 111.414-1.414L10 13.586l3.293-3.293a1 1 0 011.414 0z"/>
+                                        </svg>
+                                    </span>
+                                </div>
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                                @click="sortBy('position')">
+                                <div class="flex items-center gap-2">
+                                    <span>Position</span>
+                                    <span class="flex flex-col">
+                                        <svg class="w-3 h-3" :class="sortField === 'position' && sortDirection === 'asc' ? 'text-blue-600' : 'text-gray-400'" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L10 6.414l-3.293 3.293a1 1 0 01-1.414 0z"/>
+                                        </svg>
+                                        <svg class="w-3 h-3 -mt-1" :class="sortField === 'position' && sortDirection === 'desc' ? 'text-blue-600' : 'text-gray-400'" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M14.707 10.293a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 111.414-1.414L10 13.586l3.293-3.293a1 1 0 011.414 0z"/>
+                                        </svg>
+                                    </span>
+                                </div>
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                                @click="sortBy('isActive')">
+                                <div class="flex items-center gap-2">
+                                    <span>Status</span>
+                                    <span class="flex flex-col">
+                                        <svg class="w-3 h-3" :class="sortField === 'isActive' && sortDirection === 'asc' ? 'text-blue-600' : 'text-gray-400'" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L10 6.414l-3.293 3.293a1 1 0 01-1.414 0z"/>
+                                        </svg>
+                                        <svg class="w-3 h-3 -mt-1" :class="sortField === 'isActive' && sortDirection === 'desc' ? 'text-blue-600' : 'text-gray-400'" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M14.707 10.293a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 111.414-1.414L10 13.586l3.293-3.293a1 1 0 011.414 0z"/>
+                                        </svg>
+                                    </span>
+                                </div>
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                                @click="sortBy('createdAt')">
+                                <div class="flex items-center gap-2">
+                                    <span>Date Added</span>
+                                    <span class="flex flex-col">
+                                        <svg class="w-3 h-3" :class="sortField === 'createdAt' && sortDirection === 'asc' ? 'text-blue-600' : 'text-gray-400'" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L10 6.414l-3.293 3.293a1 1 0 01-1.414 0z"/>
+                                        </svg>
+                                        <svg class="w-3 h-3 -mt-1" :class="sortField === 'createdAt' && sortDirection === 'desc' ? 'text-blue-600' : 'text-gray-400'" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M14.707 10.293a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 111.414-1.414L10 13.586l3.293-3.293a1 1 0 011.414 0z"/>
+                                        </svg>
+                                    </span>
+                                </div>
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Actions
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <template x-if="paginatedData.length === 0">
+                            <tr>
+                                <td colspan="6" class="px-6 py-12 text-center">
+                                    <div class="flex flex-col items-center justify-center">
+                                        <svg class="w-16 h-16 text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+                                        </svg>
+                                        <p class="text-gray-500 text-lg font-medium">No faculty members found</p>
+                                        <p class="text-gray-400 text-sm mt-1">Try adjusting your search or filters</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        </template>
+                        
+                        <template x-for="(member, index) in paginatedData" :key="member.id">
+                            <tr class="hover:bg-gray-50 transition-colors duration-150">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0 h-10 w-10 relative">
+                                            <div class="h-10 w-10 rounded-full bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center text-white font-bold text-sm">
+                                                <span x-text="member.initials"></span>
+                                            </div>
+                                            <template x-if="member.assignedCount > 0">
+                                                <span class="absolute -top-1 -right-1 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-white bg-blue-600 rounded-full" x-text="member.assignedCount" :title="member.assignedCount + ' schedule(s) assigned'"></span>
+                                            </template>
+                                        </div>
+                                        <div class="ml-4">
+                                            <div class="text-sm font-medium text-gray-900" x-text="member.fullName"></div>
+                                            <div class="text-sm text-gray-500" x-text="member.email"></div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900" x-text="member.employeeId || 'N/A'"></div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900" x-text="member.position || 'N/A'"></div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span x-show="member.isActive" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                        <svg class="mr-1.5 h-2 w-2 fill-current" viewBox="0 0 8 8">
+                                            <circle cx="4" cy="4" r="3"/>
+                                        </svg>
+                                        Active
+                                    </span>
+                                    <span x-show="!member.isActive" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                        <svg class="mr-1.5 h-2 w-2 fill-current" viewBox="0 0 8 8">
+                                            <circle cx="4" cy="4" r="3"/>
+                                        </svg>
+                                        Inactive
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="member.createdAtFormatted"></td>
+                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                    <div class="flex justify-end gap-2">
+                                        <button @click="viewFacultyAssignments(member.id)"
+                                                class="text-indigo-600 hover:text-indigo-900 inline-flex items-center justify-center w-8 h-8 rounded-lg hover:bg-indigo-50 transition" 
+                                                title="View">
+                                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                            </svg>
+                                        </button>
+                                        <button @click="openLoadSubjectModal(member.id, member.fullName)"
+                                                class="text-blue-600 hover:text-blue-900 inline-flex items-center justify-center w-8 h-8 rounded-lg hover:bg-blue-50 transition" 
+                                                title="Load Subject">
+                                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Pagination -->
+            <div class="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
+                <div class="flex items-center justify-between">
+                    <div class="flex-1 flex justify-between sm:hidden">
+                        <button @click="prevPage()" 
+                                :disabled="currentPage === 1"
+                                :class="{ 'opacity-50 cursor-not-allowed': currentPage === 1 }"
+                                class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                            Previous
+                        </button>
+                        <button @click="nextPage()" 
+                                :disabled="currentPage === totalPages"
+                                :class="{ 'opacity-50 cursor-not-allowed': currentPage === totalPages }"
+                                class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                            Next
+                        </button>
+                    </div>
+                    <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                        <div>
+                            <p class="text-sm text-gray-700">
+                                Showing
+                                <span class="font-medium" x-text="startEntry"></span>
+                                to
+                                <span class="font-medium" x-text="endEntry"></span>
+                                of
+                                <span class="font-medium" x-text="totalFiltered"></span>
+                                results
+                                <template x-if="totalFiltered !== allData.length">
+                                    <span class="text-gray-500">(filtered from <span x-text="allData.length"></span> total)</span>
+                                </template>
+                            </p>
+                        </div>
+                        <div>
+                            <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                                <button @click="prevPage()" 
+                                        :disabled="currentPage === 1"
+                                        :class="{ 'opacity-50 cursor-not-allowed': currentPage === 1 }"
+                                        class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                    <span class="sr-only">Previous</span>
+                                    <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                    </svg>
+                                </button>
+
+                                <template x-for="page in displayedPages" :key="page">
+                                    <button @click="goToPage(page)" 
+                                            :class="page === currentPage ? 
+                                                'relative inline-flex items-center px-4 py-2 border border-blue-500 bg-blue-50 text-sm font-medium text-blue-600 z-10' : 
+                                                page === '...' ? 
+                                                'relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 cursor-default' :
+                                                'relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50'"
+                                            :disabled="page === '...'"
+                                            x-text="page">
+                                    </button>
+                                </template>
+
+                                <button @click="nextPage()" 
+                                        :disabled="currentPage === totalPages"
+                                        :class="{ 'opacity-50 cursor-not-allowed': currentPage === totalPages }"
+                                        class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                    <span class="sr-only">Next</span>
+                                    <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+                                    </svg>
+                                </button>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Alpine.js DataTable Logic -->
+        <script>
+            function facultyTable() {
+                return {
+                    allData: [],
+                    filteredData: [],
+                    paginatedData: [],
+                    search: '',
+                    statusFilter: 'all',
+                    sortField: 'fullName',
+                    sortDirection: 'asc',
+                    perPage: 10,
+                    currentPage: 1,
+                    totalPages: 1,
+                    totalFiltered: 0,
+                    startEntry: 0,
+                    endEntry: 0,
+                    
+                    init() {
+                        // Load data from server
+                        this.allData = [
+                            {% for member in faculty %}
+                            {% set assignedSchedules = scheduledSubjects|filter(s => s.faculty and s.faculty.id == member.id) %}
+                            {
+                                id: {{ member.id }},
+                                firstName: '{{ member.firstName|e('js') }}',
+                                lastName: '{{ member.lastName|e('js') }}',
+                                fullName: '{{ member.firstName|e('js') }} {{ member.lastName|e('js') }}',
+                                email: '{{ member.email|e('js') }}',
+                                employeeId: '{{ member.employeeId|default('')|e('js') }}',
+                                position: '{{ member.position|default('')|e('js') }}',
+                                isActive: {{ member.isActive ? 'true' : 'false' }},
+                                createdAt: '{{ member.createdAt ? member.createdAt|date('Y-m-d') : '' }}',
+                                createdAtFormatted: '{{ member.createdAt ? member.createdAt|date('M d, Y') : 'N/A' }}',
+                                initials: '{{ member.firstName[:1] }}{{ member.lastName[:1] }}',
+                                assignedCount: {{ assignedSchedules|length }}
+                            },
+                            {% endfor %}
+                        ];
+                        this.filterData();
+                    },
+                    
+                    filterData() {
+                        let filtered = [...this.allData];
+                        
+                        // Apply search filter
+                        if (this.search) {
+                            const searchLower = this.search.toLowerCase();
+                            filtered = filtered.filter(member => 
+                                member.fullName.toLowerCase().includes(searchLower) ||
+                                member.email.toLowerCase().includes(searchLower) ||
+                                member.employeeId.toLowerCase().includes(searchLower) ||
+                                (member.position && member.position.toLowerCase().includes(searchLower))
+                            );
+                        }
+                        
+                        // Apply status filter
+                        if (this.statusFilter !== 'all') {
+                            filtered = filtered.filter(member => {
+                                if (this.statusFilter === 'active') return member.isActive;
+                                if (this.statusFilter === 'inactive') return !member.isActive;
+                                return true;
+                            });
+                        }
+                        
+                        // Apply sorting
+                        filtered.sort((a, b) => {
+                            let aVal = a[this.sortField];
+                            let bVal = b[this.sortField];
+                            
+                            // Handle null/undefined values
+                            if (aVal === null || aVal === undefined) aVal = '';
+                            if (bVal === null || bVal === undefined) bVal = '';
+                            
+                            // Convert to lowercase for string comparison
+                            if (typeof aVal === 'string') aVal = aVal.toLowerCase();
+                            if (typeof bVal === 'string') bVal = bVal.toLowerCase();
+                            
+                            if (aVal < bVal) return this.sortDirection === 'asc' ? -1 : 1;
+                            if (aVal > bVal) return this.sortDirection === 'asc' ? 1 : -1;
+                            return 0;
+                        });
+                        
+                        this.filteredData = filtered;
+                        this.totalFiltered = filtered.length;
+                        this.currentPage = 1; // Reset to first page
+                        this.updatePagination();
+                    },
+                    
+                    updatePagination() {
+                        this.totalPages = Math.ceil(this.totalFiltered / this.perPage) || 1;
+                        const start = (this.currentPage - 1) * this.perPage;
+                        const end = start + this.perPage;
+                        this.paginatedData = this.filteredData.slice(start, end);
+                        
+                        this.startEntry = this.totalFiltered > 0 ? start + 1 : 0;
+                        this.endEntry = Math.min(end, this.totalFiltered);
+                    },
+                    
+                    sortBy(field) {
+                        if (this.sortField === field) {
+                            this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+                        } else {
+                            this.sortField = field;
+                            this.sortDirection = 'asc';
+                        }
+                        this.filterData();
+                    },
+                    
+                    changePerPage() {
+                        this.currentPage = 1;
+                        this.updatePagination();
+                    },
+                    
+                    prevPage() {
+                        if (this.currentPage > 1) {
+                            this.currentPage--;
+                            this.updatePagination();
+                        }
+                    },
+                    
+                    nextPage() {
+                        if (this.currentPage < this.totalPages) {
+                            this.currentPage++;
+                            this.updatePagination();
+                        }
+                    },
+                    
+                    goToPage(page) {
+                        if (page !== '...' && page >= 1 && page <= this.totalPages) {
+                            this.currentPage = page;
+                            this.updatePagination();
+                        }
+                    },
+                    
+                    get displayedPages() {
+                        const pages = [];
+                        const maxVisible = 7;
+                        
+                        if (this.totalPages <= maxVisible) {
+                            for (let i = 1; i <= this.totalPages; i++) {
+                                pages.push(i);
+                            }
+                        } else {
+                            pages.push(1);
+                            
+                            let start = Math.max(2, this.currentPage - 1);
+                            let end = Math.min(this.totalPages - 1, this.currentPage + 1);
+                            
+                            if (this.currentPage <= 3) {
+                                end = 5;
+                            }
+                            if (this.currentPage >= this.totalPages - 2) {
+                                start = this.totalPages - 4;
+                            }
+                            
+                            if (start > 2) pages.push('...');
+                            
+                            for (let i = start; i <= end; i++) {
+                                pages.push(i);
+                            }
+                            
+                            if (end < this.totalPages - 1) pages.push('...');
+                            
+                            pages.push(this.totalPages);
+                        }
+                        
+                        return pages;
+                    },
+                    
+                    viewFacultyAssignments(id) {
+                        viewFacultyAssignments(id);
+                    },
+                    
+                    openLoadSubjectModal(id, name) {
+                        openLoadSubjectModal(id, name);
+                    }
+                };
+            }
+        </script>
+
+    {% else %}
+        <!-- No Department Selected - Show Modal Trigger -->
+        <div class="bg-white rounded-xl shadow-md p-12 text-center">
+            <svg class="w-24 h-24 mx-auto text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+            </svg>
+            <h3 class="mt-6 text-2xl font-bold text-gray-700">Select a Department</h3>
+            <p class="mt-2 text-gray-500">Choose a department to view and manage faculty loading</p>
+            <button onclick="openDepartmentSelectionModal()"
+                    class="mt-6 inline-flex items-center px-6 py-3 bg-blue-600 text-white font-medium rounded-lg shadow-md hover:bg-blue-700 transition-all duration-200">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                </svg>
+                Select Department
+            </button>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Load Subject Modal -->
+<div id="loadSubjectModal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-gray-900 bg-opacity-50">
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <!-- Modal panel -->
+        <div class="relative bg-white rounded-2xl shadow-2xl max-w-7xl w-full" style="max-height: 90vh;">
+            <div class="flex flex-col h-full" style="max-height: 90vh;">
+                
+                <!-- TOP: Faculty Details Header -->
+                <div class="flex-shrink-0 p-6 border-b border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-4">
+                            <!-- Faculty Avatar -->
+                            <div class="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center shadow-lg">
+                                <span class="text-white font-bold text-2xl" id="facultyInitials"></span>
+                            </div>
+                            <!-- Faculty Info -->
+                            <div>
+                                <h3 class="text-xl font-bold text-gray-900" id="selectedFacultyName"></h3>
+                                <p class="text-sm text-gray-600" id="facultyEmail"></p>
+                                <div class="flex items-center gap-3 mt-1">
+                                    <span class="inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-700">
+                                        <svg class="h-3 w-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                                        </svg>
+                                        <span id="facultyDepartment"></span>
+                                    </span>
+                                    <span class="text-xs text-gray-500">
+                                        <span id="facultyLoadedCount" class="font-semibold text-green-600">0</span> subjects loaded
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <button onclick="closeLoadSubjectModal()" class="text-gray-400 hover:text-gray-600 transition">
+                            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Main Content: 2 Column Layout -->
+                <div class="flex-1 overflow-hidden p-6">
+                    <div class="grid grid-cols-12 gap-6 h-full">
+                        
+                        <!-- LEFT COLUMN: Loaded Subjects (takes 7 columns) -->
+                        <div class="col-span-7 flex flex-col h-full">
+                            <div class="flex items-center justify-between mb-4">
+                                <h4 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+                                    <svg class="h-5 w-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                    Loaded Subjects
+                                </h4>
+                                <span class="text-sm text-gray-500">
+                                    <span id="loadedCount" class="font-semibold text-green-600">0</span> subjects
+                                </span>
+                            </div>
+                            <div class="flex-1 border-2 border-green-200 bg-green-50 rounded-xl overflow-hidden" style="height: 55vh;">
+                                <div class="h-full overflow-y-auto" id="loadedSubjectsList" style="max-height: calc(55vh - 4px);">
+                                    <!-- Will be populated dynamically -->
+                                    <div class="p-8 text-center text-gray-500">
+                                        <svg class="mx-auto h-12 w-12 text-gray-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                        </svg>
+                                        <p class="text-sm">No subjects loaded yet</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- RIGHT COLUMN: Unassigned Subjects (takes 5 columns) -->
+                        <div class="col-span-5 flex flex-col h-full">
+                            <div class="flex items-center justify-between mb-4">
+                                <h4 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+                                    <svg class="h-5 w-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                    Unassigned Subjects
+                                </h4>
+                                <button onclick="selectAllSchedules()" class="text-sm text-blue-600 hover:text-blue-700 font-medium">
+                                    Select All
+                                </button>
+                            </div>
+                            <div class="flex-1 border-2 border-orange-200 bg-orange-50 rounded-xl overflow-hidden" style="height: 55vh;">
+                                <div class="h-full overflow-y-auto" style="max-height: calc(55vh - 4px);">
+                                    <table class="min-w-full divide-y divide-orange-200">
+                                        <thead class="bg-orange-100 sticky top-0">
+                                            <tr>
+                                                <th class="px-3 py-2 text-left w-10">
+                                                    <input type="checkbox" id="selectAllCheckbox" onchange="toggleAllSchedules(this)"
+                                                           class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded cursor-pointer">
+                                                </th>
+                                                <th class="px-3 py-2 text-left text-xs font-semibold text-gray-700 uppercase">Subject</th>
+                                                <th class="px-3 py-2 text-left text-xs font-semibold text-gray-700 uppercase">Schedule</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="bg-white divide-y divide-orange-100" id="schedulesList">
+                                            {% for schedule in scheduledSubjects %}
+                                                {% if schedule.faculty is null %}
+                                                    <tr class="unassigned-subject-row hover:bg-orange-100 transition-colors cursor-pointer" 
+                                                        data-schedule-id="{{ schedule.id }}"
+                                                        data-day-pattern="{{ schedule.dayPattern }}"
+                                                        data-start-time="{{ schedule.startTime|date('H:i') }}"
+                                                        data-end-time="{{ schedule.endTime|date('H:i') }}"
+                                                        data-subject-code="{{ schedule.subject.code }}"
+                                                        data-section="{{ schedule.section }}"
+                                                        data-subject-title="{{ schedule.subject.title }}"
+                                                        data-units="{{ schedule.subject.units }}"
+                                                        data-room-code="{{ schedule.room.code }}"
+                                                        onclick="toggleRowCheckbox(this, event)">
+                                                        <td class="px-3 py-3">
+                                                            <input type="checkbox" class="subject-checkbox h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded cursor-pointer" 
+                                                                   value="{{ schedule.id }}">
+                                                        </td>
+                                                        <td class="px-3 py-3">
+                                                            <div class="text-sm font-semibold text-gray-900">{{ schedule.subject.code }}-{{ schedule.section }}</div>
+                                                            <div class="text-xs text-gray-600">{{ schedule.subject.title|slice(0, 30) }}{% if schedule.subject.title|length > 30 %}...{% endif %}</div>
+                                                            <div class="flex items-center gap-2 mt-1">
+                                                                <span class="text-xs text-gray-500">{{ schedule.subject.units }}u</span>
+                                                            </div>
+                                                        </td>
+                                                        <td class="px-3 py-3">
+                                                            <div class="text-xs text-gray-900 font-medium">{{ schedule.dayPatternLabel }}</div>
+                                                            <div class="text-xs text-gray-600">{{ schedule.startTime|date('g:i A') }} - {{ schedule.endTime|date('g:i A') }}</div>
+                                                            <div class="text-xs text-gray-500 mt-0.5">{{ schedule.room.code }}</div>
+                                                        </td>
+                                                    </tr>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <p class="text-xs text-gray-600 mt-2 text-center">
+                                <span id="selectedSubjectsCount" class="font-semibold text-blue-600">0</span> selected
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bottom Action Buttons -->
+                <div class="flex-shrink-0 flex justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50">
+                    <button onclick="closeLoadSubjectModal()" 
+                            class="px-6 py-2.5 border-2 border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-100 transition-colors">
+                        Cancel
+                    </button>
+                    <button id="confirm-load-btn" onclick="confirmLoadSubject()" 
+                            class="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold shadow-lg transition-all">
+                        <svg class="inline-block h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        Assign Selected Schedules
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- View Assignments Modal (Read-only) -->
+<div id="viewAssignmentsModal" class="hidden fixed inset-0 z-50 overflow-y-auto" aria-labelledby="view-modal-title" role="dialog" aria-modal="true">
+    <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-gray-900 bg-opacity-75 transition-opacity" onclick="closeViewAssignmentsModal()"></div>
+
+        <div class="inline-block align-bottom bg-white rounded-xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-5xl sm:w-full" onclick="event.stopPropagation()">
+            <div class="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-xl font-bold text-white" id="view-modal-title">Teaching Load</h3>
+                        <p class="text-blue-100 text-sm" id="view-modal-faculty-name"></p>
+                    </div>
+                    <button onclick="closeViewAssignmentsModal()" class="text-white hover:text-blue-100 transition-colors">
+                        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <div class="p-6" id="view-assignments-content">
+                <!-- Content will be populated by JavaScript -->
+            </div>
+
+            <div class="bg-gray-100 px-6 py-4 flex justify-between">
+                <button onclick="generateTeachingLoadPDF()" 
+                        class="px-4 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-all flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                    </svg>
+                    Download PDF
+                </button>
+                <button onclick="closeViewAssignmentsModal()" 
+                        class="px-6 py-2 bg-white border-2 border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 hover:border-gray-400 transition-all">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Department Selection Modal -->
+<div id="departmentSelectionModal" class="hidden fixed inset-0 z-50 overflow-y-auto" aria-labelledby="dept-modal-title" role="dialog" aria-modal="true">
+    <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:p-0">
+        <!-- Backdrop -->
+        <div class="fixed inset-0 bg-gray-900 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
+
+        <!-- Modal Content -->
+        <div class="inline-block align-middle bg-white rounded-xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:max-w-4xl sm:w-full" onclick="event.stopPropagation()">
+            <!-- Header -->
+            <div class="bg-gradient-to-r from-blue-600 to-blue-500 px-6 py-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-xl font-bold text-white" id="dept-modal-title">Select Department</h3>
+                        <p class="text-blue-100 text-sm">Choose a department to manage faculty loading</p>
+                    </div>
+                    <button onclick="closeDepartmentSelectionModal()" class="text-white hover:text-gray-200 transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Body -->
+            <div class="p-6">
+                <!-- College Filter -->
+                <div class="mb-4">
+                    <label for="collegeFilter" class="block text-sm font-medium text-gray-700 mb-2">Filter by College</label>
+                    <select id="collegeFilter" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <option value="">All Colleges</option>
+                        {% set colleges = [] %}
+                        {% for department in departments %}
+                            {% if department.college %}
+                                {% set collegeId = department.college.id %}
+                                {% if collegeId not in colleges|map(c => c.id) %}
+                                    {% set colleges = colleges|merge([department.college]) %}
+                                {% endif %}
+                            {% endif %}
+                        {% endfor %}
+                        {% set sortedColleges = colleges|sort((a, b) => a.name <=> b.name) %}
+                        {% for college in sortedColleges %}
+                            <option value="{{ college.id }}">{{ college.code }} - {{ college.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Loading Indicator -->
+                <div id="departmentLoading" class="hidden py-12 text-center">
+                    <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                    <p class="text-gray-600 mt-4 font-medium">Loading departments...</p>
+                </div>
+
+                <!-- Department Grid Container -->
+                <div id="departmentGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-96 overflow-y-auto">
+                    <!-- Departments will be rendered here by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- jQuery (required for DataTables) - Local -->
+<script src="{{ asset('vendor/js/jquery.min.js') }}"></script>
+<!-- DataTables JS - Local -->
+<script src="{{ asset('vendor/js/jquery.dataTables.min.js') }}"></script>
+
+<script>
+// Initialize DataTables
+$(document).ready(function() {
+    console.log('🔧 Initializing Faculty Loading DataTable...');
+    
+    // Check if facultyTable exists
+    if ($('#facultyTable').length === 0) {
+        console.log('⚠️ Faculty table not found - department not selected');
+        return;
+    }
+    
+    // Debug: Count columns
+    const theadCols = $('#facultyTable thead tr:first th').length;
+    const tbodyFirstRowCols = $('#facultyTable tbody tr:first td').length;
+    console.log('📊 Column count - thead:', theadCols, 'tbody first row:', tbodyFirstRowCols);
+    
+    console.log('✓ Faculty table found with', $('#facultyTable tbody tr').length, 'rows');
+    
+    // Check if DataTable already exists and destroy it
+    if ($.fn.DataTable.isDataTable('#facultyTable')) {
+        console.log('♻️ Destroying existing DataTable instance');
+        $('#facultyTable').DataTable().destroy();
+    }
+    
+    // Initialize DataTables with full functionality
+    const table = $('#facultyTable').DataTable({
+        retrieve: true, // Retrieve existing instance if available
+        paging: true,
+        pageLength: 10,
+        lengthMenu: [[10, 25, 50, 100], [10, 25, 50, 100]],
+        lengthChange: false, // Hide default length control
+        searching: true, // Enable searching
+        info: true,
+        autoWidth: false,
+        processing: false, // No processing indicator for instant results
+        deferRender: true,
+        order: [[0, 'asc']], // Sort by faculty name by default
+        columnDefs: [
+            { targets: 0, orderable: true }, // Faculty Member
+            { targets: 1, orderable: true }, // Employee ID
+            { targets: 2, orderable: true }, // Position
+            { targets: 3, orderable: true }, // Status
+            { targets: 4, orderable: true }, // Date Added
+            { targets: 5, orderable: false } // Actions
+        ],
+        language: {
+            info: "Showing _START_ to _END_ of _TOTAL_ faculty members",
+            infoEmpty: "Showing 0 to 0 of 0 faculty members",
+            infoFiltered: "(filtered from _MAX_ total faculty members)",
+            zeroRecords: "No matching faculty members found",
+            emptyTable: "No faculty members available",
+            paginate: {
+                previous: "‹ Previous",
+                next: "Next ›"
+            }
+        },
+        // Custom DOM structure - remove default search and length
+        dom: 'rt<"px-6 py-6 border-t border-gray-200 flex flex-col sm:flex-row justify-between items-center gap-4"<"text-sm text-gray-700"i><"flex items-center gap-2"p>>',
+        drawCallback: function() {
+            // Custom styling for pagination buttons after draw
+            $('.dataTables_paginate .paginate_button').addClass('inline-flex items-center justify-center');
+            $('.dataTables_paginate .paginate_button.current').removeClass('hover:bg-gray-50');
+        }
+    });
+
+    console.log('✓ DataTable initialized successfully');
+
+    // Custom search - LIVE SEARCH with instant filtering
+    // Using 'input' event for the most immediate response
+    $('#searchInput').on('input keyup search', function() {
+        const searchValue = $.trim(this.value);
+        console.log('🔍 Searching for:', searchValue);
+        
+        // Perform search instantly
+        table.search(searchValue).draw();
+        
+        // Show/hide clear button
+        if (searchValue.length > 0) {
+            $('#clearSearch').show();
+        } else {
+            $('#clearSearch').hide();
+        }
+    });
+    
+    // Status filter - INSTANT filtering on change
+    $('#statusFilter').on('change', function() {
+        const statusText = $(this).val();
+        console.log('📊 Filtering by status:', statusText || 'All');
+        table.column(3).search(statusText).draw();
+    });
+    
+    // Show/Page length filter - INSTANT update
+    $('#showFilter').on('change', function() {
+        const length = parseInt($(this).val());
+        console.log('📄 Showing', length, 'rows per page');
+        table.page.len(length).draw();
+    });
+    
+    // Log initialization complete
+    console.log('✅ Faculty DataTable ready with ' + table.rows().count() + ' total rows');
+});
+
+// Clear search input function
+function clearSearchInput() {
+    console.log('🗑️ Clearing search');
+    $('#searchInput').val('');
+    $('#clearSearch').hide();
+    if ($.fn.DataTable.isDataTable('#facultyTable')) {
+        $('#facultyTable').DataTable().search('').draw();
+    }
+}
+
+// Store all departments data for filtering
+const allDepartments = [
+    {% for department in departments %}
+    {
+        id: {{ department.id }},
+        name: '{{ department.name|e('js') }}',
+        code: '{{ department.code|e('js') }}',
+        collegeId: {{ department.college ? department.college.id : 0 }},
+        collegeName: '{{ department.college ? department.college.name|e('js') : 'No College' }}',
+        hasCollege: {{ department.college ? 'true' : 'false' }}
+    }{{ loop.last ? '' : ',' }}
+    {% endfor %}
+];
+
+console.log('✓ Departments loaded:', allDepartments.length);
+
+// Faculty data object with all assigned schedules
+const facultyData = {
+    {% for member in faculty %}
+        {{ member.id }}: {
+            id: {{ member.id }},
+            name: '{{ member.firstName|e('js') }} {{ member.lastName|e('js') }}',
+            assignedSchedules: [
+                {% for schedule in scheduledSubjects|filter(s => s.faculty and s.faculty.id == member.id) %}
+                {
+                    id: {{ schedule.id }},
+                    subjectCode: '{{ schedule.subject.code|e('js') }}',
+                    subjectTitle: '{{ schedule.subject.title|e('js') }}',
+                    units: {{ schedule.subject.units }},
+                    section: '{{ schedule.section|e('js') }}',
+                    dayPattern: '{{ schedule.dayPattern|e('js') }}',
+                    dayPatternRaw: '{{ schedule.dayPattern|e('js') }}',
+                    startTime: '{{ schedule.startTime|date('g:i A')|e('js') }}',
+                    startTimeRaw: '{{ schedule.startTime|date('H:i')|e('js') }}',
+                    endTime: '{{ schedule.endTime|date('g:i A')|e('js') }}',
+                    endTimeRaw: '{{ schedule.endTime|date('H:i')|e('js') }}',
+                    room: '{{ schedule.room ? (schedule.room.code ~ (schedule.room.name ? ' - ' ~ schedule.room.name : ''))|e('js') : 'TBA' }}',
+                    roomCode: '{{ schedule.room ? schedule.room.code|e('js') : '' }}',
+                    isOverload: {{ schedule.isOverload ? 'true' : 'false' }}
+                },
+                {% endfor %}
+            ]
+        },
+    {% endfor %}
+};
+
+let currentFacultyId = null;
+let selectedScheduleIds = new Set();
+
+// Utility: Convert day pattern to day names
+function getDaysFromPattern(pattern) {
+    const dayMap = {
+        'M': 'Monday',
+        'T': 'Tuesday',
+        'W': 'Wednesday',
+        'H': 'Thursday',
+        'F': 'Friday',
+        'S': 'Saturday',
+        'U': 'Sunday'
+    };
+    return pattern.split('').map(d => dayMap[d] || d);
+}
+
+// Utility: Check if two time ranges overlap (EXCLUDES edge cases)
+function timesOverlap(start1, end1, start2, end2) {
+    // Convert to minutes for comparison
+    const toMinutes = (time) => {
+        const [h, m] = time.split(':').map(Number);
+        return h * 60 + m;
+    };
+    
+    const s1 = toMinutes(start1);
+    const e1 = toMinutes(end1);
+    const s2 = toMinutes(start2);
+    const e2 = toMinutes(end2);
+    
+    // EXCLUDE edge cases where one ends exactly when the other starts
+    return (s1 < e2 && e1 > s2) && !(e1 === s2 || e2 === s1);
+}
+
+// Helper function to parse day pattern into actual day names
+function parseDayPattern(pattern) {
+    const days = [];
+    pattern = pattern.toUpperCase().trim();
+    
+    // Handle special patterns
+    if (pattern.includes('M-T-TH-F') || pattern.includes('MTTHF')) {
+        return ['MONDAY', 'TUESDAY', 'THURSDAY', 'FRIDAY'];
+    }
+    if (pattern.includes('MON-SAT')) {
+        return ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'];
+    }
+    
+    // Replace matched patterns with placeholders to avoid double-matching
+    let marked = pattern;
+    
+    // Handle multi-character days first (must check before single chars)
+    if (marked.includes('TH')) {
+        days.push('THURSDAY');
+        marked = marked.replace(/TH/g, '##');
+    }
+    if (marked.includes('SU')) {
+        days.push('SUNDAY');
+        marked = marked.replace(/SU/g, '##');
+    }
+    if (marked.includes('SAT')) {
+        days.push('SATURDAY');
+        marked = marked.replace(/SAT/g, '##');
+    } else if (marked.includes('SA')) {
+        days.push('SATURDAY');
+        marked = marked.replace(/SA/g, '##');
+    }
+    
+    // Now check single-letter days
+    if (marked.includes('M')) days.push('MONDAY');
+    if (marked.includes('T')) days.push('TUESDAY');
+    if (marked.includes('W')) days.push('WEDNESDAY');
+    if (marked.includes('F')) days.push('FRIDAY');
+    
+    return [...new Set(days)]; // Remove duplicates
+}
+
+// Conflict Detection: Check if a schedule conflicts with faculty's assigned schedules
+function hasConflict(scheduleId, dayPattern, startTime, endTime) {
+    if (!currentFacultyId || !facultyData[currentFacultyId]) return false;
+    
+    const faculty = facultyData[currentFacultyId];
+    const scheduleDays = parseDayPattern(dayPattern);
+    
+    for (const assigned of faculty.assignedSchedules) {
+        // Skip comparing with itself
+        if (assigned.id === scheduleId) continue;
+        
+        const assignedDays = parseDayPattern(assigned.dayPatternRaw);
+        
+        // Check if days overlap
+        const daysOverlap = scheduleDays.some(day => assignedDays.includes(day));
+        
+        if (daysOverlap && timesOverlap(startTime, endTime, assigned.startTimeRaw, assigned.endTimeRaw)) {
+            return {
+                conflictsWith: assigned,
+                reason: `Conflicts with ${assigned.subjectCode} (${assigned.section}) on ${assigned.dayPattern} at ${assigned.startTime} - ${assigned.endTime}`
+            };
+        }
+    }
+    
+    return false;
+}
+
+// Detect conflicts between loaded schedules themselves
+function detectLoadedConflicts() {
+    if (!currentFacultyId || !facultyData[currentFacultyId]) return new Map();
+    
+    const faculty = facultyData[currentFacultyId];
+    const conflicts = new Map();
+    
+    for (let i = 0; i < faculty.assignedSchedules.length; i++) {
+        for (let j = i + 1; j < faculty.assignedSchedules.length; j++) {
+            const s1 = faculty.assignedSchedules[i];
+            const s2 = faculty.assignedSchedules[j];
+            
+            const days1 = parseDayPattern(s1.dayPatternRaw);
+            const days2 = parseDayPattern(s2.dayPatternRaw);
+            const daysOverlap = days1.some(day => days2.includes(day));
+            
+            if (daysOverlap && timesOverlap(s1.startTimeRaw, s1.endTimeRaw, s2.startTimeRaw, s2.endTimeRaw)) {
+                if (!conflicts.has(s1.id)) conflicts.set(s1.id, []);
+                if (!conflicts.has(s2.id)) conflicts.set(s2.id, []);
+                
+                conflicts.get(s1.id).push(s2);
+                conflicts.get(s2.id).push(s1);
+            }
+        }
+    }
+    
+    return conflicts;
+}
+
+// Format day pattern for display
+function formatDayPattern(pattern) {
+    const dayMap = {
+        'M': 'Monday',
+        'T': 'Tuesday',
+        'W': 'Wednesday',
+        'H': 'Thursday',
+        'F': 'Friday',
+        'S': 'Saturday',
+        'U': 'Sunday'
+    };
+    
+    return pattern.split('').map(d => dayMap[d] || d).join(', ');
+}
+
+// Detect all conflicts for checkboxes
+function detectConflicts() {
+    const conflicts = new Map();
+    const rows = document.querySelectorAll('.unassigned-subject-row');
+    
+    rows.forEach(row => {
+        const scheduleId = parseInt(row.dataset.scheduleId);
+        const dayPattern = row.dataset.dayPattern;
+        const startTime = row.dataset.startTime;
+        const endTime = row.dataset.endTime;
+        
+        const conflict = hasConflict(scheduleId, dayPattern, startTime, endTime);
+        if (conflict) {
+            conflicts.set(scheduleId, conflict);
+        }
+    });
+    
+    return conflicts;
+}
+
+// Show temporary toast message
+function showTemporaryMessage(message, type = 'success') {
+    const bgColor = type === 'success' ? 'bg-green-500' : type === 'error' ? 'bg-red-500' : 'bg-blue-500';
+    const toast = document.createElement('div');
+    toast.className = `fixed top-20 right-6 ${bgColor} text-white px-6 py-3 rounded-lg shadow-xl z-50 transform transition-all duration-300 translate-x-0`;
+    toast.innerHTML = `
+        <div class="flex items-center gap-3">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <span>${message}</span>
+        </div>
+    `;
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.style.transform = 'translateX(400px)';
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+}
+
+// Refresh loaded subjects list with conflict detection
+function refreshLoadedSubjectsList() {
+    const container = document.getElementById('loadedSubjectsList');
+    const faculty = facultyData[currentFacultyId];
+    
+    if (!faculty || faculty.assignedSchedules.length === 0) {
+        container.innerHTML = `
+            <div class="p-8 text-center text-gray-500">
+                <svg class="mx-auto h-12 w-12 text-gray-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+                <p class="text-sm">No subjects loaded yet</p>
+            </div>
+        `;
+        return;
+    }
+    
+    const loadedConflicts = detectLoadedConflicts();
+    let html = '';
+    
+    faculty.assignedSchedules.forEach(schedule => {
+        const conflicts = loadedConflicts.get(schedule.id) || [];
+        const hasConflict = conflicts.length > 0;
+        
+        html += `
+            ${hasConflict ? `
+                <div class="bg-red-600 text-white px-4 py-2 text-sm font-semibold flex items-center gap-2">
+                    <svg class="h-4 w-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                    </svg>
+                    <span>TIME CONFLICT DETECTED</span>
+                </div>
+                <div class="bg-red-600 text-white px-4 pb-2 text-xs">
+                    Conflicts with ${conflicts.map(c => `${c.subjectCode} ${c.section} (${c.dayPattern}, ${c.startTime} - ${c.endTime})`).join(', ')}
+                </div>
+            ` : ''}
+            ${schedule.isOverload ? `
+                <div class="bg-amber-500 text-white px-4 py-2 text-sm font-semibold flex items-center gap-2">
+                    <svg class="h-4 w-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"/>
+                    </svg>
+                    <span>OVERLOAD</span>
+                </div>
+            ` : ''}
+            <div class="${hasConflict ? 'bg-red-50' : schedule.isOverload ? 'bg-amber-50' : 'bg-white'} border-b ${hasConflict ? 'border-red-200' : schedule.isOverload ? 'border-amber-200' : 'border-green-200'} hover:bg-opacity-80 transition-colors">
+                <div class="p-4">
+                    <div class="flex items-start justify-between">
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2 mb-2">
+                                <span class="text-sm font-bold ${hasConflict ? 'text-blue-700' : 'text-gray-900'}">${schedule.subjectCode}-${schedule.section}</span>
+                                <span class="text-xs text-gray-500">${schedule.units} units</span>
+                            </div>
+                            <div class="text-xs text-gray-700 mb-2">${schedule.subjectTitle}</div>
+                            <div class="flex items-center gap-3 text-xs text-gray-600">
+                                <div class="flex items-center gap-1">
+                                    <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                    </svg>
+                                    <span>${schedule.dayPattern}</span>
+                                </div>
+                                <div class="flex items-center gap-1">
+                                    <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                    <span>${schedule.startTime} - ${schedule.endTime}</span>
+                                </div>
+                                <div class="flex items-center gap-1">
+                                    <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                                    </svg>
+                                    <span>${schedule.roomCode || schedule.room}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="toggleOverload(${schedule.id})" 
+                                    class="p-2 ${schedule.isOverload ? 'text-white bg-amber-500 hover:bg-amber-600' : 'text-amber-500 bg-amber-50 hover:bg-amber-100 border border-amber-300'} rounded-lg transition-colors font-medium"
+                                    title="${schedule.isOverload ? 'Remove overload status' : 'Mark as overload'}">
+                                <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"/>
+                                </svg>
+                            </button>
+                            <button onclick="unassignSchedule(${schedule.id})" 
+                                    class="p-1.5 text-red-600 hover:bg-red-100 rounded transition-colors"
+                                    title="Remove assignment">
+                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    
+    container.innerHTML = html;
+}
+
+// Add schedule back to unassigned list
+function addToUnassignedList(scheduleData) {
+    const tbody = document.getElementById('schedulesList');
+    if (!tbody) return;
+    
+    const row = document.createElement('tr');
+    row.className = 'unassigned-subject-row hover:bg-orange-100 transition-colors cursor-pointer';
+    row.dataset.scheduleId = scheduleData.id;
+    row.dataset.dayPattern = scheduleData.dayPatternRaw;
+    row.dataset.startTime = scheduleData.startTimeRaw;
+    row.dataset.endTime = scheduleData.endTimeRaw;
+    row.dataset.subjectCode = scheduleData.subjectCode;
+    row.dataset.section = scheduleData.section;
+    
+    row.innerHTML = `
+        <td class="px-3 py-3">
+            <input type="checkbox" class="subject-checkbox h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded cursor-pointer" 
+                   value="${scheduleData.id}">
+        </td>
+        <td class="px-3 py-3">
+            <div class="text-sm font-semibold text-gray-900">${scheduleData.subjectCode}-${scheduleData.section}</div>
+            <div class="text-xs text-gray-600">${scheduleData.subjectTitle.slice(0, 30)}${scheduleData.subjectTitle.length > 30 ? '...' : ''}</div>
+            <div class="flex items-center gap-2 mt-1">
+                <span class="text-xs text-gray-500">${scheduleData.units}u</span>
+            </div>
+        </td>
+        <td class="px-3 py-3">
+            <div class="text-xs text-gray-900 font-medium">${scheduleData.dayPattern}</div>
+            <div class="text-xs text-gray-600">${scheduleData.startTime} - ${scheduleData.endTime}</div>
+            <div class="text-xs text-gray-500 mt-0.5">${scheduleData.roomCode || scheduleData.room || 'TBA'}</div>
+        </td>
+    `;
+    
+    tbody.appendChild(row);
+    
+    // Re-attach checkbox event listener
+    row.querySelector('.subject-checkbox').addEventListener('change', updateSelectedCount);
+    
+    // Attach row click handler for toggling checkbox
+    row.addEventListener('click', function(event) {
+        toggleRowCheckbox(this, event);
+    });
+}
+
+// Open Load Subject Modal
+function openLoadSubjectModal(facultyId, facultyName) {
+    currentFacultyId = facultyId;
+    selectedScheduleIds.clear();
+    
+    const faculty = facultyData[facultyId];
+    if (!faculty) {
+        console.error('Faculty not found:', facultyId);
+        return;
+    }
+    
+    // Update faculty info in modal header
+    const firstName = faculty.name.split(' ')[0];
+    const lastName = faculty.name.split(' ').slice(1).join(' ');
+    document.getElementById('selectedFacultyName').textContent = faculty.name;
+    document.getElementById('facultyEmail').textContent = ''; // Set from faculty card if needed
+    document.getElementById('facultyInitials').textContent = firstName.charAt(0) + lastName.charAt(0);
+    document.getElementById('facultyDepartment').textContent = '{{ selectedDepartment ? selectedDepartment.code : "" }}';
+    document.getElementById('facultyLoadedCount').textContent = faculty.assignedSchedules.length;
+    document.getElementById('loadedCount').textContent = faculty.assignedSchedules.length;
+    
+    // Show modal
+    document.getElementById('loadSubjectModal').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+    
+    // Refresh loaded subjects list with conflict detection
+    refreshLoadedSubjectsList();
+    
+    // Reset checkboxes
+    document.querySelectorAll('.subject-checkbox').forEach(cb => {
+        cb.checked = false;
+    });
+    
+    // Attach event listeners to checkboxes
+    attachCheckboxListeners();
+    
+    // Detect conflicts and update unassigned table
+    setTimeout(() => {
+        const conflicts = detectConflicts();
+        
+        document.querySelectorAll('#schedulesList tr[data-schedule-id]').forEach(row => {
+            const scheduleId = row.dataset.scheduleId;
+            
+            // Remove existing conflict warnings
+            const existingWarning = row.querySelector('.conflict-warning');
+            if (existingWarning) {
+                existingWarning.remove();
+            }
+            
+            if (conflicts.has(scheduleId)) {
+                // Add red border to indicate conflict
+                row.classList.add('border-l-4', 'border-l-red-500', 'bg-red-50');
+                
+                // Add conflict warning description
+                const conflictList = conflicts.get(scheduleId);
+                const scheduleCell = row.querySelector('td:last-child');
+                
+                const warningDiv = document.createElement('div');
+                warningDiv.className = 'conflict-warning mt-2 p-2 bg-red-100 border border-red-300 rounded text-xs';
+                warningDiv.innerHTML = `
+                    <div class="flex items-start gap-1">
+                        <svg class="h-3 w-3 text-red-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                        </svg>
+                        <div class="text-red-700">
+                            <strong>Conflict with:</strong><br>
+                            ${conflictList.map(c => `• ${c.code} (${c.section}) on ${c.days} at ${c.time}`).join('<br>')}
+                        </div>
+                    </div>
+                `;
+                scheduleCell.appendChild(warningDiv);
+            } else {
+                // Remove conflict styling if no conflict
+                row.classList.remove('border-l-4', 'border-l-red-500', 'bg-red-50');
+            }
+        });
+    }, 100);
+    
+    updateSelectedCount();
+}
+
+// Close Load Subject Modal
+function closeLoadSubjectModal() {
+    document.getElementById('loadSubjectModal').classList.add('hidden');
+    document.body.style.overflow = 'auto';
+    currentFacultyId = null;
+    selectedScheduleIds.clear();
+}
+
+// Update selected count
+function updateSelectedCount() {
+    const checkboxes = document.querySelectorAll('.subject-checkbox:checked');
+    const count = checkboxes.length;
+    document.getElementById('selectedSubjectsCount').textContent = count;
+    
+    // Update the selectedScheduleIds Set
+    selectedScheduleIds.clear();
+    checkboxes.forEach(cb => {
+        selectedScheduleIds.add(parseInt(cb.value));
+    });
+    
+    // Update visual row highlighting
+    document.querySelectorAll('.unassigned-subject-row').forEach(row => {
+        const cb = row.querySelector('.subject-checkbox');
+        if (cb && cb.checked) {
+            row.classList.add('bg-blue-50', 'border-l-4', 'border-l-blue-500');
+        } else {
+            row.classList.remove('bg-blue-50', 'border-l-4', 'border-l-blue-500');
+        }
+    });
+}
+
+// Toggle all schedules
+function toggleAllSchedules(checkbox) {
+    document.querySelectorAll('.subject-checkbox').forEach(cb => {
+        cb.checked = checkbox.checked;
+    });
+    updateSelectedCount();
+}
+
+// Select all schedules button
+function selectAllSchedules() {
+    const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+    selectAllCheckbox.checked = true;
+    toggleAllSchedules(selectAllCheckbox);
+}
+
+// Confirm Load Subject - Assign with real-time UI update (NO page reload)
+async function confirmLoadSubject() {
+    // Get checked checkboxes
+    const checkedBoxes = document.querySelectorAll('.subject-checkbox:checked');
+    
+    console.log('📋 Confirm Load Subject - Found', checkedBoxes.length, 'checked checkboxes out of', document.querySelectorAll('.subject-checkbox').length, 'total');
+    
+    if (checkedBoxes.length === 0) {
+        showTemporaryMessage('Please select at least one subject to assign', 'error');
+        return;
+    }
+    
+    const button = document.getElementById('confirm-load-btn');
+    if (!button) {
+        console.error('Confirm button not found');
+        return;
+    }
+    
+    button.disabled = true;
+    button.innerHTML = '<svg class="animate-spin h-5 w-5 inline mr-2" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Loading...';
+    
+    const scheduleIds = Array.from(checkedBoxes).map(cb => parseInt(cb.value));
+    let successCount = 0;
+    
+    for (const scheduleId of scheduleIds) {
+        try {
+            const response = await fetch('{{ path('app_schedule_faculty_loading_assign') }}', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    schedule_id: scheduleId,
+                    faculty_id: currentFacultyId
+                })
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                successCount++;
+                
+                // Find the row and extract schedule data from data attributes
+                const row = document.querySelector(`#schedulesList tr[data-schedule-id="${scheduleId}"]`);
+                if (row) {
+                    const scheduleData = {
+                        id: scheduleId,
+                        subjectCode: row.dataset.subjectCode,
+                        subjectTitle: row.dataset.subjectTitle,
+                        units: parseInt(row.dataset.units),
+                        section: row.dataset.section,
+                        dayPattern: row.dataset.dayPattern,
+                        dayPatternRaw: row.dataset.dayPattern,
+                        startTime: row.querySelector('td:nth-child(3) div:nth-child(2)').textContent.split(' - ')[0].trim(),
+                        startTimeRaw: row.dataset.startTime,
+                        endTime: row.querySelector('td:nth-child(3) div:nth-child(2)').textContent.split(' - ')[1].trim(),
+                        endTimeRaw: row.dataset.endTime,
+                        room: row.dataset.roomCode,
+                        roomCode: row.dataset.roomCode
+                    };
+                    
+                    // Add to faculty data
+                    facultyData[currentFacultyId].assignedSchedules.push(scheduleData);
+                    
+                    // Remove from unassigned table
+                    row.remove();
+                }
+            }
+        } catch (error) {
+            console.error('Error assigning schedule:', error);
+        }
+    }
+    
+    // Update UI without page reload
+    refreshLoadedSubjectsList();
+    selectedScheduleIds.clear();
+    updateSelectedCount();
+    
+    // Update the loaded count display
+    document.getElementById('loadedCount').textContent = facultyData[currentFacultyId].assignedSchedules.length;
+    document.getElementById('facultyLoadedCount').textContent = facultyData[currentFacultyId].assignedSchedules.length;
+    
+    // Uncheck the select all checkbox
+    const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+    if (selectAllCheckbox) {
+        selectAllCheckbox.checked = false;
+    }
+    
+    button.disabled = false;
+    button.innerHTML = '<svg class="inline-block h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> Assign Selected Schedules';
+    
+    showTemporaryMessage(`${successCount} subject(s) assigned successfully!`, 'success');
+}
+
+// Toggle overload status for a schedule
+async function toggleOverload(scheduleId) {
+    try {
+        const response = await fetch(`{{ path('app_schedule_faculty_loading_toggle_overload', {id: 0}) }}`.replace('/0', '/' + scheduleId), {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            // Update the schedule in facultyData
+            const faculty = facultyData[currentFacultyId];
+            const schedule = faculty.assignedSchedules.find(s => s.id === scheduleId);
+            
+            if (schedule) {
+                schedule.isOverload = result.isOverload;
+            }
+            
+            // Refresh the loaded subjects list to update UI
+            refreshLoadedSubjectsList();
+            
+            showTemporaryMessage(result.message, 'success');
+        } else {
+            showTemporaryMessage(result.message, 'error');
+        }
+    } catch (error) {
+        console.error('Error toggling overload:', error);
+        showTemporaryMessage('Error updating overload status', 'error');
+    }
+}
+
+// Unassign schedule with real-time UI update (NO page reload)
+async function unassignSchedule(scheduleId) {
+    if (!confirm('Are you sure you want to remove this subject?')) return;
+    
+    try {
+        const response = await fetch('{{ path('app_schedule_faculty_loading_assign') }}', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                schedule_id: scheduleId,
+                faculty_id: null
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            // Find and remove from faculty data
+            const faculty = facultyData[currentFacultyId];
+            const scheduleIndex = faculty.assignedSchedules.findIndex(s => s.id === scheduleId);
+            
+            if (scheduleIndex !== -1) {
+                const scheduleData = faculty.assignedSchedules[scheduleIndex];
+                faculty.assignedSchedules.splice(scheduleIndex, 1);
+                
+                // Add back to unassigned list
+                addToUnassignedList(scheduleData);
+            }
+            
+            // Refresh loaded subjects
+            refreshLoadedSubjectsList();
+            
+            // Update the loaded count display
+            document.getElementById('loadedCount').textContent = facultyData[currentFacultyId].assignedSchedules.length;
+            document.getElementById('facultyLoadedCount').textContent = facultyData[currentFacultyId].assignedSchedules.length;
+            
+            // Reattach checkbox listeners for the newly added row
+            attachCheckboxListeners();
+            
+            showTemporaryMessage('Subject unassigned successfully!', 'success');
+        }
+    } catch (error) {
+        console.error('Error unassigning schedule:', error);
+        showTemporaryMessage('Failed to unassign subject', 'error');
+    }
+}
+
+// View Faculty Assignments (Read-only)
+function viewFacultyAssignments(facultyId) {
+    const faculty = facultyData[facultyId];
+    if (!faculty) return;
+    
+    document.getElementById('view-modal-faculty-name').textContent = faculty.name;
+    
+    const loadedConflicts = detectLoadedConflicts();
+    let totalUnits = 0;
+    let html = '<div class="space-y-3">';
+    
+    // Sort schedules by start time
+    const sortedSchedules = [...faculty.assignedSchedules].sort((a, b) => {
+        // Convert time strings to comparable format (e.g., "9:00 AM" -> 900)
+        const timeToMinutes = (timeStr) => {
+            const [time, period] = timeStr.split(' ');
+            const [hours, minutes] = time.split(':').map(Number);
+            let totalMinutes = hours * 60 + minutes;
+            if (period === 'PM' && hours !== 12) totalMinutes += 12 * 60;
+            if (period === 'AM' && hours === 12) totalMinutes -= 12 * 60;
+            return totalMinutes;
+        };
+        return timeToMinutes(a.startTime) - timeToMinutes(b.startTime);
+    });
+    
+    sortedSchedules.forEach(schedule => {
+        totalUnits += schedule.units;
+        const conflicts = loadedConflicts.get(schedule.id) || [];
+        const hasConflict = conflicts.length > 0;
+        
+        html += `
+            <div class="border-2 ${hasConflict ? 'border-red-300 bg-red-50' : 'border-gray-200'} rounded-lg p-4 ${hasConflict ? 'border-l-4 border-l-red-500' : ''}">
+                ${hasConflict ? `
+                    <div class="bg-red-100 border border-red-300 text-red-700 px-3 py-2 rounded mb-3 text-sm">
+                        <strong>⚠ TIME CONFLICT DETECTED</strong><br>
+                        ${conflicts.map(c => `Conflicts with: ${c.subjectCode} (${c.section}) on ${c.dayPattern} at ${c.startTime} - ${c.endTime}`).join('<br>')}
+                    </div>
+                ` : ''}
+                <div class="flex justify-between items-start">
+                    <div class="flex-1">
+                        <div class="font-bold text-lg text-gray-900">${schedule.subjectCode}-${schedule.section}</div>
+                        <div class="text-sm text-gray-600 mt-1">${schedule.subjectTitle}</div>
+                        <div class="grid grid-cols-2 gap-4 mt-3 text-sm">
+                            <div><span class="text-gray-500">Units:</span> <span class="font-medium">${schedule.units}</span></div>
+                            <div><span class="text-gray-500">Days:</span> <span class="font-medium">${schedule.dayPattern}</span></div>
+                            <div><span class="text-gray-500">Time:</span> <span class="font-medium">${schedule.startTime} - ${schedule.endTime}</span></div>
+                            <div class="col-span-2"><span class="text-gray-500">Room:</span> <span class="font-medium">${schedule.roomCode || schedule.room}</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    
+    html += '</div>';
+    html += `<div class="mt-6 p-4 bg-blue-50 border-2 border-blue-200 rounded-lg">
+        <div class="text-sm text-blue-700"><strong>Total Teaching Load:</strong> ${totalUnits} units</div>
+    </div>`;
+    
+    document.getElementById('view-assignments-content').innerHTML = html;
+    document.getElementById('viewAssignmentsModal').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+}
+
+// Close View Assignments Modal
+function closeViewAssignmentsModal() {
+    document.getElementById('viewAssignmentsModal').classList.add('hidden');
+    document.body.style.overflow = 'auto';
+}
+
+// Generate Teaching Load PDF
+function generateTeachingLoadPDF() {
+    if (!currentFacultyId) {
+        const facultyId = Object.keys(facultyData).find(id => 
+            document.getElementById('view-modal-faculty-name').textContent.includes(facultyData[id].name)
+        );
+        if (facultyId) {
+            window.open('{{ path('app_schedule_teaching_load_pdf', {facultyId: '__FACULTY_ID__'}) }}'.replace('__FACULTY_ID__', facultyId), '_blank');
+        }
+    } else {
+        window.open('{{ path('app_schedule_teaching_load_pdf', {facultyId: '__FACULTY_ID__'}) }}'.replace('__FACULTY_ID__', currentFacultyId), '_blank');
+    }
+}
+
+// ============================================================================
+// DEPARTMENT SELECTION MODAL
+// ============================================================================
+
+// Open Department Selection Modal
+function openDepartmentSelectionModal() {
+    const modal = document.getElementById('departmentSelectionModal');
+    if (!modal) return;
+    
+    modal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+    
+    // Initialize the filter
+    initializeCollegeFilter();
+    
+    // Render all departments initially
+    renderDepartmentsByCollege('');
+}
+
+// Initialize College Filter
+function initializeCollegeFilter() {
+    const collegeFilter = document.getElementById('collegeFilter');
+    if (!collegeFilter) {
+        console.error('❌ College filter not found');
+        return;
+    }
+    
+    console.log('✓ Initializing college filter');
+    
+    // Remove any existing event listeners by replacing the element
+    const newFilter = collegeFilter.cloneNode(true);
+    collegeFilter.parentNode.replaceChild(newFilter, collegeFilter);
+    
+    // Add change event listener
+    newFilter.addEventListener('change', function() {
+        console.log('🔔 College filter changed to:', this.value);
+        renderDepartmentsByCollege(this.value);
+    });
+}
+
+// Render departments based on selected college filter
+function renderDepartmentsByCollege(selectedCollegeId) {
+    console.log('🎨 renderDepartmentsByCollege called with:', selectedCollegeId, typeof selectedCollegeId);
+    
+    const departmentGrid = document.getElementById('departmentGrid');
+    const loadingEl = document.getElementById('departmentLoading');
+    
+    if (!departmentGrid || !loadingEl) {
+        console.error('❌ Department grid or loading element not found');
+        return;
+    }
+    
+    // Show loading
+    loadingEl.classList.remove('hidden');
+    departmentGrid.classList.add('hidden');
+    
+    // Validate allDepartments exists
+    if (typeof allDepartments === 'undefined' || !Array.isArray(allDepartments)) {
+        console.error('❌ Department data not loaded properly');
+        loadingEl.classList.add('hidden');
+        departmentGrid.classList.remove('hidden');
+        departmentGrid.innerHTML = `
+            <div class="col-span-2 p-8 text-center text-red-500">
+                <p class="font-semibold">Error loading departments</p>
+                <p class="text-sm">Please refresh the page</p>
+            </div>
+        `;
+        return;
+    }
+    
+    console.log('📊 Total departments available:', allDepartments.length);
+    console.log('📊 Sample dept collegeId:', allDepartments[0]?.collegeId, typeof allDepartments[0]?.collegeId);
+    
+    // Filter departments by college
+    let filteredDepartments;
+    if (!selectedCollegeId || selectedCollegeId === '' || selectedCollegeId === '0') {
+        console.log('✓ Showing all departments');
+        filteredDepartments = allDepartments;
+    } else {
+        const selectedId = parseInt(selectedCollegeId);
+        console.log('🔍 Filtering by college ID:', selectedId);
+        filteredDepartments = allDepartments.filter(dept => {
+            const match = dept.collegeId === selectedId;
+            if (match) console.log('  ✓ Match:', dept.name);
+            return match;
+        });
+    }
+    
+    console.log('📊 Filtered departments:', filteredDepartments.length);
+    
+    // Simulate slight delay for smooth loading effect
+    setTimeout(() => {
+        // Hide loading
+        loadingEl.classList.add('hidden');
+        departmentGrid.classList.remove('hidden');
+        
+        // Clear existing content
+        departmentGrid.innerHTML = '';
+        
+        // Show message if no departments found
+        if (filteredDepartments.length === 0) {
+            console.log('⚠️ No departments to display');
+            departmentGrid.innerHTML = `
+                <div class="col-span-2 p-8 text-center text-gray-500">
+                    <svg class="mx-auto h-12 w-12 text-gray-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
+                    </svg>
+                    <p class="text-sm font-medium">No departments found</p>
+                    <p class="text-xs mt-1">Try selecting a different college or "All Colleges"</p>
+                </div>
+            `;
+            return;
+        }
+        
+        // Render department cards
+        console.log('✓ Rendering', filteredDepartments.length, 'department cards');
+        filteredDepartments.forEach(dept => {
+            const card = createDepartmentCard(dept);
+            departmentGrid.appendChild(card);
+        });
+        console.log('✓ Rendering complete');
+    }, 200); // 200ms delay for smooth loading effect
+}
+
+// Create a department card element
+function createDepartmentCard(dept) {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'department-card text-left p-4 border-2 border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-all group';
+    button.onclick = function() {
+        window.location.href = '{{ path('app_schedule_faculty_loading') }}?department=' + dept.id;
+    };
+    
+    const collegeInfo = dept.hasCollege 
+        ? `<p class="text-xs text-gray-400 mt-1">${escapeHtml(dept.collegeName)}</p>`
+        : '<p class="text-xs text-gray-400 mt-1 italic">No College</p>';
+    
+    button.innerHTML = `
+        <div class="flex items-center justify-between">
+            <div>
+                <h4 class="font-semibold text-gray-900 group-hover:text-blue-700">${escapeHtml(dept.name)}</h4>
+                <p class="text-sm text-gray-500 mt-1">${escapeHtml(dept.code)}</p>
+                ${collegeInfo}
+            </div>
+            <svg class="w-6 h-6 text-gray-400 group-hover:text-blue-600 group-hover:translate-x-1 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            </svg>
+        </div>
+    `;
+    
+    return button;
+}
+
+// Escape HTML to prevent XSS
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+// Close Department Selection Modal
+function closeDepartmentSelectionModal() {
+    const modal = document.getElementById('departmentSelectionModal');
+    if (modal) {
+        modal.classList.add('hidden');
+        document.body.style.overflow = 'auto';
+    }
+}
+
+// ============================================================================
+// PAGE INITIALIZATION
+// ============================================================================
+
+// Auto-show department selection modal if no department selected
+{% if not selectedDepartment %}
+document.addEventListener('DOMContentLoaded', function() {
+    openDepartmentSelectionModal();
+});
+{% endif %}
+
+// Attach event listeners to checkboxes
+// Toggle checkbox when clicking anywhere on the row
+function toggleRowCheckbox(row, event) {
+    // Don't toggle if clicking directly on the checkbox (let native behavior handle it)
+    if (event.target.type === 'checkbox') return;
+    
+    const checkbox = row.querySelector('.subject-checkbox');
+    if (checkbox) {
+        checkbox.checked = !checkbox.checked;
+        updateSelectedCount();
+    }
+}
+
+function attachCheckboxListeners() {
+    document.querySelectorAll('.subject-checkbox').forEach(checkbox => {
+        checkbox.removeEventListener('change', updateSelectedCount);
+        checkbox.addEventListener('change', updateSelectedCount);
+    });
+    
+    // Also attach row click handlers to dynamically added rows
+    document.querySelectorAll('.unassigned-subject-row').forEach(row => {
+        if (!row.dataset.rowClickAttached) {
+            row.dataset.rowClickAttached = 'true';
+            row.addEventListener('click', function(event) {
+                toggleRowCheckbox(this, event);
+            });
+        }
+    });
+}
+
+// Initialize page on load
+document.addEventListener('DOMContentLoaded', function() {
+    attachCheckboxListeners();
+    console.log('✓ Faculty Loading page ready');
+});
+</script>
+
+{% endblock %}

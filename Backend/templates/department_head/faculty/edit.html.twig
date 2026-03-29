@@ -1,0 +1,279 @@
+{% extends 'department_head/base.html.twig' %}
+
+{% block main_content %}
+<div class="p-6 lg:p-8">
+    <!-- Page Header -->
+    <div class="mb-8">
+        <div class="flex items-center justify-between mb-4">
+            <a href="{{ path('department_head_faculty') }}" class="inline-flex items-center text-gray-600 hover:text-gray-900 transition-colors">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                </svg>
+                Back to Faculty List
+            </a>
+            <span class="px-3 py-1 text-xs font-medium rounded-full {{ user.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
+                {{ user.isActive ? 'Active' : 'Inactive' }}
+            </span>
+        </div>
+        <h1 class="text-3xl font-bold text-gray-900">Edit Faculty Member</h1>
+        <p class="mt-2 text-sm text-gray-600">Update information for <span class="font-medium">{{ user.fullName }}</span></p>
+    </div>
+
+    <!-- Form Card -->
+    <div class="bg-white rounded-lg shadow-md border border-gray-200">
+        <div class="p-8">
+            {{ form_start(form, {'attr': {'class': 'space-y-8'}}) }}
+                
+                <!-- Personal Information Section -->
+                <div class="border-b border-gray-200 pb-8">
+                    <h2 class="text-xl font-semibold text-gray-900 mb-6 flex items-center">
+                        <svg class="w-6 h-6 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                        </svg>
+                        Personal Information
+                    </h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                        <div>
+                            {{ form_label(form.firstName, 'First Name', {'label_attr': {'class': 'block text-sm font-medium text-gray-700 mb-2'}}) }}
+                            {{ form_widget(form.firstName, {'attr': {'class': 'block w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors'}}) }}
+                            {{ form_errors(form.firstName) }}
+                        </div>
+
+                        <div>
+                            {{ form_label(form.middleName, 'Middle Name', {'label_attr': {'class': 'block text-sm font-medium text-gray-700 mb-2'}}) }}
+                            {{ form_widget(form.middleName, {'attr': {'class': 'block w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors', 'placeholder': 'Optional'}}) }}
+                            {{ form_errors(form.middleName) }}
+                        </div>
+
+                        <div>
+                            {{ form_label(form.lastName, 'Last Name', {'label_attr': {'class': 'block text-sm font-medium text-gray-700 mb-2'}}) }}
+                            {{ form_widget(form.lastName, {'attr': {'class': 'block w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors'}}) }}
+                            {{ form_errors(form.lastName) }}
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            {{ form_label(form.email, 'Email Address', {'label_attr': {'class': 'block text-sm font-medium text-gray-700 mb-2'}}) }}
+                            {{ form_widget(form.email, {'attr': {'class': 'block w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors'}}) }}
+                            {{ form_errors(form.email) }}
+                        </div>
+
+                        <div>
+                            {{ form_label(form.employeeId, 'Employee ID', {'label_attr': {'class': 'block text-sm font-medium text-gray-700 mb-2'}}) }}
+                            {{ form_widget(form.employeeId, {'attr': {'class': 'block w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors'}}) }}
+                            {{ form_errors(form.employeeId) }}
+                        </div>
+                    </div>
+
+                    <div class="mt-6">
+                        <div>
+                            {{ form_label(form.address, 'Address', {'label_attr': {'class': 'block text-sm font-medium text-gray-700 mb-2'}}) }}
+                            {{ form_widget(form.address, {'attr': {'class': 'block w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors', 'rows': 3}}) }}
+                            {{ form_errors(form.address) }}
+                        </div>
+                    </div>
+
+                    <div class="mt-6">
+                        <div>
+                            {{ form_label(form.otherDesignation, 'Other Designation/Special Assignments', {'label_attr': {'class': 'block text-sm font-medium text-gray-700 mb-2'}}) }}
+                            {{ form_widget(form.otherDesignation, {'attr': {'class': 'block w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors', 'rows': 3}}) }}
+                            {{ form_errors(form.otherDesignation) }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Account Information Section -->
+                <div class="border-b border-gray-200 pb-8">
+                    <h2 class="text-xl font-semibold text-gray-900 mb-6 flex items-center">
+                        <svg class="w-6 h-6 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/>
+                        </svg>
+                        Account Information
+                    </h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            {{ form_label(form.username, 'Username', {'label_attr': {'class': 'block text-sm font-medium text-gray-700 mb-2'}}) }}
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                                    </svg>
+                                </div>
+                                {{ form_widget(form.username, {'attr': {'class': 'block w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors'}}) }}
+                            </div>
+                            {{ form_errors(form.username) }}
+                        </div>
+
+                        <div>
+                            {{ form_label(form.role, 'Role', {'label_attr': {'class': 'block text-sm font-medium text-gray-700 mb-2'}}) }}
+                            {{ form_widget(form.role, {'attr': {'class': 'block w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors', 'disabled': 'disabled'}}) }}
+                            {{ form_errors(form.role) }}
+                            <p class="mt-1 text-xs text-gray-500">Role cannot be changed from this screen</p>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+                        <h3 class="text-sm font-medium text-blue-900 mb-3 flex items-center">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                            </svg>
+                            Change Password
+                        </h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                {{ form_label(form.newPassword.first, 'New Password', {'label_attr': {'class': 'block text-sm font-medium text-gray-700 mb-2'}}) }}
+                                {{ form_widget(form.newPassword.first, {'attr': {'class': 'block w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors', 'placeholder': 'Leave blank to keep current'}}) }}
+                                {{ form_errors(form.newPassword.first) }}
+                            </div>
+                            <div>
+                                {{ form_label(form.newPassword.second, 'Confirm New Password', {'label_attr': {'class': 'block text-sm font-medium text-gray-700 mb-2'}}) }}
+                                {{ form_widget(form.newPassword.second, {'attr': {'class': 'block w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors', 'placeholder': 'Confirm password'}}) }}
+                                {{ form_errors(form.newPassword.second) }}
+                            </div>
+                        </div>
+                        <p class="mt-2 text-xs text-blue-700">
+                            <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            Leave both fields blank to keep the current password. Minimum 6 characters required.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Professional Information Section -->
+                <div class="border-b border-gray-200 pb-8">
+                    <h2 class="text-xl font-semibold text-gray-900 mb-6 flex items-center">
+                        <svg class="w-6 h-6 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                        </svg>
+                        Professional Information
+                    </h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            {{ form_label(form.position, 'Position/Title', {'label_attr': {'class': 'block text-sm font-medium text-gray-700 mb-2'}}) }}
+                            {{ form_widget(form.position, {'attr': {'class': 'block w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors'}}) }}
+                            {{ form_errors(form.position) }}
+                        </div>
+
+                        <div>
+                            {{ form_label(form.college, 'College', {'label_attr': {'class': 'block text-sm font-medium text-gray-700 mb-2'}}) }}
+                            {{ form_widget(form.college, {'attr': {'class': 'block w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors'}}) }}
+                            {{ form_errors(form.college) }}
+                            <p class="mt-1 text-xs text-gray-500">College cannot be changed from this screen</p>
+                        </div>
+
+                        <div>
+                            {{ form_label(form.department, 'Department', {'label_attr': {'class': 'block text-sm font-medium text-gray-700 mb-2'}}) }}
+                            {{ form_widget(form.department, {'attr': {'class': 'block w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors', 'disabled': 'disabled'}}) }}
+                            {{ form_errors(form.department) }}
+                            <p class="mt-1 text-xs text-gray-500">Department cannot be changed from this screen</p>
+                        </div>
+
+                        <div>
+                            {{ form_label(form.isActive, 'Account Status', {'label_attr': {'class': 'block text-sm font-medium text-gray-700 mb-2'}}) }}
+                            <div class="flex items-center space-x-3 h-11 px-4 py-2.5 bg-gray-50 border border-gray-300 rounded-lg">
+                                {{ form_widget(form.isActive, {'attr': {'class': 'h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded cursor-pointer'}}) }}
+                                <span class="text-sm text-gray-700 font-medium">Active (user can login and access the system)</span>
+                            </div>
+                            {{ form_errors(form.isActive) }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Account Metadata -->
+                <div class="pb-6">
+                    <h2 class="text-xl font-semibold text-gray-900 mb-6 flex items-center">
+                        <svg class="w-6 h-6 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        Account Details
+                    </h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-4 border border-blue-200">
+                            <div class="flex items-center mb-2">
+                                <svg class="w-5 h-5 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                </svg>
+                                <p class="text-xs font-medium text-blue-700 uppercase tracking-wide">Created On</p>
+                            </div>
+                            <p class="text-sm font-semibold text-blue-900">{{ user.createdAt|date('M d, Y') }}</p>
+                            <p class="text-xs text-blue-600 mt-0.5">{{ user.createdAt|date('h:i A') }}</p>
+                        </div>
+                        
+                        {% if user.updatedAt %}
+                        <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-4 border border-green-200">
+                            <div class="flex items-center mb-2">
+                                <svg class="w-5 h-5 text-green-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                                </svg>
+                                <p class="text-xs font-medium text-green-700 uppercase tracking-wide">Last Updated</p>
+                            </div>
+                            <p class="text-sm font-semibold text-green-900">{{ user.updatedAt|date('M d, Y') }}</p>
+                            <p class="text-xs text-green-600 mt-0.5">{{ user.updatedAt|date('h:i A') }}</p>
+                        </div>
+                        {% endif %}
+                        
+                        {% if user.lastLogin %}
+                        <div class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg p-4 border border-purple-200">
+                            <div class="flex items-center mb-2">
+                                <svg class="w-5 h-5 text-purple-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
+                                </svg>
+                                <p class="text-xs font-medium text-purple-700 uppercase tracking-wide">Last Login</p>
+                            </div>
+                            <p class="text-sm font-semibold text-purple-900">{{ user.lastLogin|date('M d, Y') }}</p>
+                            <p class="text-xs text-purple-600 mt-0.5">{{ user.lastLogin|date('h:i A') }}</p>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="bg-gradient-to-br from-amber-50 to-amber-100 rounded-lg p-4 border border-amber-200">
+                            <div class="flex items-center mb-2">
+                                <svg class="w-5 h-5 text-amber-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                                </svg>
+                                <p class="text-xs font-medium text-amber-700 uppercase tracking-wide">Department</p>
+                            </div>
+                            <p class="text-sm font-semibold text-amber-900">{{ user.department.name|default('N/A') }}</p>
+                            <p class="text-xs text-amber-600 mt-0.5">{{ user.college.name|default('No college') }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="flex flex-col sm:flex-row justify-between items-center gap-4 pt-6 border-t border-gray-200">
+                    <a href="{{ path('department_head_faculty_view', {id: user.id}) }}" 
+                       class="inline-flex items-center px-4 py-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                        </svg>
+                        View Full Details
+                    </a>
+
+                    <div class="flex space-x-3 w-full sm:w-auto">
+                        <a href="{{ path('department_head_faculty') }}" 
+                           class="flex-1 sm:flex-none inline-flex items-center justify-center px-6 py-3 border-2 border-gray-300 rounded-lg text-gray-700 font-medium bg-white hover:bg-gray-50 hover:border-gray-400 transition-all duration-200">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                            Cancel
+                        </a>
+                        <button type="submit" 
+                                class="flex-1 sm:flex-none inline-flex items-center justify-center px-8 py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            </svg>
+                            Save Changes
+                        </button>
+                    </div>
+                </div>
+
+            {{ form_end(form) }}
+        </div>
+    </div>
+</div>
+{% endblock %}

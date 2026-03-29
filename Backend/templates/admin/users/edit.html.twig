@@ -1,0 +1,686 @@
+        {% extends 'admin/base.html.twig' %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block main_content %}
+    <!-- Page Header -->
+    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">{{ page_title }}</h1>
+            <p class="text-gray-600">Update user information and account settings</p>
+        </div>
+        <div class="flex space-x-3 mt-4 sm:mt-0">
+            <a href="{{ path('admin_users_view', {id: user.id}) }}" class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-xl shadow-sm transition duration-200 ease-in-out transform hover:scale-105">
+                <svg class="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                </svg>
+                View User
+            </a>
+            <a href="{{ return_url }}" class="inline-flex items-center px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-semibold rounded-xl border border-gray-300 transition duration-200 ease-in-out">
+                <svg class="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                </svg>
+                Back to Users
+            </a>
+        </div>
+    </div>
+
+    <!-- Flash Messages -->
+    {% for flash_message in app.flashes('success') %}
+        <div class="bg-green-50 border-l-4 border-green-500 p-4 mb-4 rounded-lg">
+            <div class="flex items-center">
+                <svg class="w-5 h-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                </svg>
+                <p class="text-green-700 font-medium">{{ flash_message }}</p>
+            </div>
+        </div>
+    {% endfor %}
+
+    {% for flash_message in app.flashes('error') %}
+        <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-4 rounded-lg">
+            <div class="flex items-center">
+                <svg class="w-5 h-5 text-red-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                </svg>
+                <p class="text-red-700 font-medium">{{ flash_message }}</p>
+            </div>
+        </div>
+    {% endfor %}
+
+    {{ form_start(form, {'action': path('admin_users_edit', {id: user.id}), 'attr': {'novalidate': 'novalidate', 'class': 'space-y-4'}}) }}
+
+    <!-- User Profile Header -->
+    <div class="bg-white shadow-lg rounded-xl overflow-hidden mb-4">
+        <div class="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-4">
+            <div class="flex items-center space-x-4">
+                <div class="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center text-white text-lg font-bold shadow-lg ring-2 ring-white/30">
+                    {{ user.firstName ? user.firstName|first|upper : user.username|first|upper }}{{ user.middleName ? user.middleName|first|upper : '' }}{{ user.lastName ? user.lastName|first|upper : '' }}
+                </div>
+                <div>
+                    <h2 class="text-xl font-bold text-white">{{ user.fullName ?: user.username }}</h2>
+                    <p class="text-blue-100 text-sm">Editing user profile</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Form Sections in Two Columns -->
+    <div class="flex gap-[20px] flex-row items-start">
+        <!-- Left Column -->
+        <div class="flex-1 space-y-4">
+            <!-- Basic Information -->
+            <div class="bg-white shadow-lg rounded-xl p-5">
+                <h3 class="text-base font-semibold text-gray-900 mb-4 flex items-center border-b pb-3">
+                    <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                    </svg>
+                    Basic Information
+                </h3>
+                <div class="space-y-4">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            {{ form_label(form.username, null, {'label_attr': {'class': 'block text-sm font-medium text-gray-700 mb-1'}}) }}
+                            {{ form_widget(form.username, {'attr': {'class': 'w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500'}}) }}
+                            {{ form_errors(form.username) }}
+                        </div>
+                        <div>
+                            {{ form_label(form.email, null, {'label_attr': {'class': 'block text-sm font-medium text-gray-700 mb-1'}}) }}
+                            {{ form_widget(form.email, {'attr': {'class': 'w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500'}}) }}
+                            {{ form_errors(form.email) }}
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-4">
+                        <div>
+                            {{ form_label(form.firstName, null, {'label_attr': {'class': 'block text-sm font-medium text-gray-700 mb-1'}}) }}
+                            {{ form_widget(form.firstName, {'attr': {'class': 'w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500'}}) }}
+                            {{ form_errors(form.firstName) }}
+                        </div>
+                        <div>
+                            {{ form_label(form.middleName, null, {'label_attr': {'class': 'block text-sm font-medium text-gray-700 mb-1'}}) }}
+                            {{ form_widget(form.middleName, {'attr': {'class': 'w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500', 'placeholder': 'Optional'}}) }}
+                            {{ form_errors(form.middleName) }}
+                        </div>
+                        <div>
+                            {{ form_label(form.lastName, null, {'label_attr': {'class': 'block text-sm font-medium text-gray-700 mb-1'}}) }}
+                            {{ form_widget(form.lastName, {'attr': {'class': 'w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500'}}) }}
+                            {{ form_errors(form.lastName) }}
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            {{ form_label(form.employeeId, null, {'label_attr': {'class': 'block text-sm font-medium text-gray-700 mb-1'}}) }}
+                            {{ form_widget(form.employeeId, {'attr': {'class': 'w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500'}}) }}
+                            {{ form_errors(form.employeeId) }}
+                        </div>
+                        <div>
+                            {{ form_label(form.position, null, {'label_attr': {'class': 'block text-sm font-medium text-gray-700 mb-1'}}) }}
+                            {{ form_widget(form.position, {'attr': {'class': 'w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white'}}) }}
+                            {{ form_errors(form.position) }}
+                        </div>
+                    </div>
+
+                    <div>
+                        {{ form_label(form.address, null, {'label_attr': {'class': 'block text-sm font-medium text-gray-700 mb-1'}}) }}
+                        {{ form_widget(form.address, {'attr': {'class': 'w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500'}}) }}
+                        {{ form_errors(form.address) }}
+                    </div>
+
+                    <div>
+                        {{ form_label(form.otherDesignation, null, {'label_attr': {'class': 'block text-sm font-medium text-gray-700 mb-1'}}) }}
+                        {{ form_widget(form.otherDesignation, {'attr': {'class': 'w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500'}}) }}
+                        {{ form_errors(form.otherDesignation) }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Assignment Information -->
+            <div class="bg-white shadow-lg rounded-xl p-5">
+                <h3 class="text-base font-semibold text-gray-900 mb-4 flex items-center border-b pb-3">
+                    <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                    </svg>
+                    Department & Role
+                </h3>
+                <div class="space-y-4">
+                    <!-- Role -->
+                    <div>
+                        {{ form_label(form.role, null, {'label_attr': {'class': 'block text-sm font-medium text-gray-700 mb-1'}}) }}
+                        {{ form_widget(form.role, {'attr': {'class': 'w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white'}}) }}
+                        {{ form_errors(form.role) }}
+                    </div>
+
+                    <!-- College and Department in Grid -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            {{ form_label(form.college, null, {'label_attr': {'class': 'block text-sm font-medium text-gray-700 mb-1'}}) }}
+                            {{ form_widget(form.college, {'attr': {'class': 'w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white', 'id': 'college-select'}}) }}
+                            {{ form_errors(form.college) }}
+                            <small class="text-gray-500 text-xs mt-1 block">Select the user's college</small>
+                        </div>
+                        <div>
+                            {{ form_label(form.department, null, {'label_attr': {'class': 'block text-sm font-medium text-gray-700 mb-1'}}) }}
+                            {{ form_widget(form.department, {'attr': {'class': 'w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white', 'id': 'department-select'}}) }}
+                            {{ form_errors(form.department) }}
+                            <small class="text-gray-500 text-xs mt-1 block">Select the user's department</small>
+                        </div>
+                    </div>
+
+                    {% if user.department or user.college %}
+                    <div class="bg-blue-50 border-l-4 border-blue-400 p-3 rounded">
+                        <div class="flex items-start">
+                            <svg class="w-5 h-5 text-blue-600 mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                            </svg>
+                            <div class="flex-1">
+                                <p class="text-sm font-medium text-blue-800">Current Assignment</p>
+                                <p class="text-sm text-blue-700 mt-1">
+                                    {% if user.department %}
+                                        <span class="font-semibold">{{ user.department.name }}</span>
+                                    {% endif %}
+                                    {% if user.college %}
+                                        {% if user.department %}<span class="text-blue-600"> • </span>{% endif %}
+                                        <span class="font-semibold">{{ user.college.name }}</span>
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column -->
+        <div class="flex-1 space-y-4">
+            <!-- Password Reset Section -->
+            <div class="bg-white shadow-lg rounded-xl p-5">
+                <h3 class="text-base font-semibold text-gray-900 mb-4 flex items-center border-b pb-3">
+                    <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                    </svg>
+                    Password Reset (Optional)
+                </h3>
+                <p class="text-sm text-gray-500 mb-4">Leave blank to keep current password</p>
+                
+                <div class="space-y-4">
+                    <div>
+                        {{ form_label(form.newPassword.first, 'New Password', {'label_attr': {'class': 'block text-sm font-medium text-gray-700 mb-1'}}) }}
+                        <div class="flex gap-2">
+                            {{ form_widget(form.newPassword.first, {'attr': {'class': 'flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500', 'placeholder': 'Enter new password'}}) }}
+                            <button type="button" onclick="generatePassword()" class="px-4 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-lg transition text-sm font-semibold whitespace-nowrap">
+                                <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                                </svg>
+                                Generate
+                            </button>
+                        </div>
+                        {{ form_errors(form.newPassword.first) }}
+                    </div>
+                    
+                    <div>
+                        {{ form_label(form.newPassword.second, 'Confirm Password', {'label_attr': {'class': 'block text-sm font-medium text-gray-700 mb-1'}}) }}
+                        {{ form_widget(form.newPassword.second, {'attr': {'class': 'w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500', 'placeholder': 'Confirm new password'}}) }}
+                        {{ form_errors(form.newPassword.second) }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Account Status -->
+            <div class="bg-white shadow-lg rounded-xl p-5">
+                <h3 class="text-base font-semibold text-gray-900 mb-4 flex items-center border-b pb-3">
+                    <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    Account Status
+                </h3>
+                <div class="flex items-center justify-between bg-gray-50 rounded-lg p-4">
+                    <div class="flex items-center">
+                        {{ form_widget(form.isActive, {'attr': {'class': 'w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500'}}) }}
+                        <label for="{{ form.isActive.vars.id }}" class="ml-3 text-sm font-medium text-gray-700">{{ form.isActive.vars.label }}</label>
+                    </div>
+                    {% if user.isActive %}
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">
+                            <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                            </svg>
+                            Currently Active
+                        </span>
+                    {% else %}
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-800">
+                            <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L10 8.586l1.293-1.293a1 1 0 011.414 1.414L11.414 10l1.293 1.293a1 1 0 01-1.414 1.414L10 11.414l-1.293 1.293a1 1 0 01-1.414-1.414L9.586 10 8.293 8.707z" clip-rule="evenodd"/>
+                            </svg>
+                            Currently Inactive
+                        </span>
+                    {% endif %}
+                </div>
+                {{ form_errors(form.isActive) }}
+            </div>
+
+            <!-- User Activity -->
+            <div class="bg-white shadow-lg rounded-xl p-5">
+                <h3 class="text-base font-semibold text-gray-900 mb-4 flex items-center border-b pb-3">
+                    <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    Activity Timeline
+                </h3>
+                <div class="space-y-3">
+                    <div class="bg-gray-50 rounded-lg p-3">
+                        <p class="text-xs font-medium text-gray-500 mb-1">Account Created</p>
+                        <p class="text-gray-900 font-semibold">
+                            {% if user.createdAt %}
+                                {{ user.createdAt|date('F j, Y') }}
+                                <span class="block text-xs text-gray-500 font-normal mt-0.5">{{ user.createdAt|date('g:i A') }}</span>
+                            {% else %}
+                                <span class="text-gray-500">N/A</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg p-3">
+                        <p class="text-xs font-medium text-gray-500 mb-1">Last Updated</p>
+                        <p class="text-gray-900 font-semibold">
+                            {% if user.updatedAt %}
+                                {{ user.updatedAt|date('F j, Y') }}
+                                <span class="block text-xs text-gray-500 font-normal mt-0.5">{{ user.updatedAt|date('g:i A') }}</span>
+                            {% else %}
+                                <span class="text-gray-500">Never updated</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg p-3">
+                        <p class="text-xs font-medium text-gray-500 mb-1">Last Login</p>
+                        <p class="text-gray-900 font-semibold">
+                            {% if user.lastLogin %}
+                                {{ user.lastLogin|date('F j, Y') }}
+                                <span class="block text-xs text-gray-500 font-normal mt-0.5">{{ user.lastLogin|date('g:i A') }}</span>
+                            {% else %}
+                                <span class="text-gray-500">Never logged in</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="flex justify-between items-center mt-6 bg-white shadow-lg rounded-xl p-5">
+        <a href="{{ app.request.headers.get('referer') ?: path('admin_users_all') }}" class="inline-flex items-center px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-semibold rounded-lg border border-gray-300 transition duration-200">
+            <svg class="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+            Cancel
+        </a>
+        <button type="submit" class="inline-flex items-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg shadow-md hover:shadow-lg transition duration-200 transform hover:scale-105">
+            <svg class="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+            </svg>
+            Update User
+        </button>
+    </div>
+
+    {{ form_end(form) }}
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+// Generate random password
+function generatePassword() {
+    const length = 12;
+    const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*";
+    let password = "";
+    for (let i = 0, n = charset.length; i < length; ++i) {
+        password += charset.charAt(Math.floor(Math.random() * n));
+    }
+    
+    const firstPasswordField = document.querySelector('input[id$="_newPassword_first"]');
+    const secondPasswordField = document.querySelector('input[id$="_newPassword_second"]');
+    
+    if (firstPasswordField && secondPasswordField) {
+        firstPasswordField.value = password;
+        secondPasswordField.value = password;
+        
+        // Show password temporarily
+        const originalType = firstPasswordField.type;
+        firstPasswordField.type = 'text';
+        secondPasswordField.type = 'text';
+        
+        setTimeout(() => {
+            firstPasswordField.type = originalType;
+            secondPasswordField.type = originalType;
+        }, 3000);
+    }
+}
+
+// CRITICAL FIX: Manually populate form if values are missing
+document.addEventListener('DOMContentLoaded', function() {
+    // User data from server
+    const userData = {
+        username: '{{ user.username|escape('js') }}',
+        email: '{{ user.email|escape('js') }}',
+        firstName: '{{ user.firstName|escape('js') }}',
+        middleName: '{{ user.middleName|escape('js') }}',
+        lastName: '{{ user.lastName|escape('js') }}',
+        employeeId: '{{ user.employeeId|escape('js') }}',
+        position: '{{ user.position|escape('js') }}',
+        role: '{{ user.role }}',
+        collegeId: '{{ user.college ? user.college.id : '' }}',
+        departmentId: '{{ user.department ? user.department.id : '' }}',
+        isActive: {{ user.isActive ? 'true' : 'false' }}
+    };
+    
+    console.log('User data from server:', userData);
+    
+    // Find form fields and populate if empty
+    setTimeout(function() {
+        const form = document.querySelector('form[name="user_edit_form"]') || document.querySelector('form');
+        if (!form) return;
+        
+        // Populate text fields
+        const textFieldsMap = {
+            'username': userData.username,
+            'email': userData.email,
+            'firstName': userData.firstName,
+            'lastName': userData.lastName,
+            'employeeId': userData.employeeId
+        };
+        
+        Object.keys(textFieldsMap).forEach(fieldName => {
+            const input = form.querySelector(`[name*="${fieldName}"]`);
+            if (input && (input.type === 'text' || input.type === 'email') && !input.value && textFieldsMap[fieldName]) {
+                console.log(`Manually populating ${fieldName} with:`, textFieldsMap[fieldName]);
+                input.value = textFieldsMap[fieldName];
+            }
+        });
+        
+        // Populate position select (now a dropdown)
+        const positionSelect = form.querySelector('select[name*="position"]');
+        if (positionSelect && userData.position) {
+            console.log('Setting position to:', userData.position);
+            positionSelect.value = userData.position;
+            console.log('Position value after setting:', positionSelect.value);
+        }
+        
+        // Populate role select
+        const roleSelect = form.querySelector('select[name*="role"]');
+        if (roleSelect && userData.role) {
+            console.log('Setting role to:', userData.role);
+            roleSelect.value = userData.role;
+        }
+        
+        // Populate college select
+        const collegeSelect = document.getElementById('college-select');
+        if (collegeSelect && userData.collegeId) {
+            console.log('Setting college to:', userData.collegeId);
+            collegeSelect.value = userData.collegeId;
+        }
+        
+        // Populate department select
+        const departmentSelect = document.getElementById('department-select');
+        if (departmentSelect && userData.departmentId) {
+            console.log('Setting department to:', userData.departmentId);
+            departmentSelect.value = userData.departmentId;
+        }
+        
+        // Populate checkbox
+        const isActiveCheckbox = form.querySelector('[name*="isActive"]');
+        if (isActiveCheckbox && !isActiveCheckbox.checked && userData.isActive) {
+            console.log('Manually checking isActive');
+            isActiveCheckbox.checked = true;
+        }
+    }, 50);
+    
+    // Initialize role-based field visibility
+    setTimeout(() => {
+        updateFieldVisibilityBasedOnRole();
+    }, 100);
+    
+    // Add event listener for role changes
+    const roleSelect = document.querySelector('select[name="user_edit_form[role]"]');
+    if (roleSelect) {
+        roleSelect.addEventListener('change', updateFieldVisibilityBasedOnRole);
+        console.log('Role change listener attached to:', roleSelect);
+    } else {
+        console.error('Role select field not found in edit form!');
+    }
+});
+
+// Role-based field visibility
+// Administrator (1) doesn't need position, college, or department
+// Department Head (2) and Faculty (3) need these fields
+function updateFieldVisibilityBasedOnRole() {
+    console.log('updateFieldVisibilityBasedOnRole called');
+    
+    const roleSelect = document.querySelector('select[name="user_edit_form[role]"]');
+    if (!roleSelect) {
+        console.error('Role select not found');
+        return;
+    }
+    
+    const positionSelect = document.querySelector('select[name="user_edit_form[position]"]');
+    const collegeSelect = document.querySelector('#college-select');
+    const departmentSelect = document.querySelector('#department-select');
+    
+    const selectedRole = parseInt(roleSelect.value);
+    console.log('Selected role:', selectedRole);
+    
+    // Role 1 = Administrator (hide position, college, department)
+    // Role 2 = Department Head (show all)
+    // Role 3 = Faculty (show all)
+    
+    // Get containers
+    const positionContainer = positionSelect?.closest('div.space-y-4 > div');
+    const collegeDepGrid = document.querySelector('.grid.grid-cols-2.gap-4');
+    
+    if (selectedRole === 1) {
+        // Administrator - hide these fields
+        console.log('Administrator selected - hiding fields');
+        
+        if (positionContainer) {
+            positionContainer.style.display = 'none';
+            if (positionSelect) positionSelect.value = '';
+        }
+        
+        // Hide the entire college-department grid
+        if (collegeDepGrid) {
+            collegeDepGrid.style.display = 'none';
+            if (collegeSelect) collegeSelect.value = '';
+            if (departmentSelect) departmentSelect.value = '';
+        }
+    } else if (selectedRole === 2 || selectedRole === 3) {
+        // Department Head or Faculty - show these fields
+        console.log('Department Head or Faculty selected - showing fields');
+        
+        if (positionContainer) positionContainer.style.display = '';
+        if (collegeDepGrid) collegeDepGrid.style.display = '';
+    }
+}
+
+// College-Department filtering functionality (Server-side approach)
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM Content Loaded - Starting college-department filtering setup');
+    
+    // IMMEDIATE DEBUG: Show the data structure
+    const departmentsByCollege = {{ departments_by_college|json_encode|raw }};
+    console.log('🔍 IMMEDIATE departmentsByCollege data:', departmentsByCollege);
+    console.log('🔍 Type:', typeof departmentsByCollege);
+    console.log('🔍 Keys:', Object.keys(departmentsByCollege));
+    
+    setTimeout(function() {
+        console.log('Timeout reached - looking for form elements');
+        
+        let collegeSelect = document.getElementById('college-select');
+        let departmentSelect = document.getElementById('department-select');
+        
+        // If IDs don't work, try by form field names
+        if (!collegeSelect) {
+            console.log('college-select ID not found, trying alternate selectors');
+            collegeSelect = document.querySelector('select[name*="college"]') || 
+                           document.querySelector('#user_form_college');
+        }
+        
+        if (!departmentSelect) {
+            console.log('department-select ID not found, trying alternate selectors');
+            departmentSelect = document.querySelector('select[name*="department"]') || 
+                              document.querySelector('#user_form_department');
+        }
+        
+        if (!collegeSelect || !departmentSelect) {
+            console.error('❌ CRITICAL: College or department select elements not found!');
+            console.error('College select:', collegeSelect);
+            console.error('Department select:', departmentSelect);
+            return;
+        }
+        
+        console.log('✅ Form elements found successfully');
+        console.log('College select ID:', collegeSelect.id, 'Name:', collegeSelect.name);
+        console.log('Department select ID:', departmentSelect.id, 'Name:', departmentSelect.name);
+        console.log('Initial college value:', collegeSelect.value);
+        console.log('Initial college value type:', typeof collegeSelect.value);
+        console.log('Initial department value:', departmentSelect.value);
+        console.log('Initial department options count:', departmentSelect.options.length);
+        
+        // Debug: Log all college options
+        console.log('📋 College options in dropdown:');
+        Array.from(collegeSelect.options).forEach((opt, idx) => {
+            if (opt.value) {
+                console.log(`  ${idx}. Value: "${opt.value}" (type: ${typeof opt.value}), Text: "${opt.textContent}"`);
+            }
+        });
+        
+        // IMPORTANT: Always enable department select
+        departmentSelect.disabled = false;
+        departmentSelect.classList.remove('opacity-50', 'cursor-not-allowed');
+        console.log('Department select enabled');
+        
+        // Store the initial department value from the server (user's current department)
+        const initialDepartmentId = '{{ user.department ? user.department.id : '' }}';
+        console.log('Initial department ID from server:', initialDepartmentId);
+        
+        // Function to update department options based on selected college
+        function updateDepartmentOptions(preserveDepartmentId) {
+            const selectedCollege = collegeSelect.value;
+            const currentDepartmentId = preserveDepartmentId || departmentSelect.value;
+            
+            console.log('🔄 updateDepartmentOptions called');
+            console.log('Selected college ID:', selectedCollege, '(type:', typeof selectedCollege, ')');
+            console.log('Current department ID to preserve:', currentDepartmentId);
+            
+            // Try both string and numeric keys for compatibility
+            const collegeKey = selectedCollege;
+            const collegeKeyNum = parseInt(selectedCollege, 10);
+            console.log('Trying keys:', collegeKey, 'and', collegeKeyNum);
+            console.log('Checking if departmentsByCollege[' + selectedCollege + '] exists:', !!departmentsByCollege[selectedCollege]);
+            console.log('Checking if departmentsByCollege[' + collegeKeyNum + '] exists:', !!departmentsByCollege[collegeKeyNum]);
+            
+            // Clear current department options
+            departmentSelect.innerHTML = '<option value="">Select a department</option>';
+            console.log('Cleared department options');
+            
+            // Find the departments - try both string and numeric keys
+            let departments = null;
+            if (selectedCollege && departmentsByCollege[selectedCollege]) {
+                departments = departmentsByCollege[selectedCollege];
+            } else if (selectedCollege && !isNaN(collegeKeyNum) && departmentsByCollege[collegeKeyNum]) {
+                departments = departmentsByCollege[collegeKeyNum];
+            }
+            
+            if (departments) {
+                // College selected - show only departments for that college
+                console.log('✅ Found ' + Object.keys(departments).length + ' departments for college ID ' + selectedCollege);
+                console.log('Departments:', departments);
+                
+                let addedCount = 0;
+                for (const [deptId, deptName] of Object.entries(departments)) {
+                    const option = document.createElement('option');
+                    option.value = deptId;
+                    option.textContent = deptName;
+                    
+                    // Preserve selection if it belongs to this college
+                    if (currentDepartmentId && deptId == currentDepartmentId) {
+                        option.selected = true;
+                        console.log('✅ Preserved department selection:', deptName);
+                    }
+                    
+                    departmentSelect.appendChild(option);
+                    addedCount++;
+                }
+                
+                console.log('Added ' + addedCount + ' departments to dropdown');
+                departmentSelect.disabled = false;
+                departmentSelect.classList.remove('opacity-50', 'cursor-not-allowed');
+            } else if (!selectedCollege) {
+                // No college selected - show all departments
+                console.log('ℹ️  No college selected, showing ALL departments');
+                
+                let totalAdded = 0;
+                for (const [collegeId, departments] of Object.entries(departmentsByCollege)) {
+                    for (const [deptId, deptName] of Object.entries(departments)) {
+                        const option = document.createElement('option');
+                        option.value = deptId;
+                        option.textContent = deptName;
+                        
+                        if (currentDepartmentId && deptId == currentDepartmentId) {
+                            option.selected = true;
+                        }
+                        
+                        departmentSelect.appendChild(option);
+                        totalAdded++;
+                    }
+                }
+                
+                console.log('Added ' + totalAdded + ' total departments from all colleges');
+                departmentSelect.disabled = false;
+                departmentSelect.classList.remove('opacity-50', 'cursor-not-allowed');
+            } else {
+                console.log('⚠️  College selected but no departments found for ID:', selectedCollege);
+                console.log('⚠️  Available college IDs in data:', Object.keys(departmentsByCollege));
+                departmentSelect.disabled = false;
+                departmentSelect.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+            
+            console.log('Final department options count:', departmentSelect.options.length);
+        }
+        
+        // Listen for college selection changes
+        collegeSelect.addEventListener('change', function() {
+            console.log('🔔 College changed event fired! New value:', this.value);
+            updateDepartmentOptions();
+        });
+        
+        // Initial trigger on page load
+        console.log('Triggering initial department update...');
+        // On initial load, use the user's current department ID
+        const userCollegeId = '{{ user.college ? user.college.id : '' }}';
+        const userDepartmentId = '{{ user.department ? user.department.id : '' }}';
+        
+        console.log('User college ID from server:', userCollegeId);
+        console.log('User department ID from server:', userDepartmentId);
+        
+        // Set the college value if it exists
+        if (userCollegeId && collegeSelect.value !== userCollegeId) {
+            console.log('Setting college to:', userCollegeId);
+            collegeSelect.value = userCollegeId;
+        }
+        
+        // Update departments and preserve the user's department
+        if (collegeSelect.value) {
+            console.log('College has value on load:', collegeSelect.value);
+            updateDepartmentOptions(userDepartmentId);
+        } else {
+            console.log('No college selected on load, showing all departments');
+            updateDepartmentOptions(userDepartmentId);
+        }
+        
+        console.log('✅ Department filtering initialized successfully');
+    }, 250); // Increased delay
+});
+</script>
+{% endblock %}
+
+{% endblock %}

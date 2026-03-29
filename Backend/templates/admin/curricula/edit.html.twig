@@ -1,0 +1,356 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block main_content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Header -->
+    <div class="bg-gradient-to-r from-orange-600 to-orange-700 rounded-xl shadow-lg p-8 mb-8">
+        <div class="flex justify-between items-center">
+            <div class="flex-1">
+                <div class="flex items-center space-x-3 mb-2">
+                    <h1 class="text-3xl font-bold text-white">Edit Curriculum</h1>
+                    {% if curriculum.isPublished %}
+                        <span class="px-3 py-1 bg-green-100 text-green-800 text-sm font-medium rounded-full">
+                            <i class="fas fa-check-circle mr-1"></i>Published
+                        </span>
+                    {% else %}
+                        <span class="px-3 py-1 bg-yellow-100 text-yellow-800 text-sm font-medium rounded-full">
+                            <i class="fas fa-edit mr-1"></i>Draft
+                        </span>
+                    {% endif %}
+                </div>
+                <p class="text-orange-100">{{ curriculum.name }}</p>
+            </div>
+            {% if curriculum.department and curriculum.department.id %}
+                <a href="{{ path('admin_curricula_by_department', {departmentId: curriculum.department.id}) }}" class="bg-white text-orange-600 px-6 py-3 rounded-lg font-medium hover:bg-orange-50 transition duration-150 shadow-md">
+                    <i class="fas fa-arrow-left mr-2"></i>Back to Curricula
+                </a>
+            {% else %}
+                <a href="{{ path('admin_curricula') }}" class="bg-white text-orange-600 px-6 py-3 rounded-lg font-medium hover:bg-orange-50 transition duration-150 shadow-md">
+                    <i class="fas fa-arrow-left mr-2"></i>Back to Curricula
+                </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Flash Messages -->
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="mb-6 p-4 rounded-lg {% if label == 'success' %}bg-green-50 border border-green-200 text-green-800{% elseif label == 'error' %}bg-red-50 border border-red-200 text-red-800{% else %}bg-blue-50 border border-blue-200 text-blue-800{% endif %}">
+                <i class="fas {% if label == 'success' %}fa-check-circle{% elseif label == 'error' %}fa-exclamation-circle{% else %}fa-info-circle{% endif %} mr-2"></i>
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endfor %}
+
+    <!-- Form Card -->
+    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+        <div class="p-8">
+            {{ form_start(form, {
+                'action': path('admin_curricula_edit', {id: curriculum.id}),
+                'attr': {'class': 'space-y-6', 'autocomplete': 'off'}
+            }) }}
+
+            <!-- Curriculum Name -->
+            <div>
+                <label for="{{ form.name.vars.id }}" class="block text-sm font-semibold text-gray-700 mb-2">
+                    {{ form.name.vars.label }} <span class="text-red-500">*</span>
+                </label>
+                {{ form_widget(form.name) }}
+                {{ form_errors(form.name) }}
+                <p class="mt-1 text-sm text-gray-500">Full name of the curriculum</p>
+            </div>
+
+            <!-- College (only shown if field exists) -->
+            {% if form.collegeId is defined %}
+            <div>
+                <label for="{{ form.collegeId.vars.id }}" class="block text-sm font-semibold text-gray-700 mb-2">
+                    {{ form.collegeId.vars.label }}
+                </label>
+                {{ form_widget(form.collegeId) }}
+                {{ form_errors(form.collegeId) }}
+                <p class="mt-1 text-sm text-gray-500">Select a college to filter departments (optional)</p>
+            </div>
+            {% endif %}
+
+            <!-- Department (only shown if field exists) -->
+            {% if form.departmentId is defined %}
+            <div>
+                <label for="{{ form.departmentId.vars.id }}" class="block text-sm font-semibold text-gray-700 mb-2">
+                    {{ form.departmentId.vars.label }} <span class="text-red-500">*</span>
+                </label>
+                {{ form_widget(form.departmentId) }}
+                {{ form_errors(form.departmentId) }}
+                <p class="mt-1 text-sm text-gray-500">Select the department this curriculum belongs to</p>
+            </div>
+            {% else %}
+                <!-- Show current department when field is not editable -->
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                        Department
+                    </label>
+                    <div class="w-full px-4 py-3 bg-gray-100 border border-gray-300 rounded-lg text-gray-700">
+                        {{ curriculum.department.name }} ({{ curriculum.department.code }})
+                        {% if curriculum.department.college %}
+                            <span class="text-sm text-gray-500">• {{ curriculum.department.college.name }}</span>
+                        {% endif %}
+                    </div>
+                    <p class="mt-1 text-sm text-gray-500">Department cannot be changed when editing</p>
+                </div>
+            {% endif %}
+
+            <!-- Version -->
+            <div>
+                <label for="{{ form.version.vars.id }}" class="block text-sm font-semibold text-gray-700 mb-2">
+                    {{ form.version.vars.label }}
+                </label>
+                {{ form_widget(form.version) }}
+                {{ form_errors(form.version) }}
+                <p class="mt-1 text-sm text-gray-500">Version number of the curriculum</p>
+            </div>
+
+            <!-- Notes -->
+            <div>
+                <label for="{{ form.notes.vars.id }}" class="block text-sm font-semibold text-gray-700 mb-2">
+                    {{ form.notes.vars.label }}
+                </label>
+                {{ form_widget(form.notes) }}
+                {{ form_errors(form.notes) }}
+                <p class="mt-1 text-sm text-gray-500">Additional notes or description about this curriculum</p>
+            </div>
+
+            <!-- Published Status -->
+            <div class="bg-gray-50 p-6 rounded-lg border border-gray-200">
+                <div class="flex items-start">
+                    <div class="flex items-center h-5">
+                        {{ form_widget(form.isPublished) }}
+                    </div>
+                    <div class="ml-3">
+                        <label for="{{ form.isPublished.vars.id }}" class="font-semibold text-gray-700">
+                            {{ form.isPublished.vars.label }}
+                        </label>
+                        <p class="text-sm text-gray-500">Make this curriculum available for use</p>
+                    </div>
+                </div>
+                {{ form_errors(form.isPublished) }}
+            </div>
+
+            {{ form_rest(form) }}
+
+            <!-- Action Buttons -->
+            <div class="flex justify-end space-x-4 pt-6 border-t border-gray-200">
+                {% if curriculum.department and curriculum.department.id %}
+                    <a href="{{ path('admin_curricula_by_department', {departmentId: curriculum.department.id}) }}" class="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition duration-150">
+                        Cancel
+                    </a>
+                {% else %}
+                    <a href="{{ path('admin_curricula') }}" class="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition duration-150">
+                        Cancel
+                    </a>
+                {% endif %}
+                <button type="submit" class="bg-gradient-to-r from-orange-600 to-orange-700 text-white px-8 py-3 rounded-lg font-medium hover:from-orange-700 hover:to-orange-800 transition duration-150 shadow-md">
+                    <i class="fas fa-save mr-2"></i>Update Curriculum
+                </button>
+            </div>
+
+            {{ form_end(form) }}
+        </div>
+    </div>
+
+    <!-- Metadata Card -->
+    <div class="mt-6 bg-white rounded-lg shadow p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Curriculum Information</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+            <div>
+                <span class="text-gray-500">Curriculum ID:</span>
+                <span class="ml-2 font-medium text-gray-900">#{{ curriculum.id }}</span>
+            </div>
+            <div>
+                <span class="text-gray-500">Created:</span>
+                <span class="ml-2 font-medium text-gray-900">{{ curriculum.createdAt|date('M d, Y') }}</span>
+            </div>
+            <div>
+                <span class="text-gray-500">Last Updated:</span>
+                <span class="ml-2 font-medium text-gray-900">{{ curriculum.updatedAt|date('M d, Y') }}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Help Text -->
+    <div class="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <div class="flex">
+            <div class="flex-shrink-0">
+                <i class="fas fa-info-circle text-blue-600 mt-1"></i>
+            </div>
+            <div class="ml-3">
+                <h3 class="text-sm font-semibold text-blue-800 mb-1">Important Notes</h3>
+                <ul class="text-sm text-blue-700 space-y-1">
+                    <li>• Fields marked with <span class="text-red-500">*</span> are required</li>
+                    <li>• Select a college first to filter the department list</li>
+                    <li>• Changing the published status will affect curriculum availability</li>
+                    <li>• Consider incrementing the version number for major curriculum changes</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        // College-Department filtering functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Try multiple ways to find the college and department selects
+            let collegeSelect = document.getElementById('curriculum_collegeId');
+            let departmentSelect = document.getElementById('curriculum_departmentId');
+            
+            // If IDs don't work, try by form field names
+            if (!collegeSelect) {
+                collegeSelect = document.querySelector('select[name*="college"]') || 
+                               document.querySelector('select[id*="college"]');
+            }
+            
+            if (!departmentSelect) {
+                departmentSelect = document.querySelector('select[name*="department"]') || 
+                                  document.querySelector('select[id*="department"]');
+            }
+            
+            // Department options grouped by college (from backend)
+            const departmentsByCollege = {{ departments_by_college|json_encode|raw }};
+            
+            // Store the initially selected department
+            const initialDepartmentId = departmentSelect ? departmentSelect.value : null;
+            
+            // Debug: Log the elements and data
+            console.log('=== Curriculum Edit Form - Department Filtering ===');
+            console.log('College select element:', collegeSelect);
+            console.log('Department select element:', departmentSelect);
+            console.log('Initial department ID:', initialDepartmentId);
+            console.log('Departments by college data:', departmentsByCollege);
+            
+            if (collegeSelect) {
+                console.log('College select ID:', collegeSelect.id);
+                console.log('College select name:', collegeSelect.name);
+            }
+            
+            if (departmentSelect) {
+                console.log('Department select ID:', departmentSelect.id);
+                console.log('Department select name:', departmentSelect.name);
+            }
+            
+            // Function to find which college contains the initial department
+            function findCollegeForDepartment(deptId) {
+                for (const [collegeId, departments] of Object.entries(departmentsByCollege)) {
+                    if (departments[deptId]) {
+                        return collegeId;
+                    }
+                }
+                return null;
+            }
+            
+            // Store original options on first load
+            let originalOptions = null;
+            
+            // Function to update department options based on selected college
+            function updateDepartmentOptions(preserveSelection = false) {
+                if (!collegeSelect || !departmentSelect) {
+                    console.error('Could not find college or department select elements');
+                    return;
+                }
+                
+                // Store original options if not already stored (but keep them as references, not clones)
+                if (!originalOptions) {
+                    originalOptions = Array.from(departmentSelect.options).filter(opt => opt.value !== '');
+                    console.log('Stored original options:', originalOptions.length);
+                }
+                
+                const selectedCollege = collegeSelect.value;
+                const currentDeptValue = preserveSelection ? departmentSelect.value : '';
+                console.log('Selected college value:', selectedCollege);
+                console.log('Current department value:', currentDeptValue);
+                
+                // If no college selected, hide/disable all department options except placeholder
+                if (!selectedCollege) {
+                    originalOptions.forEach(option => {
+                        option.style.display = 'none';
+                        option.disabled = true;
+                    });
+                    if (!preserveSelection) {
+                        departmentSelect.value = '';
+                    }
+                    departmentSelect.disabled = true;
+                    departmentSelect.classList.add('opacity-50', 'cursor-not-allowed');
+                    console.log('Disabled department select - no college selected');
+                    return;
+                }
+                
+                // Filter options by showing/hiding based on college
+                let visibleCount = 0;
+                originalOptions.forEach(option => {
+                    const collegeId = option.getAttribute('data-college-id');
+                    
+                    // Compare as strings to avoid type issues
+                    if (collegeId === String(selectedCollege)) {
+                        option.style.display = '';
+                        option.disabled = false;
+                        visibleCount++;
+                    } else {
+                        option.style.display = 'none';
+                        option.disabled = true;
+                    }
+                });
+                
+                console.log('Total visible departments:', visibleCount);
+                
+                // Enable department select
+                departmentSelect.disabled = false;
+                departmentSelect.classList.remove('opacity-50', 'cursor-not-allowed');
+                
+                // Try to restore the previous selection if it's in this college and preserveSelection is true
+                if (preserveSelection && currentDeptValue) {
+                    const currentOption = Array.from(departmentSelect.options).find(opt => opt.value === currentDeptValue);
+                    if (currentOption && currentOption.style.display !== 'none') {
+                        departmentSelect.value = currentDeptValue;
+                        console.log('Restored department selection:', currentDeptValue);
+                    } else {
+                        departmentSelect.value = '';
+                        console.log('Could not restore department selection - not in selected college');
+                    }
+                } else if (!preserveSelection) {
+                    // Reset selection if current selection is not visible
+                    if (departmentSelect.value) {
+                        const currentOption = departmentSelect.options[departmentSelect.selectedIndex];
+                        if (currentOption && currentOption.style.display === 'none') {
+                            departmentSelect.value = '';
+                            console.log('Reset department selection - not in selected college');
+                        }
+                    }
+                }
+            }
+            
+            // Listen for college selection changes
+            if (collegeSelect) {
+                collegeSelect.addEventListener('change', function() {
+                    console.log('College selection changed');
+                    updateDepartmentOptions(false);
+                });
+                
+                // Pre-select college based on current department on page load
+                if (initialDepartmentId) {
+                    const collegeId = findCollegeForDepartment(initialDepartmentId);
+                    if (collegeId) {
+                        collegeSelect.value = collegeId;
+                        console.log('Pre-selected college:', collegeId);
+                    }
+                }
+                
+                // Initialize department options on page load
+                console.log('Initializing department options on page load');
+                updateDepartmentOptions(true);
+            } else {
+                console.error('College select element not found');
+            }
+        });
+    </script>
+{% endblock %}

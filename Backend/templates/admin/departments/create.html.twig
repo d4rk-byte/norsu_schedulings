@@ -1,0 +1,170 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block main_content %}
+    <!-- Page Header - Compact -->
+    <div class="mb-4">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900">Add New Department</h1>
+                <p class="mt-1 text-sm text-gray-600">Create a new academic department in the system</p>
+            </div>
+            <div>
+                <a href="{{ path('admin_departments') }}" 
+                   class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition">
+                    <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                    </svg>
+                    Back to Departments
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Form Card - Optimal Width & Spacing -->
+    <div class="max-w-5xl mx-auto">
+        <div class="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
+            <div class="px-6 py-4 bg-gradient-to-r from-purple-600 to-purple-700">
+                <h2 class="text-lg font-semibold text-white">Department Information</h2>
+                <p class="text-purple-100 text-sm">Fill in the details below to create a new department</p>
+            </div>
+
+            <div class="p-6">
+                {{ form_start(form, {'action': path('admin_departments_create'), 'attr': {'class': 'space-y-5', 'autocomplete': 'off'}}) }}
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+                    <!-- Department Code -->
+                    <div>
+                        <label for="{{ form.code.vars.id }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            Department Code <span class="text-red-500">*</span>
+                        </label>
+                        {{ form_widget(form.code, {
+                            'attr': {
+                                'class': 'w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition',
+                                'placeholder': 'e.g., CS, IT'
+                            }
+                        }) }}
+                        {{ form_errors(form.code) }}
+                        <p class="mt-1 text-xs text-gray-500">Uppercase, max 10 chars</p>
+                    </div>
+
+                    <!-- Department Name -->
+                    <div class="lg:col-span-2">
+                        <label for="{{ form.name.vars.id }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            Department Name <span class="text-red-500">*</span>
+                        </label>
+                        {{ form_widget(form.name, {
+                            'attr': {
+                                'class': 'w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition',
+                                'placeholder': 'e.g., Computer Science'
+                            }
+                        }) }}
+                        {{ form_errors(form.name) }}
+                        <p class="mt-1 text-xs text-gray-500">Full name of the department</p>
+                    </div>
+                </div>
+
+                <!-- College - Full Width for Prominence -->
+                <div>
+                    <label for="{{ form.college.vars.id }}" class="block text-sm font-medium text-gray-700 mb-2">
+                        College <span class="text-red-500">*</span>
+                    </label>
+                    {{ form_widget(form.college, {
+                        'attr': {
+                            'class': 'w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition'
+                        }
+                    }) }}
+                    {{ form_errors(form.college) }}
+                    <p class="mt-1 text-xs text-gray-500">Select the college this department belongs to</p>
+                </div>
+
+                <!-- Description -->
+                <div>
+                    <label for="{{ form.description.vars.id }}" class="block text-sm font-medium text-gray-700 mb-2">
+                        Description
+                    </label>
+                    {{ form_widget(form.description, {
+                        'attr': {
+                            'class': 'w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition',
+                            'rows': 3,
+                            'placeholder': 'Brief description of the department (optional)'
+                        }
+                    }) }}
+                    {{ form_errors(form.description) }}
+                    <p class="mt-1 text-xs text-gray-500">Overview of the department's focus and programs</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                    <!-- Department Head -->
+                    <div>
+                        <label for="{{ form.head.vars.id }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            Department Head
+                        </label>
+                        {{ form_widget(form.head, {
+                            'attr': {
+                                'class': 'w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition'
+                            }
+                        }) }}
+                        {{ form_errors(form.head) }}
+                        <p class="mt-1 text-xs text-gray-500">Optional — select from registered users</p>
+                    </div>
+
+                    <!-- Contact Email -->
+                    <div>
+                        <label for="{{ form.contactEmail.vars.id }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            Contact Email
+                        </label>
+                        {{ form_widget(form.contactEmail, {
+                            'attr': {
+                                'class': 'w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition',
+                                'placeholder': 'e.g., cs.dept@university.edu'
+                            }
+                        }) }}
+                        {{ form_errors(form.contactEmail) }}
+                        <p class="mt-1 text-xs text-gray-500">Optional</p>
+                    </div>
+                </div>
+
+
+
+            {{ form_rest(form) }}
+
+            <!-- Action Buttons -->
+            <div class="flex items-center justify-end space-x-3 pt-4 border-t border-gray-200">
+                <a href="{{ path('admin_departments') }}" 
+                   class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition">
+                    Cancel
+                </a>
+                <button type="submit" 
+                        class="inline-flex items-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium rounded-lg shadow-sm transition">
+                    <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                    </svg>
+                    Create Department
+                </button>
+            </div>
+
+            {{ form_end(form) }}
+        </div>
+    </div>
+
+<style>
+    .form-error {
+        color: #dc2626;
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+    }
+    
+    .form-error-list {
+        list-style: none;
+        padding: 0;
+        margin: 0.25rem 0 0 0;
+    }
+    
+    .form-error-list li {
+        color: #dc2626;
+        font-size: 0.875rem;
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,139 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block main_content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Header -->
+    <div class="bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl shadow-lg p-8 mb-8">
+        <div class="flex justify-between items-center">
+            <div class="flex-1">
+                <h1 class="text-3xl font-bold text-white">
+                    {% if is_edit %}
+                        Edit Academic Year
+                    {% else %}
+                        Create New Academic Year
+                    {% endif %}
+                </h1>
+                <p class="text-blue-100 mt-2">
+                    {% if is_edit %}
+                        Update the details for {{ academic_year.year }}
+                    {% else %}
+                        Add a new academic year to the system
+                    {% endif %}
+                </p>
+            </div>
+            <a href="{{ path('admin_academic_years') }}" class="bg-white text-blue-600 px-6 py-3 rounded-lg font-medium hover:bg-blue-50 transition duration-150 shadow-md">
+                <i class="fas fa-arrow-left mr-2"></i>Back to List
+            </a>
+        </div>
+    </div>
+
+    <!-- Flash Messages -->
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="mb-6 p-4 rounded-lg {% if label == 'success' %}bg-green-50 border border-green-200 text-green-800{% elseif label == 'error' %}bg-red-50 border border-red-200 text-red-800{% else %}bg-blue-50 border border-blue-200 text-blue-800{% endif %}">
+                <div class="flex items-center">
+                    <i class="fas {% if label == 'success' %}fa-check-circle{% elseif label == 'error' %}fa-exclamation-circle{% else %}fa-info-circle{% endif %} mr-2"></i>
+                    {{ message }}
+                </div>
+            </div>
+        {% endfor %}
+    {% endfor %}
+
+    <!-- Form -->
+    <div class="bg-white rounded-xl shadow-lg border border-gray-200 p-8">
+        {{ form_start(form, {'action': is_edit ? path('admin_academic_years_edit', {'id': academic_year.id}) : path('admin_academic_years_create'), 'attr': {'class': 'space-y-6'}}) }}
+            
+            <!-- Academic Year -->
+            <div>
+                {{ form_label(form.year, null, {'label_attr': {'class': 'block text-sm font-semibold text-gray-700 mb-2'}}) }}
+                {{ form_widget(form.year) }}
+                {{ form_help(form.year, {'help_attr': {'class': 'mt-1 text-sm text-gray-500'}}) }}
+                {{ form_errors(form.year, {'attr': {'class': 'mt-1 text-sm text-red-600'}}) }}
+            </div>
+
+            <!-- Date Fields -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Start Date -->
+                <div>
+                    {{ form_label(form.startDate, null, {'label_attr': {'class': 'block text-sm font-semibold text-gray-700 mb-2'}}) }}
+                    {{ form_widget(form.startDate) }}
+                    {{ form_help(form.startDate, {'help_attr': {'class': 'mt-1 text-sm text-gray-500'}}) }}
+                    {{ form_errors(form.startDate, {'attr': {'class': 'mt-1 text-sm text-red-600'}}) }}
+                </div>
+
+                <!-- End Date -->
+                <div>
+                    {{ form_label(form.endDate, null, {'label_attr': {'class': 'block text-sm font-semibold text-gray-700 mb-2'}}) }}
+                    {{ form_widget(form.endDate) }}
+                    {{ form_help(form.endDate, {'help_attr': {'class': 'mt-1 text-sm text-gray-500'}}) }}
+                    {{ form_errors(form.endDate, {'attr': {'class': 'mt-1 text-sm text-red-600'}}) }}
+                </div>
+            </div>
+
+            <!-- Checkboxes -->
+            <div class="space-y-4 border-t border-gray-200 pt-6">
+                <!-- Current Year -->
+                <div class="flex items-start">
+                    <div class="flex items-center h-5">
+                        {{ form_widget(form.isCurrent) }}
+                    </div>
+                    <div class="ml-3 text-sm">
+                        {{ form_label(form.isCurrent, null, {'label_attr': {'class': 'font-medium text-gray-700'}}) }}
+                        <p class="text-gray-500">{{ form_help(form.isCurrent) }}</p>
+                    </div>
+                </div>
+
+                <!-- Active -->
+                <div class="flex items-start">
+                    <div class="flex items-center h-5">
+                        {{ form_widget(form.isActive) }}
+                    </div>
+                    <div class="ml-3 text-sm">
+                        {{ form_label(form.isActive, null, {'label_attr': {'class': 'font-medium text-gray-700'}}) }}
+                        <p class="text-gray-500">{{ form_help(form.isActive) }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex items-center justify-end space-x-4 border-t border-gray-200 pt-6">
+                <a href="{{ path('admin_academic_years') }}" class="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition duration-150">
+                    Cancel
+                </a>
+                <button type="submit" class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg shadow-md transition duration-150">
+                    <i class="fas {% if is_edit %}fa-save{% else %}fa-plus{% endif %} mr-2"></i>
+                    {% if is_edit %}
+                        Update Academic Year
+                    {% else %}
+                        Create Academic Year
+                    {% endif %}
+                </button>
+            </div>
+
+        {{ form_end(form) }}
+    </div>
+
+    <!-- Help Section -->
+    <div class="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-6">
+        <div class="flex">
+            <div class="flex-shrink-0">
+                <svg class="h-5 w-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                </svg>
+            </div>
+            <div class="ml-3">
+                <h3 class="text-sm font-medium text-blue-800">Academic Year Guidelines</h3>
+                <div class="mt-2 text-sm text-blue-700">
+                    <ul class="list-disc list-inside space-y-1">
+                        <li>Academic year format must be YYYY-YYYY (e.g., 2024-2025)</li>
+                        <li>Start date should be before the end date</li>
+                        <li>Only one academic year can be marked as "current" at a time</li>
+                        <li>The current academic year cannot be deactivated</li>
+                        <li>Use the current year setting for active enrollment and scheduling</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,36 @@
+# see https://symfony.com/doc/current/reference/configuration/framework.html
+framework:
+    secret: '%env(APP_SECRET)%'
+    
+    # CSRF Protection
+    csrf_protection: ~
+
+    # Note that the session will be started ONLY if you read or write from it.
+    session:
+        handler_id: session.handler.native_file
+        save_path: '%kernel.project_dir%/var/sessions/%kernel.environment%'
+        cookie_secure: auto
+        cookie_samesite: lax
+        cookie_lifetime: 3600  # 1 hour
+        gc_maxlifetime: 3600
+
+    #esi: true
+    #fragments: true
+
+when@test:
+    framework:
+        test: true
+        session:
+            storage_factory_id: session.storage.factory.mock_file
+
+when@prod:
+    framework:
+        session:
+            # Use Redis for session storage in production (uncomment when Redis is available)
+            # handler_id: Symfony\Component\HttpFoundation\Session\Storage\Handler\RedisSessionHandler
+            # Or keep file-based sessions for single-server setups
+            handler_id: session.handler.native_file
+            cookie_secure: true
+            cookie_httponly: true
+            cookie_samesite: strict
+            gc_maxlifetime: 3600
