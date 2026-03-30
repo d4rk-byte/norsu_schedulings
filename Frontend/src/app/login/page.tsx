@@ -31,8 +31,18 @@ export default function LoginPage() {
     submitLock.current = true
     setIsSubmitting(true)
 
+    const normalizedIdentifier = identifier.trim()
+    const normalizedPassword = password
+
+    if (!normalizedIdentifier || !normalizedPassword) {
+      toast.error('Please enter your email/username and password.')
+      submitLock.current = false
+      setIsSubmitting(false)
+      return
+    }
+
     try {
-      const dashboardPath = await login(identifier, password)
+      const dashboardPath = await login(normalizedIdentifier, normalizedPassword)
       toast.success('Login successful!')
       window.location.href = dashboardPath
     } catch (error: unknown) {
@@ -131,6 +141,7 @@ export default function LoginPage() {
                         id="identifier"
                         name="identifier"
                         type="text"
+                        required
                         autoComplete="username"
                         placeholder="Enter your email or username"
                         value={identifier}
@@ -147,6 +158,7 @@ export default function LoginPage() {
                           id="password"
                           name="password"
                           type={showPassword ? 'text' : 'password'}
+                          required
                           autoComplete="current-password"
                           placeholder="Enter your password"
                           value={password}

@@ -1,8 +1,18 @@
 import axios from 'axios'
 import Cookies from 'js-cookie'
 
+function normalizeApiBaseUrl(rawUrl: string | undefined): string {
+  const fallback = 'http://localhost:8000'
+  const value = (rawUrl || fallback).trim()
+
+  if (!value) return fallback
+
+  // Accept either https://host or https://host/api in env config.
+  return value.replace(/\/+$/, '').replace(/\/api$/i, '')
+}
+
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
+  baseURL: normalizeApiBaseUrl(process.env.NEXT_PUBLIC_API_URL),
   headers: { 'Content-Type': 'application/json' },
 })
 

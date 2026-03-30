@@ -49,6 +49,11 @@ yarn-debug.log*
 yarn-error.log*
 ###< node ###
 
+###> runtime artifacts ###
+/supervisord.pid
+/supervisord.log
+###< runtime artifacts ###
+
 ###> uploads ###
 /public/uploads/
 ###< uploads ###
