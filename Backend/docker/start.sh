@@ -16,65 +16,76 @@ ADMIN_FIRST_NAME=${ADMIN_FIRST_NAME:-System}
 ADMIN_LAST_NAME=${ADMIN_LAST_NAME:-Administrator}
 GENERATE_JWT_KEYS_IF_MISSING=${GENERATE_JWT_KEYS_IF_MISSING:-0}
 
-resolve_jwt_path() {
-    local raw_path="$1"
-    if [ -z "${raw_path}" ]; then
-        echo ""
-        return
-    fi
-
-    # Convert Symfony placeholder paths to container absolute paths.
-    echo "${raw_path//%kernel.project_dir%/\/var\/www\/html}"
-}
-
-JWT_SECRET_KEY_PATH=$(resolve_jwt_path "${JWT_SECRET_KEY:-%kernel.project_dir%/config/jwt/private.pem}")
-JWT_PUBLIC_KEY_PATH=$(resolve_jwt_path "${JWT_PUBLIC_KEY:-%kernel.project_dir%/config/jwt/public.pem}")
+# Always define JWT paths
+JWT_SECRET_KEY_PATH="/var/www/html/config/jwt/private.pem"
+JWT_PUBLIC_KEY_PATH="/var/www/html/config/jwt/public.pem"
+export JWT_SECRET_KEY_PATH
+export JWT_PUBLIC_KEY_PATH
 
 echo "Port: ${PORT}"
 echo "RUN_STARTUP_MAINTENANCE: ${RUN_STARTUP_MAINTENANCE}"
 echo "CREATE_DEFAULT_ADMIN: ${CREATE_DEFAULT_ADMIN}"
 echo "GENERATE_JWT_KEYS_IF_MISSING: ${GENERATE_JWT_KEYS_IF_MISSING}"
 
-create_admin_user() {
-    echo "Creating/updating admin user..."
-    php bin/console app:create-admin "${ADMIN_USERNAME}" "${ADMIN_EMAIL}" "${ADMIN_PASSWORD}" --first-name="${ADMIN_FIRST_NAME}" --last-name="${ADMIN_LAST_NAME}" --no-interaction 2>&1 || echo "Admin user provisioning failed, skipping..."
+resolve_jwt_path() {
+    local raw_path="$1"
+    if [ -z "${raw_path}" ]; then
+        echo ""
+        return
+    fi
+    echo "${raw_path//%kernel.project_dir%/\/var\/www\/html}"
 }
 
 ensure_jwt_material() {
-    if [ ! -f "${JWT_SECRET_KEY_PATH}" ] || [ ! -f "${JWT_PUBLIC_KEY_PATH}" ]; then
-        if [ "${GENERATE_JWT_KEYS_IF_MISSING}" = "1" ]; then
-            echo "JWT key files are missing. Attempting to generate keypair..."
-            mkdir -p /var/www/html/config/jwt
-            php bin/console lexik:jwt:generate-keypair --skip-if-exists --no-interaction 2>&1 || true
+    mkdir -p /var/www/html/config/jwt
+
+    # If JWT_SECRET_KEY contains actual key content (not a file path), write it to file
+    if echo "${JWT_SECRET_KEY}" | grep -q "BEGIN"; then
+        echo "${JWT_SECRET_KEY}" > /var/www/html/config/jwt/private.pem
+        echo "JWT private key written from environment variable."
+    else
+        echo "JWT_SECRET_KEY does not contain key content, skipping write."
+    fi
+
+    # If JWT_PUBLIC_KEY contains actual key content (not a file path), write it to file
+    if echo "${JWT_PUBLIC_KEY}" | grep -q "BEGIN"; then
+        echo "${JWT_PUBLIC_KEY}" > /var/www/html/config/jwt/public.pem
+        echo "JWT public key written from environment variable."
+    else
+        echo "JWT_PUBLIC_KEY does not contain key content, skipping write."
+    fi
+
+    # Generate JWT keys if missing and flag is set
+    if [ "${GENERATE_JWT_KEYS_IF_MISSING}" = "1" ]; then
+        if [ ! -f "${JWT_SECRET_KEY_PATH}" ] || [ ! -f "${JWT_PUBLIC_KEY_PATH}" ]; then
+            echo "Generating JWT keypair..."
+            php bin/console lexik:jwt:generate-keypair --overwrite --no-interaction 2>&1 || true
         fi
     fi
 
+    # Set correct permissions on JWT keys
     if [ -f "${JWT_SECRET_KEY_PATH}" ]; then
         chown www-data:www-data "${JWT_SECRET_KEY_PATH}" 2>/dev/null || true
         chmod 600 "${JWT_SECRET_KEY_PATH}" 2>/dev/null || true
+        echo "JWT private key permissions set."
+    else
+        echo "WARNING: JWT private key not found at ${JWT_SECRET_KEY_PATH}"
     fi
 
     if [ -f "${JWT_PUBLIC_KEY_PATH}" ]; then
         chown www-data:www-data "${JWT_PUBLIC_KEY_PATH}" 2>/dev/null || true
         chmod 644 "${JWT_PUBLIC_KEY_PATH}" 2>/dev/null || true
+        echo "JWT public key permissions set."
+    else
+        echo "WARNING: JWT public key not found at ${JWT_PUBLIC_KEY_PATH}"
     fi
 
-    if [ ! -f "${JWT_SECRET_KEY_PATH}" ] || [ ! -f "${JWT_PUBLIC_KEY_PATH}" ]; then
+    if [ -f "${JWT_SECRET_KEY_PATH}" ] && [ -f "${JWT_PUBLIC_KEY_PATH}" ]; then
+        echo "JWT key check: OK"
+    else
         echo "WARNING: JWT key files were not found at configured paths."
         echo "JWT_SECRET_KEY_PATH: ${JWT_SECRET_KEY_PATH}"
         echo "JWT_PUBLIC_KEY_PATH: ${JWT_PUBLIC_KEY_PATH}"
-        return
-    fi
-
-    if [ -z "${JWT_PASSPHRASE}" ]; then
-        echo "WARNING: JWT_PASSPHRASE is empty; JWT token signing may fail."
-        return
-    fi
-
-    if php -r '$path=$argv[1]; $pass=getenv("JWT_PASSPHRASE") ?: ""; $key=@openssl_pkey_get_private(@file_get_contents($path), $pass); exit($key ? 0 : 1);' "${JWT_SECRET_KEY_PATH}"; then
-        echo "JWT private key check: OK"
-    else
-        echo "WARNING: JWT private key check failed. Verify JWT_PASSPHRASE and key files."
     fi
 }
 
@@ -143,12 +154,21 @@ EOF
 # Ensure symlink exists
 ln -sf /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
 
-# Create required directories
-mkdir -p /var/www/html/var/cache /var/www/html/var/log /var/www/html/var/sessions/prod
+# Create required directories and fix permissions
+mkdir -p /var/www/html/var/cache/prod \
+         /var/www/html/var/cache/dev \
+         /var/www/html/var/log \
+         /var/www/html/var/sessions/prod \
+         /var/www/html/var/sessions/dev
 chown -R www-data:www-data /var/www/html/var
 chmod -R 777 /var/www/html/var
 
+# Ensure JWT keys are in place
 ensure_jwt_material
+
+# Update JWT environment variables to use file paths
+export JWT_SECRET_KEY="${JWT_SECRET_KEY_PATH}"
+export JWT_PUBLIC_KEY="${JWT_PUBLIC_KEY_PATH}"
 
 # Optional maintenance work (can delay startup and healthchecks on PaaS).
 if [ "${RUN_STARTUP_MAINTENANCE}" = "1" ]; then
