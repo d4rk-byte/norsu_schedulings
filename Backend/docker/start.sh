@@ -8,9 +8,21 @@ echo "=== Smart Scheduling System Starting ==="
 # Use PORT env variable or default to 80
 PORT=${PORT:-80}
 RUN_STARTUP_MAINTENANCE=${RUN_STARTUP_MAINTENANCE:-0}
+CREATE_DEFAULT_ADMIN=${CREATE_DEFAULT_ADMIN:-0}
+ADMIN_USERNAME=${ADMIN_USERNAME:-admin}
+ADMIN_EMAIL=${ADMIN_EMAIL:-admin@norsu.edu.ph}
+ADMIN_PASSWORD=${ADMIN_PASSWORD:-Admin@123456}
+ADMIN_FIRST_NAME=${ADMIN_FIRST_NAME:-System}
+ADMIN_LAST_NAME=${ADMIN_LAST_NAME:-Administrator}
 
 echo "Port: ${PORT}"
 echo "RUN_STARTUP_MAINTENANCE: ${RUN_STARTUP_MAINTENANCE}"
+echo "CREATE_DEFAULT_ADMIN: ${CREATE_DEFAULT_ADMIN}"
+
+create_admin_user() {
+    echo "Creating/updating admin user..."
+    php bin/console app:create-admin "${ADMIN_USERNAME}" "${ADMIN_EMAIL}" "${ADMIN_PASSWORD}" --first-name="${ADMIN_FIRST_NAME}" --last-name="${ADMIN_LAST_NAME}" --no-interaction 2>&1 || echo "Admin user provisioning failed, skipping..."
+}
 
 # Generate nginx config with correct port
 cat > /etc/nginx/sites-available/default << EOF
@@ -100,10 +112,14 @@ if [ "${RUN_STARTUP_MAINTENANCE}" = "1" ]; then
     php bin/console doctrine:migrations:sync-metadata-storage --no-interaction 2>&1 || true
     php bin/console doctrine:migrations:version --add --all --no-interaction 2>&1 || true
 
-    echo "Creating admin user..."
-    php bin/console app:create-admin admin admin@norsu.edu.ph "Admin@123456" --first-name=System --last-name=Administrator --no-interaction 2>&1 || echo "Admin user may already exist, skipping..."
+    create_admin_user
 else
     echo "Skipping startup maintenance tasks. Set RUN_STARTUP_MAINTENANCE=1 to enable."
+fi
+
+# Optionally create/update admin account without running full startup maintenance.
+if [ "${CREATE_DEFAULT_ADMIN}" = "1" ] && [ "${RUN_STARTUP_MAINTENANCE}" != "1" ]; then
+    create_admin_user
 fi
 
 echo "Starting PHP-FPM and Nginx via Supervisor..."
