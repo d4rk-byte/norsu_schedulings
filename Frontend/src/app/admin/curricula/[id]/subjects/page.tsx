@@ -144,6 +144,11 @@ export default function ManageCurriculumSubjectsPage({ params }: { params: Promi
 
   async function handleAddSubject() {
     if (!addSubjectTermId) return
+    if (!curriculum) {
+      setError('Curriculum is not loaded yet. Please refresh and try again.')
+      return
+    }
+
     setActionLoading(true)
     setError('')
 

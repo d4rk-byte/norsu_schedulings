@@ -155,7 +155,13 @@ export const dhCurriculaApi = {
 
 // ---- Faculty Assignments ----
 export interface FacultyAssignment {
-  faculty: { id: number; fullName: string; employeeId: string | null; position: string | null }
+  faculty: {
+    id: number
+    fullName: string
+    employeeId: string | null
+    position: string | null
+    department?: { id: number; code: string; name: string } | null
+  }
   schedules: Schedule[]
   totalUnits: number
   totalHours: number

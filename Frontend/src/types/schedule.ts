@@ -11,7 +11,7 @@ export interface Schedule {
   isOverload: boolean
   status: string
   notes: string | null
-  academicYear: { id: number; year: string }
+  academicYear: { id: number; year: string; isCurrent?: boolean }
   subject: {
     id: number
     code: string

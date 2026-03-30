@@ -42,7 +42,7 @@ export default function DHSettingsPage() {
 
   useEffect(() => {
     dhSettingsApi.get()
-      .then(setSettings)
+      .then((data) => setSettings(data as unknown as DepartmentHeadSettingsView))
       .catch(() => setError('Failed to load settings'))
       .finally(() => setLoading(false))
   }, [])
