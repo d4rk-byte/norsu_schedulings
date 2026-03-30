@@ -7,8 +7,10 @@ echo "=== Smart Scheduling System Starting ==="
 
 # Use PORT env variable or default to 80
 PORT=${PORT:-80}
+RUN_STARTUP_MAINTENANCE=${RUN_STARTUP_MAINTENANCE:-0}
 
 echo "Port: ${PORT}"
+echo "RUN_STARTUP_MAINTENANCE: ${RUN_STARTUP_MAINTENANCE}"
 
 # Generate nginx config with correct port
 cat > /etc/nginx/sites-available/default << EOF
@@ -80,26 +82,29 @@ mkdir -p /var/www/html/var/cache /var/www/html/var/log /var/www/html/var/session
 chown -R www-data:www-data /var/www/html/var
 chmod -R 777 /var/www/html/var
 
-# Install frontend assets
-echo "Installing importmap assets..."
-php bin/console importmap:install --no-interaction 2>&1 || true
+# Optional maintenance work (can delay startup and healthchecks on PaaS).
+if [ "${RUN_STARTUP_MAINTENANCE}" = "1" ]; then
+    echo "Running optional startup maintenance tasks..."
 
-# Clear and warm up cache
-echo "Warming up cache..."
-php bin/console cache:clear --no-interaction 2>&1 || true
-php bin/console cache:warmup --no-interaction 2>&1 || true
-chown -R www-data:www-data /var/www/html/var
-chmod -R 777 /var/www/html/var
+    echo "Installing importmap assets..."
+    php bin/console importmap:install --no-interaction 2>&1 || true
 
-# Run database migrations
-echo "Running database schema update..."
-php bin/console doctrine:schema:update --force --no-interaction 2>&1 || true
-php bin/console doctrine:migrations:sync-metadata-storage --no-interaction 2>&1 || true
-php bin/console doctrine:migrations:version --add --all --no-interaction 2>&1 || true
+    echo "Warming up cache..."
+    php bin/console cache:clear --no-interaction 2>&1 || true
+    php bin/console cache:warmup --no-interaction 2>&1 || true
+    chown -R www-data:www-data /var/www/html/var
+    chmod -R 777 /var/www/html/var
 
-# Create admin account (using command that works in all environments)
-echo "Creating admin user..."
-php bin/console app:create-admin admin admin@norsu.edu.ph "Admin@123456" --first-name=System --last-name=Administrator --no-interaction 2>&1 || echo "Admin user may already exist, skipping..."
+    echo "Running database schema update..."
+    php bin/console doctrine:schema:update --force --no-interaction 2>&1 || true
+    php bin/console doctrine:migrations:sync-metadata-storage --no-interaction 2>&1 || true
+    php bin/console doctrine:migrations:version --add --all --no-interaction 2>&1 || true
+
+    echo "Creating admin user..."
+    php bin/console app:create-admin admin admin@norsu.edu.ph "Admin@123456" --first-name=System --last-name=Administrator --no-interaction 2>&1 || echo "Admin user may already exist, skipping..."
+else
+    echo "Skipping startup maintenance tasks. Set RUN_STARTUP_MAINTENANCE=1 to enable."
+fi
 
 echo "Starting PHP-FPM and Nginx via Supervisor..."
 

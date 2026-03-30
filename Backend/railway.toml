@@ -8,4 +8,4 @@ startCommand = "/usr/local/bin/start.sh"
 restartPolicyType = "on_failure"
 restartPolicyMaxRetries = 10
 healthcheckPath = "/health/simple"
-healthcheckTimeout = 100
+healthcheckTimeout = 300
