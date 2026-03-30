@@ -22,6 +22,10 @@ JWT_PUBLIC_KEY_PATH="/var/www/html/config/jwt/public.pem"
 export JWT_SECRET_KEY_PATH
 export JWT_PUBLIC_KEY_PATH
 
+# Save original key contents BEFORE they get overwritten
+JWT_SECRET_KEY_CONTENT="${JWT_SECRET_KEY}"
+JWT_PUBLIC_KEY_CONTENT="${JWT_PUBLIC_KEY}"
+
 echo "Port: ${PORT}"
 echo "RUN_STARTUP_MAINTENANCE: ${RUN_STARTUP_MAINTENANCE}"
 echo "CREATE_DEFAULT_ADMIN: ${CREATE_DEFAULT_ADMIN}"
@@ -39,17 +43,17 @@ resolve_jwt_path() {
 ensure_jwt_material() {
     mkdir -p /var/www/html/config/jwt
 
-    # If JWT_SECRET_KEY contains actual key content (not a file path), write it to file
-    if echo "${JWT_SECRET_KEY}" | grep -q "BEGIN"; then
-        echo "${JWT_SECRET_KEY}" > /var/www/html/config/jwt/private.pem
+    # If JWT_SECRET_KEY contains actual key content write it to file
+    if echo "${JWT_SECRET_KEY_CONTENT}" | grep -q "BEGIN"; then
+        printf '%s\n' "${JWT_SECRET_KEY_CONTENT}" > /var/www/html/config/jwt/private.pem
         echo "JWT private key written from environment variable."
     else
         echo "JWT_SECRET_KEY does not contain key content, skipping write."
     fi
 
-    # If JWT_PUBLIC_KEY contains actual key content (not a file path), write it to file
-    if echo "${JWT_PUBLIC_KEY}" | grep -q "BEGIN"; then
-        echo "${JWT_PUBLIC_KEY}" > /var/www/html/config/jwt/public.pem
+    # If JWT_PUBLIC_KEY contains actual key content write it to file
+    if echo "${JWT_PUBLIC_KEY_CONTENT}" | grep -q "BEGIN"; then
+        printf '%s\n' "${JWT_PUBLIC_KEY_CONTENT}" > /var/www/html/config/jwt/public.pem
         echo "JWT public key written from environment variable."
     else
         echo "JWT_PUBLIC_KEY does not contain key content, skipping write."
@@ -166,11 +170,11 @@ chmod -R 777 /var/www/html/var
 # Ensure JWT keys are in place
 ensure_jwt_material
 
-# Update JWT environment variables to use file paths
+# Override JWT env vars to use file paths for Symfony
 export JWT_SECRET_KEY="${JWT_SECRET_KEY_PATH}"
 export JWT_PUBLIC_KEY="${JWT_PUBLIC_KEY_PATH}"
 
-# Optional maintenance work (can delay startup and healthchecks on PaaS).
+# Optional maintenance work
 if [ "${RUN_STARTUP_MAINTENANCE}" = "1" ]; then
     echo "Running optional startup maintenance tasks..."
 

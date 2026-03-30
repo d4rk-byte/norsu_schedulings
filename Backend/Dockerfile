@@ -90,7 +90,9 @@ RUN mkdir -p var/cache var/log var/sessions public/curriculum_templates \
 
 # Warm up cache during build
 RUN php bin/console cache:clear --env=prod --no-debug 2>&1 || true \
-    && php bin/console cache:warmup --env=prod --no-debug 2>&1 || true
+    && php bin/console cache:warmup --env=prod --no-debug 2>&1 || true \
+    && chown -R www-data:www-data /var/www/html/var \
+    && chmod -R 777 /var/www/html/var
 
 EXPOSE 80
 
