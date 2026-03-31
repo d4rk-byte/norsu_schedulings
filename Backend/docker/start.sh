@@ -31,6 +31,18 @@ echo "RUN_STARTUP_MAINTENANCE: ${RUN_STARTUP_MAINTENANCE}"
 echo "CREATE_DEFAULT_ADMIN: ${CREATE_DEFAULT_ADMIN}"
 echo "GENERATE_JWT_KEYS_IF_MISSING: ${GENERATE_JWT_KEYS_IF_MISSING}"
 
+create_admin_user() {
+    echo "Creating default admin user..."
+    php bin/console app:create-admin \
+        "${ADMIN_USERNAME}" \
+        "${ADMIN_EMAIL}" \
+        "${ADMIN_PASSWORD}" \
+        --first-name="${ADMIN_FIRST_NAME}" \
+        --last-name="${ADMIN_LAST_NAME}" \
+        --no-interaction 2>&1 || true
+    echo "Admin user creation complete."
+}
+
 resolve_jwt_path() {
     local raw_path="$1"
     if [ -z "${raw_path}" ]; then
@@ -187,10 +199,8 @@ if [ "${RUN_STARTUP_MAINTENANCE}" = "1" ]; then
     chown -R www-data:www-data /var/www/html/var
     chmod -R 777 /var/www/html/var
 
-    echo "Running database schema update..."
-    php bin/console doctrine:schema:update --force --no-interaction 2>&1 || true
-    php bin/console doctrine:migrations:sync-metadata-storage --no-interaction 2>&1 || true
-    php bin/console doctrine:migrations:version --add --all --no-interaction 2>&1 || true
+    echo "Running database migrations..."
+    php bin/console doctrine:migrations:migrate --no-interaction 2>&1 || true
 
     create_admin_user
 else
