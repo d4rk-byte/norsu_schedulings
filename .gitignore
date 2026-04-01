@@ -35,3 +35,11 @@ RAILWAY_*.sql
 START.bat
 *.txt
 !README.txt
+
+# Test files (kept local only)
+Backend/tests/
+Frontend/src/__tests__/
+*.test.ts
+*.test.tsx
+*.spec.ts
+*.spec.tsx
