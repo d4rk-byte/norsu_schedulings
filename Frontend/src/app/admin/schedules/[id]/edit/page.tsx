@@ -177,8 +177,6 @@ export default function EditSchedulePage({ params }: { params: Promise<{ id: str
       setAcademicYearLabel(sched.academicYear.year + (sched.academicYear.isCurrent ? ' (Current)' : ''))
       setSubjects(s.data)
       setRooms(r.data)
-      // Run initial conflict check for the loaded schedule
-      debouncedConflictCheck(initialForm)
     }).catch(() => setServerError('Failed to load.')).finally(() => setLoading(false))
   }, [id])
 
@@ -523,7 +521,7 @@ export default function EditSchedulePage({ params }: { params: Promise<{ id: str
           {/* Info panel */}
           <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800 p-4">
             <div className="flex items-start gap-2">
-              <AlertTriangle className="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" />
+              <AlertTriangle className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
               <div>
                 <h3 className="text-xs font-semibold text-gray-900 dark:text-gray-100 mb-1">Real-Time Conflict Detection</h3>
                 <p className="text-[11px] text-gray-600 dark:text-gray-300 leading-relaxed">

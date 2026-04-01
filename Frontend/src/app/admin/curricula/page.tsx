@@ -111,7 +111,7 @@ export default function CurriculaPage() {
     <div className="space-y-6">
       {/* Toast notification */}
       {toast?.show && (
-        <div className={`fixed top-4 right-4 z-[100] max-w-md px-4 py-3 rounded-lg shadow-lg transition-all transform animate-in fade-in slide-in-from-top-2 ${
+        <div className={`fixed top-4 right-4 z-100 max-w-md px-4 py-3 rounded-lg shadow-lg transition-all transform animate-in fade-in slide-in-from-top-2 ${
           toast.success ? 'bg-green-600 text-white' : 'bg-red-600 text-white'
         }`}>
           <div className="flex items-center gap-2">

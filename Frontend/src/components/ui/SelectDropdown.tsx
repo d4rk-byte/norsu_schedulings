@@ -51,6 +51,7 @@ export function SelectDropdown({
       if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
         setOpen(false)
         setSearch('')
+        setHighlightIndex(-1)
       }
     }
     document.addEventListener('mousedown', handleClick)
@@ -64,11 +65,6 @@ export function SelectDropdown({
     }
   }, [open, searchable])
 
-  // Reset highlight when search changes
-  useEffect(() => {
-    setHighlightIndex(-1)
-  }, [search])
-
   // Scroll highlighted item into view
   useEffect(() => {
     if (highlightIndex >= 0 && listRef.current) {
@@ -81,6 +77,7 @@ export function SelectDropdown({
     onChange(val)
     setOpen(false)
     setSearch('')
+    setHighlightIndex(-1)
   }
 
   function handleKeyDown(e: KeyboardEvent) {
@@ -110,6 +107,7 @@ export function SelectDropdown({
       case 'Escape':
         setOpen(false)
         setSearch('')
+        setHighlightIndex(-1)
         break
     }
   }
@@ -149,7 +147,10 @@ export function SelectDropdown({
                   ref={searchRef}
                   type="text"
                   value={search}
-                  onChange={e => setSearch(e.target.value)}
+                  onChange={e => {
+                    setSearch(e.target.value)
+                    setHighlightIndex(-1)
+                  }}
                   onKeyDown={handleKeyDown}
                   placeholder="Search..."
                   className="w-full text-sm bg-transparent text-gray-800 dark:text-gray-100 outline-none placeholder-gray-400 dark:placeholder-gray-500"
