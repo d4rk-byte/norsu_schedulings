@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Card, CardHeader } from '@/components/ui/Card'
 import { DataTable, type Column } from '@/components/ui/DataTable'
 import { SearchBar } from '@/components/ui/SearchBar'
@@ -45,7 +45,7 @@ export default function AdminActivityLogsPage() {
   const [search, setSearch] = useState('')
   const [actionFilter, setActionFilter] = useState('all')
 
-  async function loadLogs() {
+  const loadLogs = useCallback(async () => {
     setLoading(true)
     setError('')
 
@@ -71,11 +71,11 @@ export default function AdminActivityLogsPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [actionFilter, search])
 
   useEffect(() => {
     void loadLogs()
-  }, [actionFilter])
+  }, [loadLogs])
 
   const actionOptions = useMemo(() => {
     const uniqueActions = Array.from(new Set(logs.map((log) => log.action).filter(Boolean))).sort((a, b) =>

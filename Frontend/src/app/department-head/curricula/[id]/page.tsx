@@ -28,15 +28,6 @@ export default function DHCurriculumViewPage() {
       .finally(() => setLoading(false))
   }, [id])
 
-  useEffect(() => {
-    if (!curriculum?.curriculumTerms?.length) return
-    const nextExpanded: Record<number, boolean> = {}
-    curriculum.curriculumTerms.forEach((term) => {
-      nextExpanded[term.id] = true
-    })
-    setExpandedTerms(nextExpanded)
-  }, [curriculum])
-
   async function handleTogglePublish() {
     if (!curriculum) return
     setToggling(true)
@@ -53,7 +44,10 @@ export default function DHCurriculumViewPage() {
   }
 
   function toggleTerm(termId: number) {
-    setExpandedTerms((prev) => ({ ...prev, [termId]: !prev[termId] }))
+    setExpandedTerms((prev) => {
+      const currentlyExpanded = prev[termId] ?? true
+      return { ...prev, [termId]: !currentlyExpanded }
+    })
   }
 
   function jumpToTerm(termId: number) {
@@ -81,7 +75,7 @@ export default function DHCurriculumViewPage() {
         </div>
       </div>
 
-      <div className="sticky top-16 z-20 bg-gray-50/95 backdrop-blur supports-[backdrop-filter]:bg-gray-50/80 border border-gray-200 rounded-xl p-3">
+      <div className="sticky top-16 z-20 bg-gray-50/95 backdrop-blur supports-backdrop-filter:bg-gray-50/80 border border-gray-200 rounded-xl p-3">
         <div className="flex flex-wrap items-center gap-2">
           <Badge variant={curriculum.isPublished ? 'success' : 'warning'}>{curriculum.isPublished ? 'Published' : 'Draft'}</Badge>
           <Button size="sm" variant={curriculum.isPublished ? 'danger' : 'primary'} onClick={() => setShowToggle(true)}>
@@ -130,54 +124,58 @@ export default function DHCurriculumViewPage() {
       {sortedTerms.length === 0 ? (
         <Card><p className="text-center text-gray-400 py-8">No terms defined yet.</p></Card>
       ) : (
-        sortedTerms.map(term => (
-          <Card key={term.id} id={`term-${term.id}`}>
-            <button className="w-full" onClick={() => toggleTerm(term.id)}>
-              <div className="flex items-center justify-between gap-3 px-6 py-5 border-b border-gray-100">
-                <div className="text-left">
-                  <h3 className="font-semibold text-gray-900">{term.displayName || `Year ${term.yearLevel} – ${term.semester}`}</h3>
-                  <p className="mt-1 text-sm text-gray-500">{term.curriculumSubjects.length} subjects • {term.totalUnits} units</p>
-                </div>
-                <ChevronDown className={`h-5 w-5 text-gray-500 transition-transform ${expandedTerms[term.id] ? 'rotate-180' : ''}`} />
-              </div>
-            </button>
+        sortedTerms.map(term => {
+          const isExpanded = expandedTerms[term.id] ?? true
 
-            {expandedTerms[term.id] && (
-              <div className="p-6 pt-4">
-                {term.curriculumSubjects.length === 0 ? (
-                  <p className="text-sm text-gray-400">No subjects in this term.</p>
-                ) : (
-                  <div className="overflow-x-auto">
-                    <table className="min-w-full text-sm">
-                      <thead>
-                        <tr className="border-b text-left text-gray-500">
-                          <th className="py-2 pr-4 font-medium">Code</th>
-                          <th className="py-2 pr-4 font-medium">Title</th>
-                          <th className="py-2 pr-4 font-medium text-center">Units</th>
-                          <th className="py-2 pr-4 font-medium text-center">Lec Hrs</th>
-                          <th className="py-2 pr-4 font-medium text-center">Lab Hrs</th>
-                          <th className="py-2 font-medium">Type</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {term.curriculumSubjects.map(cs => (
-                          <tr key={cs.id} className="border-b last:border-0">
-                            <td className="py-2 pr-4 font-medium text-gray-900">{cs.subject.code}</td>
-                            <td className="py-2 pr-4 text-gray-700">{cs.subject.title}</td>
-                            <td className="py-2 pr-4 text-center">{cs.subject.units}</td>
-                            <td className="py-2 pr-4 text-center">{cs.subject.lectureHours}</td>
-                            <td className="py-2 pr-4 text-center">{cs.subject.labHours}</td>
-                            <td className="py-2"><Badge variant="default">{cs.subject.type}</Badge></td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
+          return (
+            <Card key={term.id} id={`term-${term.id}`}>
+              <button className="w-full" onClick={() => toggleTerm(term.id)}>
+                <div className="flex items-center justify-between gap-3 px-6 py-5 border-b border-gray-100">
+                  <div className="text-left">
+                    <h3 className="font-semibold text-gray-900">{term.displayName || `Year ${term.yearLevel} – ${term.semester}`}</h3>
+                    <p className="mt-1 text-sm text-gray-500">{term.curriculumSubjects.length} subjects • {term.totalUnits} units</p>
                   </div>
-                )}
-              </div>
-            )}
-          </Card>
-        ))
+                  <ChevronDown className={`h-5 w-5 text-gray-500 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+                </div>
+              </button>
+
+              {isExpanded && (
+                <div className="p-6 pt-4">
+                  {term.curriculumSubjects.length === 0 ? (
+                    <p className="text-sm text-gray-400">No subjects in this term.</p>
+                  ) : (
+                    <div className="overflow-x-auto">
+                      <table className="min-w-full text-sm">
+                        <thead>
+                          <tr className="border-b text-left text-gray-500">
+                            <th className="py-2 pr-4 font-medium">Code</th>
+                            <th className="py-2 pr-4 font-medium">Title</th>
+                            <th className="py-2 pr-4 font-medium text-center">Units</th>
+                            <th className="py-2 pr-4 font-medium text-center">Lec Hrs</th>
+                            <th className="py-2 pr-4 font-medium text-center">Lab Hrs</th>
+                            <th className="py-2 font-medium">Type</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {term.curriculumSubjects.map(cs => (
+                            <tr key={cs.id} className="border-b last:border-0">
+                              <td className="py-2 pr-4 font-medium text-gray-900">{cs.subject.code}</td>
+                              <td className="py-2 pr-4 text-gray-700">{cs.subject.title}</td>
+                              <td className="py-2 pr-4 text-center">{cs.subject.units}</td>
+                              <td className="py-2 pr-4 text-center">{cs.subject.lectureHours}</td>
+                              <td className="py-2 pr-4 text-center">{cs.subject.labHours}</td>
+                              <td className="py-2"><Badge variant="default">{cs.subject.type}</Badge></td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
+              )}
+            </Card>
+          )
+        })
       )}
 
       <ConfirmModal open={showToggle} onClose={() => setShowToggle(false)} onConfirm={handleTogglePublish} loading={toggling} title={curriculum.isPublished ? 'Unpublish Curriculum' : 'Publish Curriculum'} message={`Are you sure you want to ${curriculum.isPublished ? 'unpublish' : 'publish'} "${curriculum.name}"?`} variant={curriculum.isPublished ? 'danger' : 'primary'} confirmLabel={curriculum.isPublished ? 'Unpublish' : 'Publish'} />

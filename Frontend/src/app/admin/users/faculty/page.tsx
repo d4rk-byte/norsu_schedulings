@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Eye, Pencil, Filter } from 'lucide-react'
@@ -22,7 +22,6 @@ export default function FacultyUsersPage() {
   // Filter state
   const [colleges, setColleges] = useState<College[]>([])
   const [departments, setDepartments] = useState<Department[]>([])
-  const [filteredDepts, setFilteredDepts] = useState<Department[]>([])
   const [selectedCollege, setSelectedCollege] = useState<string>('')
   const [selectedDepartment, setSelectedDepartment] = useState<string>('')
 
@@ -31,13 +30,10 @@ export default function FacultyUsersPage() {
     departmentsApi.list({ limit: 200 }).then(r => setDepartments(r.data)).catch(() => {})
   }, [])
 
-  useEffect(() => {
-    if (selectedCollege) {
-      setFilteredDepts(departments.filter(d => d.college?.id === Number(selectedCollege)))
-    } else {
-      setFilteredDepts(departments)
-    }
-  }, [selectedCollege, departments])
+  const filteredDepts = useMemo(
+    () => (selectedCollege ? departments.filter(d => d.college?.id === Number(selectedCollege)) : departments),
+    [departments, selectedCollege],
+  )
 
   useEffect(() => {
     const params: Record<string, unknown> = {}

@@ -540,19 +540,7 @@ export default function FacultyScheduleChangeRequestsPage() {
       clearTimeout(timer)
       setCheckingConflicts(false)
     }
-  }, [
-    form.customDays,
-    form.customEndTime,
-    form.customStartTime,
-    form.dayPattern,
-    form.endTime,
-    form.roomId,
-    form.scheduleId,
-    form.section,
-    form.startTime,
-    form.useCustomFormat,
-    isModalOpen,
-  ])
+  }, [form, isModalOpen])
 
   function validateForm(): string | null {
     const resolved = resolveFormSchedule(form)

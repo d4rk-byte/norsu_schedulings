@@ -1,10 +1,9 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Loader2, Search } from 'lucide-react'
 import { Card, CardHeader } from '@/components/ui/Card'
 import { DataTable, type Column } from '@/components/ui/DataTable'
-import { SearchBar } from '@/components/ui/SearchBar'
 import { Pagination } from '@/components/ui/Pagination'
 import { dhActivityLogsApi } from '@/lib/department-head-api'
 import { formatDistanceToNow } from 'date-fns'
@@ -16,27 +15,31 @@ export default function DHActivityLogsPage() {
   const [error, setError] = useState('')
   const [page, setPage] = useState(1)
   const [total, setTotal] = useState(0)
-  const [limit] = useState(20)
+  const limit = 20
   const [search, setSearch] = useState('')
 
-  useEffect(() => {
+  const loadLogs = useCallback(async () => {
     setLoading(true)
-    dhActivityLogsApi.list({
-      page,
-      limit,
-      search: search || undefined,
-    })
-      .then((res) => {
-        setLogs(res.data || [])
-        setTotal(res.meta?.total || 0)
-        setError('')
+    try {
+      const res = await dhActivityLogsApi.list({
+        page,
+        limit,
+        search: search || undefined,
       })
-      .catch(() => {
-        setError('Failed to load activity logs')
-        setLogs([])
-      })
-      .finally(() => setLoading(false))
-  }, [page, search])
+      setLogs(res.data || [])
+      setTotal(res.meta?.total || 0)
+      setError('')
+    } catch {
+      setError('Failed to load activity logs')
+      setLogs([])
+    } finally {
+      setLoading(false)
+    }
+  }, [limit, page, search])
+
+  useEffect(() => {
+    void loadLogs()
+  }, [loadLogs])
 
   const columns: Column<ActivityLog>[] = [
     {
