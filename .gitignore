@@ -28,3 +28,10 @@ Thumbs.db
 *.pem
 *.key
 *.cert
+
+# Sensitive files - DO NOT COMMIT
+RAILWAY_*.txt
+RAILWAY_*.sql
+START.bat
+*.txt
+!README.txt
