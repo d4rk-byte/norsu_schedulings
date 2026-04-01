@@ -18,6 +18,7 @@ security:
         api:
             pattern: ^/api
             stateless: true
+            entry_point: jwt
             provider: app_user_provider
             user_checker: App\Security\UserChecker
             json_login:
@@ -27,6 +28,8 @@ security:
                 success_handler: lexik_jwt_authentication.handler.authentication_success
                 failure_handler: App\Security\ApiAuthenticationFailureHandler
             jwt: ~
+            refresh_jwt:
+                check_path: gesdinet_jwt_refresh_token
         main:
             lazy: true
             provider: app_user_provider
@@ -52,6 +55,7 @@ security:
     # Note: Only the *first* access control that matches will be used
     access_control:
         - { path: ^/api/login, roles: PUBLIC_ACCESS }
+        - { path: ^/api/token/refresh, roles: PUBLIC_ACCESS }
         - { path: ^/api/register, roles: PUBLIC_ACCESS }
         - { path: ^/api/admin, roles: ROLE_ADMIN }
         - { path: ^/api/department-head, roles: ROLE_DEPARTMENT_HEAD }
