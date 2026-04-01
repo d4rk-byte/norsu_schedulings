@@ -33,6 +33,15 @@ export default function CurriculaPage() {
   const [bulkAutoTerms, setBulkAutoTerms] = useState(true)
   const [bulkUploading, setBulkUploading] = useState(false)
   const [bulkResult, setBulkResult] = useState<{ success: boolean; message?: string; subjects_added?: number; terms_created?: number; errors?: string[] } | null>(null)
+  const [toast, setToast] = useState<{ show: boolean; success: boolean; message: string } | null>(null)
+
+  // Auto-hide toast after 5 seconds
+  useEffect(() => {
+    if (toast?.show) {
+      const timer = setTimeout(() => setToast(null), 5000)
+      return () => clearTimeout(timer)
+    }
+  }, [toast])
 
   useEffect(() => {
     curriculaApi.stats()
@@ -50,7 +59,10 @@ export default function CurriculaPage() {
     setBulkResult(null)
     try {
       const result = await curriculaApi.bulkUpload(bulkFile, bulkName, bulkVersion, Number(bulkDeptId), bulkAutoTerms)
-      setBulkResult({ success: true, message: 'Curriculum uploaded successfully!', subjects_added: result.subjects_added, terms_created: result.terms_created, errors: result.errors })
+      const subjectsAdded = result.subjects_added ?? 0
+      const termsCreated = result.terms_created ?? 0
+      setBulkResult({ success: true, message: 'Curriculum uploaded successfully!', subjects_added: subjectsAdded, terms_created: termsCreated, errors: result.errors })
+      setToast({ show: true, success: true, message: `✓ Curriculum created! ${subjectsAdded} subjects added, ${termsCreated} terms created.` })
       setBulkFile(null)
       setBulkName('')
       setBulkVersion(1)
@@ -59,9 +71,12 @@ export default function CurriculaPage() {
       const data = await curriculaApi.stats()
       setStats(data.statistics)
       setDepartments(data.departments)
+      // Close modal after success (with slight delay so user sees the result)
+      setTimeout(() => setShowBulkUpload(false), 1500)
     } catch (err: unknown) {
       const msg = (err as { response?: { data?: { error?: { message?: string } } } })?.response?.data?.error?.message || 'Upload failed.'
       setBulkResult({ success: false, message: msg })
+      setToast({ show: true, success: false, message: `✗ Upload failed: ${msg}` })
     }
     setBulkUploading(false)
   }
@@ -94,6 +109,21 @@ export default function CurriculaPage() {
 
   return (
     <div className="space-y-6">
+      {/* Toast notification */}
+      {toast?.show && (
+        <div className={`fixed top-4 right-4 z-[100] max-w-md px-4 py-3 rounded-lg shadow-lg transition-all transform animate-in fade-in slide-in-from-top-2 ${
+          toast.success ? 'bg-green-600 text-white' : 'bg-red-600 text-white'
+        }`}>
+          <div className="flex items-center gap-2">
+            {toast.success ? <CheckCircle2 className="h-5 w-5 shrink-0" /> : <AlertCircle className="h-5 w-5 shrink-0" />}
+            <p className="text-sm font-medium">{toast.message}</p>
+            <button onClick={() => setToast(null)} className="ml-2 p-1 hover:bg-white/20 rounded">
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Curricula Management</h1>
@@ -223,14 +253,22 @@ export default function CurriculaPage() {
 
       {/* Bulk Upload Modal */}
       {showBulkUpload && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setShowBulkUpload(false)}>
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => !bulkUploading && setShowBulkUpload(false)}>
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto relative" onClick={e => e.stopPropagation()}>
+            {/* Loading overlay */}
+            {bulkUploading && (
+              <div className="absolute inset-0 bg-white/80 dark:bg-gray-900/80 z-10 flex flex-col items-center justify-center rounded-xl">
+                <Spinner className="h-10 w-10 text-primary-600" />
+                <p className="mt-3 text-sm font-medium text-gray-700 dark:text-gray-300">Uploading curriculum...</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">This may take a moment</p>
+              </div>
+            )}
             <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700 bg-blue-50 dark:bg-blue-900/30 rounded-t-xl">
               <div>
                 <h3 className="text-xl font-bold text-blue-900">Upload Curriculum</h3>
                 <p className="text-sm text-blue-700 mt-1">Create a new curriculum by uploading subjects from a file</p>
               </div>
-              <button onClick={() => setShowBulkUpload(false)} className="p-1.5 rounded hover:bg-blue-200"><X className="h-5 w-5 text-blue-800" /></button>
+              <button onClick={() => setShowBulkUpload(false)} className="p-1.5 rounded hover:bg-blue-200" disabled={bulkUploading}><X className="h-5 w-5 text-blue-800" /></button>
             </div>
             <div className="p-6 space-y-5">
               {/* Department */}
@@ -318,8 +356,15 @@ export default function CurriculaPage() {
               )}
             </div>
             <div className="flex items-center justify-end gap-3 p-6 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50 rounded-b-xl">
-              <Button variant="secondary" onClick={() => setShowBulkUpload(false)}>Cancel</Button>
-              <Button onClick={handleBulkUpload} disabled={!bulkFile || !bulkName || !bulkDeptId || bulkUploading}>{bulkUploading ? 'Uploading...' : 'Upload'}</Button>
+              <Button variant="secondary" onClick={() => setShowBulkUpload(false)} disabled={bulkUploading}>Cancel</Button>
+              <Button onClick={handleBulkUpload} disabled={!bulkFile || !bulkName || !bulkDeptId || bulkUploading}>
+                {bulkUploading ? (
+                  <span className="flex items-center gap-2">
+                    <Spinner className="h-4 w-4" />
+                    Uploading...
+                  </span>
+                ) : 'Upload Curriculum'}
+              </Button>
             </div>
           </div>
         </div>
