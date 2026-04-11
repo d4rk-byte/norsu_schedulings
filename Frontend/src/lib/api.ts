@@ -1,8 +1,8 @@
-import axios from 'axios'
+import axios, { type InternalAxiosRequestConfig } from 'axios'
 import Cookies from 'js-cookie'
 
 function normalizeApiBaseUrl(rawUrl: string | undefined): string {
-  const fallback = 'http://localhost:8000'
+  const fallback = ''
   const value = (rawUrl || fallback).trim()
 
   if (!value) return fallback
@@ -11,9 +11,31 @@ function normalizeApiBaseUrl(rawUrl: string | undefined): string {
   return value.replace(/\/+$/, '').replace(/\/api$/i, '')
 }
 
+function isAbsoluteHttpUrl(url: string): boolean {
+  return /^https?:\/\//i.test(url)
+}
+
+interface RetryableAxiosConfig extends InternalAxiosRequestConfig {
+  _sameOriginRetry?: boolean
+}
+
+const configuredBaseUrl = normalizeApiBaseUrl(process.env.NEXT_PUBLIC_API_URL)
+const hasAbsoluteConfiguredBaseUrl = isAbsoluteHttpUrl(configuredBaseUrl)
+const isBrowser = typeof window !== 'undefined'
+const isProduction = process.env.NODE_ENV === 'production'
+
+// Use same-origin browser routing in development to avoid tunnel/CORS friction.
+// In production, keep direct absolute API URL behavior when configured.
+const useSameOriginInBrowser = isBrowser && (!isProduction || !hasAbsoluteConfiguredBaseUrl)
+const resolvedBaseUrl = useSameOriginInBrowser ? '' : configuredBaseUrl
+
 const api = axios.create({
-  baseURL: normalizeApiBaseUrl(process.env.NEXT_PUBLIC_API_URL),
-  headers: { 'Content-Type': 'application/json' },
+  // Use same-origin routing by default so Next.js rewrites can proxy backend calls.
+  baseURL: resolvedBaseUrl,
+  headers: {
+    'Content-Type': 'application/json',
+    ...(!useSameOriginInBrowser && configuredBaseUrl.includes('ngrok') ? { 'ngrok-skip-browser-warning': 'true' } : {}),
+  },
 })
 
 // Attach JWT token to every request
@@ -28,17 +50,40 @@ api.interceptors.request.use((config) => {
 // Handle 401 — redirect to login
 api.interceptors.response.use(
   (response) => response,
-  (error) => {
-    const status = error.response?.status
-    const requestUrl = String(error.config?.url || '')
+  async (error: unknown) => {
+    const isAxiosErr = axios.isAxiosError(error)
+
+    // If a configured external origin is down (e.g. expired tunnel), retry once via same-origin.
+    if (isAxiosErr && !error.response && error.config && hasAbsoluteConfiguredBaseUrl) {
+      const retryConfig = error.config as RetryableAxiosConfig
+      if (!retryConfig._sameOriginRetry && retryConfig.baseURL !== '') {
+        retryConfig._sameOriginRetry = true
+        retryConfig.baseURL = ''
+        return api.request(retryConfig)
+      }
+    }
+
+    const status = isAxiosErr ? error.response?.status : undefined
+    const requestUrl = isAxiosErr ? String(error.config?.url || '') : ''
     const isLoginRequest = requestUrl.includes('/api/login')
 
     if (status === 401 && !isLoginRequest) {
-      Cookies.remove('auth_token')
+      Cookies.remove('auth_token', { path: '/' })
       if (typeof window !== 'undefined') {
         window.location.href = '/login'
       }
     }
+
+    // Avoid propagating undefined/null rejections that trigger
+    // opaque "unhandledRejection: undefined" runtime errors.
+    if (error === null || error === undefined) {
+      return Promise.reject(new Error('Request failed with an unknown error.'))
+    }
+
+    if (typeof error === 'string') {
+      return Promise.reject(new Error(error))
+    }
+
     return Promise.reject(error)
   }
 )

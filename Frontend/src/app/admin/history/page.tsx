@@ -499,7 +499,7 @@ export default function HistoryReportsPage() {
             </div>
           </div>
 
-          <div className="xl:pb-[1px]">
+          <div className="xl:pb-px">
             <Button variant="secondary" onClick={clearFilters} className="w-full sm:w-auto">Clear</Button>
           </div>
         </div>
@@ -530,16 +530,16 @@ export default function HistoryReportsPage() {
 
       {tab === 'rooms' && (
         <Card>
-          <div className="mb-4 flex items-center justify-between">
+          <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Room Usage History</h2>
               <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Showing {filteredRooms.length} of {rooms.length} rooms</p>
             </div>
-            <div className="flex gap-2">
-              <Button variant="secondary" onClick={exportRoomsCsv} icon={<FileDown className="h-4 w-4" />}>
+            <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
+              <Button size="sm" className="w-full sm:w-auto whitespace-nowrap" variant="secondary" onClick={exportRoomsCsv} icon={<FileDown className="h-4 w-4" />}>
                 Export ({filteredRooms.length}) CSV
               </Button>
-              <Button onClick={exportRoomsPdf} disabled={exportingRoomsPdf} icon={<FileDown className="h-4 w-4" />}>
+              <Button size="sm" className="w-full sm:w-auto whitespace-nowrap" onClick={exportRoomsPdf} disabled={exportingRoomsPdf} icon={<FileDown className="h-4 w-4" />}>
                 {exportingRoomsPdf ? 'Exporting...' : `Export (${filteredRooms.length}) PDF`}
               </Button>
             </div>
@@ -551,16 +551,16 @@ export default function HistoryReportsPage() {
 
       {tab === 'faculty' && (
         <Card>
-          <div className="mb-4 flex items-center justify-between">
+          <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Faculty Teaching History</h2>
               <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Showing {filteredFaculty.length} of {faculty.length} faculty members</p>
             </div>
-            <div className="flex gap-2">
-              <Button variant="secondary" onClick={exportFacultyCsv} icon={<FileDown className="h-4 w-4" />}>
+            <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
+              <Button size="sm" className="w-full sm:w-auto whitespace-nowrap" variant="secondary" onClick={exportFacultyCsv} icon={<FileDown className="h-4 w-4" />}>
                 Export ({filteredFaculty.length}) CSV
               </Button>
-              <Button onClick={exportFacultyPdf} disabled={exportingFacultyPdf} icon={<FileDown className="h-4 w-4" />}>
+              <Button size="sm" className="w-full sm:w-auto whitespace-nowrap" onClick={exportFacultyPdf} disabled={exportingFacultyPdf} icon={<FileDown className="h-4 w-4" />}>
                 {exportingFacultyPdf ? 'Exporting...' : `Export (${filteredFaculty.length}) PDF`}
               </Button>
             </div>
@@ -572,12 +572,12 @@ export default function HistoryReportsPage() {
 
       {tab === 'subjects' && (
         <Card>
-          <div className="mb-4 flex items-center justify-between">
+          <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Subject Offerings Report</h2>
               <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Showing {filteredSubjects.length} of {subjects.length} subjects</p>
             </div>
-            <Button onClick={exportSubjectsPdf} disabled={exportingSubjectsPdf} icon={<FileDown className="h-4 w-4" />}>
+            <Button size="sm" className="w-full sm:w-auto whitespace-nowrap" onClick={exportSubjectsPdf} disabled={exportingSubjectsPdf} icon={<FileDown className="h-4 w-4" />}>
               {exportingSubjectsPdf ? 'Exporting...' : `Export (${filteredSubjects.length}) PDF`}
             </Button>
           </div>

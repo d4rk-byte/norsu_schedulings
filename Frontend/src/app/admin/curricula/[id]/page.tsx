@@ -27,14 +27,22 @@ export default function CurriculumViewPage({ params }: { params: Promise<{ id: s
 
   async function publish() {
     if (!curriculum) return
-    try { await curriculaApi.publish(curriculum.id); setCurriculum({ ...curriculum, isPublished: true }) } catch { setError('Failed to publish.') }
+    setError('')
+    try {
+      await curriculaApi.publish(curriculum.id)
+      setCurriculum({ ...curriculum, isPublished: true })
+    } catch {
+      setError('Failed to publish curriculum.')
+    }
   }
 
   if (loading) return <div className="flex justify-center py-20"><Spinner /></div>
-  if (error || !curriculum) return <Alert variant="error">{error || 'Not found.'}</Alert>
+  if (!curriculum) return <Alert variant="error">{error || 'Not found.'}</Alert>
 
   return (
     <div className="space-y-6">
+      {error && <Alert variant="error" onDismiss={() => setError('')}>{error}</Alert>}
+
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Link href={curriculum.department?.id ? `/admin/curricula/department/${curriculum.department.id}` : '/admin/curricula'} className="p-2 rounded hover:bg-gray-100"><ArrowLeft className="h-5 w-5 text-gray-500" /></Link>
@@ -45,7 +53,7 @@ export default function CurriculumViewPage({ params }: { params: Promise<{ id: s
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2 justify-end">
           <Link href={`/admin/curricula/${id}/subjects`}><Button variant="secondary" size="sm"><BookOpen className="h-4 w-4 mr-1" />Manage Subjects</Button></Link>
           {!curriculum.isPublished && <Button variant="secondary" size="sm" onClick={publish}><CheckCircle className="h-4 w-4 mr-1" />Publish</Button>}
           <Link href={`/admin/curricula/${id}/edit`}><Button size="sm"><Pencil className="h-4 w-4 mr-1" />Edit</Button></Link>

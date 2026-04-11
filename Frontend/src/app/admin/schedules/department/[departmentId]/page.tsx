@@ -12,6 +12,7 @@ import { formatTime } from '@/lib/utils'
 import { Pagination } from '@/components/ui/Pagination'
 import { Badge } from '@/components/ui/Badge'
 import { Select } from '@/components/ui/Select'
+import { Alert } from '@/components/ui/Alert'
 import { ConfirmModal, Modal } from '@/components/ui/Modal'
 import { useCrudList } from '@/hooks/useCrudList'
 import { schedulesApi, departmentsApi, roomsApi } from '@/lib/admin-api'
@@ -34,6 +35,7 @@ export default function DepartmentSchedulesPage() {
   const [selectedDayPattern, setSelectedDayPattern] = useState('')
   const [selectedStatus, setSelectedStatus] = useState('')
   const [selectedSemester, setSelectedSemester] = useState('')
+  const [actionError, setActionError] = useState('')
 
   // For stats: fetch all schedules for this department (limit 500)
   const [allSchedules, setAllSchedules] = useState<Schedule[]>([])
@@ -67,11 +69,11 @@ export default function DepartmentSchedulesPage() {
 
   // Fetch rooms for filter dropdown
   useEffect(() => {
-    roomsApi.list({ limit: 200 }).then(res => setRooms(res.data)).catch(() => {})
+    roomsApi.list({ limit: 200 }).then(res => setRooms(res.data)).catch(() => setActionError('Failed to load rooms list.'))
   }, [])
 
   useEffect(() => {
-    departmentsApi.get(departmentId).then(setDepartment).catch(() => {}).finally(() => setDeptLoading(false))
+    departmentsApi.get(departmentId).then(setDepartment).catch(() => setActionError('Failed to load department details.')).finally(() => setDeptLoading(false))
   }, [departmentId])
 
   // Sync filter params into the list's extraParams
@@ -88,7 +90,13 @@ export default function DepartmentSchedulesPage() {
 
   async function handleDelete() {
     if (!deleteId) return
-    try { await schedulesApi.delete(deleteId); list.refresh() } catch { /* */ }
+    setActionError('')
+    try {
+      await schedulesApi.delete(deleteId)
+      list.refresh()
+    } catch {
+      setActionError('Failed to delete schedule.')
+    }
     setDeleteId(null)
   }
 
@@ -125,13 +133,16 @@ export default function DepartmentSchedulesPage() {
 
   const [scanning, setScanning] = useState(false)
   async function handleScanConflicts() {
+    setActionError('')
     setScanning(true)
     try {
-      const result = await schedulesApi.scanConflicts(departmentId)
+      await schedulesApi.scanConflicts(departmentId)
       // Refresh data after scan
       list.refresh()
       schedulesApi.list({ department_id: departmentId, limit: 500, semester: selectedSemester || undefined }).then(res => setAllSchedules(res.data))
-    } catch { /* */ }
+    } catch {
+      setActionError('Failed to scan conflicts.')
+    }
     setScanning(false)
   }
 
@@ -196,6 +207,9 @@ export default function DepartmentSchedulesPage() {
         </div>
       </div>
 
+      {actionError && <Alert variant="error" onDismiss={() => setActionError('')}>{actionError}</Alert>}
+      {list.error && <Alert variant="error">Failed to load schedules: {list.error}</Alert>}
+
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
         {/* Total Schedules */}
@@ -245,32 +259,32 @@ export default function DepartmentSchedulesPage() {
       </div>
 
       {/* Actions Row */}
-      <div className="flex items-center justify-between mt-6">
-        <Link href="/admin/schedules" className="inline-flex items-center text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200">
+      <div className="mt-6 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+        <Link href="/admin/schedules" className="inline-flex items-center text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 whitespace-nowrap">
           <ArrowLeft className="h-4 w-4 mr-1" />
           Back to Departments
         </Link>
-        <div className="flex items-center gap-3">
-          <Button variant="secondary" onClick={() => setShowConflicts(true)} disabled={statsLoading || conflictedSchedules.length === 0}>
+        <div className="flex w-full flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center lg:w-auto lg:justify-end">
+          <Button className="w-full sm:w-auto" variant="secondary" onClick={() => setShowConflicts(true)} disabled={statsLoading || conflictedSchedules.length === 0}>
             <AlertTriangle className="h-4 w-4 mr-2" />
             View Conflicts {!statsLoading && conflictedSchedules.length > 0 && `(${conflictedSchedules.length})`}
           </Button>
-          <Button variant="secondary" onClick={handleScanConflicts} disabled={scanning}>
+          <Button className="w-full sm:w-auto" variant="secondary" onClick={handleScanConflicts} disabled={scanning}>
             <ShieldAlert className="h-4 w-4 mr-2" />
             {scanning ? 'Scanning...' : 'Scan Conflicts'}
           </Button>
-          <Link href={`/admin/schedules/create?department=${departmentId}${selectedSemester ? `&semester=${selectedSemester}` : ''}`}>
-            <Button><Plus className="h-4 w-4 mr-2" />Create Schedule</Button>
+          <Link className="w-full sm:w-auto" href={`/admin/schedules/create?department=${departmentId}${selectedSemester ? `&semester=${selectedSemester}` : ''}`}>
+            <Button className="w-full sm:w-auto"><Plus className="h-4 w-4 mr-2" />Create Schedule</Button>
           </Link>
         </div>
       </div>
 
       {/* Schedules Table */}
       <Card>
-        <div className="flex flex-wrap items-center gap-3 mb-4">
-          <SearchBar value={list.search} onChange={list.setSearch} placeholder="Search subject, faculty, room..." className="flex-1 min-w-[200px] max-w-md text-sm" />
-          <div className="flex items-center gap-3 flex-wrap ml-auto">
-            <div className="w-40 shrink-0">
+        <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-center">
+          <SearchBar value={list.search} onChange={list.setSearch} placeholder="Search subject, faculty, room..." className="w-full lg:max-w-md text-sm" />
+          <div className="flex w-full flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center lg:ml-auto lg:w-auto">
+            <div className="w-full sm:w-40">
               <Select
                 value={selectedSemester}
                 onChange={e => setSelectedSemester(e.target.value)}
@@ -279,7 +293,7 @@ export default function DepartmentSchedulesPage() {
                 className="text-sm py-2"
               />
             </div>
-            <div className="w-44 shrink-0">
+            <div className="w-full sm:w-44">
               <Select
                 value={selectedRoom}
                 onChange={e => setSelectedRoom(e.target.value)}
@@ -288,7 +302,7 @@ export default function DepartmentSchedulesPage() {
                 className="text-sm py-2"
               />
             </div>
-            <div className="w-36 shrink-0">
+            <div className="w-full sm:w-36">
               <Select
                 value={selectedDayPattern}
                 onChange={e => setSelectedDayPattern(e.target.value)}
@@ -304,7 +318,7 @@ export default function DepartmentSchedulesPage() {
                 className="text-sm py-2"
               />
             </div>
-            <div className="w-36 shrink-0">
+            <div className="w-full sm:w-36">
               <Select
                 value={selectedStatus}
                 onChange={e => setSelectedStatus(e.target.value)}

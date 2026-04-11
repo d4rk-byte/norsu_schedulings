@@ -169,17 +169,20 @@ export default function AllUsersPage() {
       </div>
 
       {actionError && <Alert variant="error" onDismiss={() => setActionError(null)}>{actionError}</Alert>}
+      {list.error && <Alert variant="error">Failed to load users: {list.error}</Alert>}
 
       <Card>
         <div className="mb-4 space-y-3">
-          <div className="flex flex-wrap items-center gap-3">
-            <SearchBar value={list.search} onChange={list.setSearch} placeholder="Search users..." className="max-w-sm" />
-            <div className="flex items-center gap-2 ml-auto">
-              <Filter className="h-4 w-4 text-gray-400" />
+          <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+            <SearchBar value={list.search} onChange={list.setSearch} placeholder="Search users..." className="w-full sm:max-w-sm" />
+            <div className="flex flex-col gap-2 sm:ml-auto sm:flex-row sm:flex-wrap sm:items-center">
+              <div className="hidden sm:flex items-center gap-2">
+                <Filter className="h-4 w-4 text-gray-400" />
+              </div>
               <select
                 value={selectedCollege}
                 onChange={(e) => handleCollegeChange(e.target.value)}
-                className="rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-700 dark:text-gray-100 focus:border-primary-500 focus:ring-1 focus:ring-primary-500 focus:outline-none"
+                className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary-500 focus:ring-1 focus:ring-primary-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 sm:w-auto"
               >
                 <option value="">All Colleges</option>
                 {colleges.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
@@ -187,7 +190,7 @@ export default function AllUsersPage() {
               <select
                 value={selectedDepartment}
                 onChange={(e) => setSelectedDepartment(e.target.value)}
-                className="rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-700 dark:text-gray-100 focus:border-primary-500 focus:ring-1 focus:ring-primary-500 focus:outline-none"
+                className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary-500 focus:ring-1 focus:ring-primary-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 sm:w-auto"
               >
                 <option value="">All Departments</option>
                 {filteredDepts.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
@@ -195,14 +198,14 @@ export default function AllUsersPage() {
               <select
                 value={selectedRole}
                 onChange={(e) => setSelectedRole(e.target.value)}
-                className="rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-700 dark:text-gray-100 focus:border-primary-500 focus:ring-1 focus:ring-primary-500 focus:outline-none"
+                className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary-500 focus:ring-1 focus:ring-primary-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 sm:w-auto"
               >
                 <option value="">All Roles</option>
                 <option value="1">Admin</option>
                 <option value="2">Department Head</option>
                 <option value="3">Faculty</option>
               </select>
-              <label className="flex items-center gap-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-700 dark:text-gray-100">
+              <label className="flex w-full items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 sm:w-auto">
                 <input
                   type="checkbox"
                   checked={includeDeleted}
@@ -212,7 +215,7 @@ export default function AllUsersPage() {
                 Show deleted users
               </label>
               {(selectedCollege || selectedDepartment || selectedRole || includeDeleted) && (
-                <button onClick={clearFilters} className="text-sm text-primary-600 hover:text-primary-800 whitespace-nowrap">
+                <button onClick={clearFilters} className="whitespace-nowrap text-sm text-primary-600 hover:text-primary-800">
                   Clear filters
                 </button>
               )}

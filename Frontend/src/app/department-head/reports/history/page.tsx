@@ -440,12 +440,13 @@ export default function DHHistoryReportsPage() {
             </div>
           ) : activeTab === 'rooms' ? (
             <div className="space-y-4">
-              <div className="flex justify-between items-center">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <p className="text-sm text-gray-600">Showing {roomData.length} of {roomData.length} rooms</p>
-                <div className="flex gap-2">
+                <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
                   <Button
                     variant="primary"
                     size="sm"
+                    className="w-full sm:w-auto whitespace-nowrap"
                     icon={<FileDown className="h-4 w-4" />}
                     onClick={exportRoomsPdf}
                     loading={exportingRoomsPdf}
@@ -506,11 +507,12 @@ export default function DHHistoryReportsPage() {
             </div>
           ) : activeTab === 'faculty' ? (
             <div className="space-y-4">
-              <div className="flex justify-between items-center">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <p className="text-sm text-gray-600">Showing {facultyData.length} of {facultyData.length} faculty members</p>
                 <Button
                   variant="primary"
                   size="sm"
+                  className="w-full sm:w-auto whitespace-nowrap"
                   icon={<FileDown className="h-4 w-4" />}
                   onClick={exportFacultyPdf}
                   loading={exportingFacultyPdf}
@@ -565,11 +567,12 @@ export default function DHHistoryReportsPage() {
             </div>
           ) : (
             <div className="space-y-4">
-              <div className="flex justify-between items-center">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <p className="text-sm text-gray-600">Showing {subjectData.length} of {subjectData.length} subjects</p>
                 <Button
                   variant="primary"
                   size="sm"
+                  className="w-full sm:w-auto whitespace-nowrap"
                   icon={<FileDown className="h-4 w-4" />}
                   onClick={exportSubjectsPdf}
                   loading={exportingSubjectsPdf}

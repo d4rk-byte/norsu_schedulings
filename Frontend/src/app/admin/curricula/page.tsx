@@ -183,15 +183,15 @@ export default function CurriculaPage() {
             <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Departments</h2>
             <p className="text-sm text-gray-500">Select a department to view and manage its curricula</p>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center">
             <input
               type="text"
               placeholder="Search departments..."
               value={searchFilter}
               onChange={e => setSearchFilter(e.target.value)}
-              className="rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-100 px-3 py-2 text-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500 focus:outline-none w-64"
+              className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary-500 focus:ring-1 focus:ring-primary-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 sm:w-64"
             />
-            <Button variant="secondary" onClick={() => { setShowBulkUpload(true); setBulkResult(null); setBulkFile(null) }}>
+            <Button className="w-full sm:w-auto" variant="secondary" onClick={() => { setShowBulkUpload(true); setBulkResult(null); setBulkFile(null) }}>
               <Upload className="h-4 w-4 mr-2" />Upload Curriculum
             </Button>
           </div>

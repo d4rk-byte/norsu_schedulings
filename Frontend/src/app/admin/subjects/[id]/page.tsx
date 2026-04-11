@@ -25,7 +25,7 @@ export default function ViewSubjectPage() {
 
   if (loading) return <div className="flex justify-center py-20"><Spinner size="lg" /></div>
   if (error) return <Alert variant="error">{error}</Alert>
-  if (!subject) return null
+  if (!subject) return <Alert variant="error">Subject not found.</Alert>
 
   return (
     <div className="space-y-6">
