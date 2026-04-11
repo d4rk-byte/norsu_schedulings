@@ -172,7 +172,7 @@ export default function DeptHeadDashboard() {
               <div className="divide-y divide-gray-100 dark:divide-gray-700">
                 {stats.recentActivities.map((a) => (
                   <div key={a.id} className="flex items-start gap-3 py-3">
-                    <div className="mt-0.5 h-2 w-2 rounded-full bg-blue-400 flex-shrink-0" />
+                    <div className="mt-0.5 h-2 w-2 rounded-full bg-blue-400 shrink-0" />
                     <div className="flex-1 min-w-0">
                       <p className="text-sm text-gray-700 dark:text-gray-300">{a.description}</p>
                       <p className="text-xs text-gray-400 dark:text-gray-500">{new Date(a.timestamp).toLocaleString()}</p>

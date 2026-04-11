@@ -87,7 +87,7 @@ export default function FacultyPerformancePage() {
             <div className="space-y-3">
               {classBreakdown.map((c, i) => (
                 <div key={i} className="flex items-center gap-3 p-3 rounded-lg bg-gray-50">
-                  <div className="flex-shrink-0 h-10 w-10 rounded-lg bg-blue-100 flex items-center justify-center">
+                  <div className="shrink-0 h-10 w-10 rounded-lg bg-blue-100 flex items-center justify-center">
                     <BookOpen className="h-5 w-5 text-blue-600" />
                   </div>
                   <div className="flex-1 min-w-0">

@@ -349,7 +349,7 @@ const AdminSidebar: React.FC = () => {
         }`}
       >
         <Link href="/admin/dashboard" className="flex items-center gap-3">
-          <div className="h-10 w-10 flex items-center justify-center flex-shrink-0">
+          <div className="h-10 w-10 flex items-center justify-center shrink-0">
             <Image
               src="/images/logo/norsu.png"
               alt="Negros Oriental State University seal"
@@ -371,7 +371,7 @@ const AdminSidebar: React.FC = () => {
           <div className="flex flex-col gap-4">
             <div>
               <h2
-                className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${
+                className={`mb-4 text-xs uppercase flex leading-5 text-gray-400 ${
                   !isExpanded && !isHovered ? "lg:justify-center" : "justify-start"
                 }`}
               >
@@ -381,7 +381,7 @@ const AdminSidebar: React.FC = () => {
             </div>
             <div>
               <h2
-                className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${
+                className={`mb-4 text-xs uppercase flex leading-5 text-gray-400 ${
                   !isExpanded && !isHovered ? "lg:justify-center" : "justify-start"
                 }`}
               >
@@ -391,7 +391,7 @@ const AdminSidebar: React.FC = () => {
             </div>
             <div>
               <h2
-                className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${
+                className={`mb-4 text-xs uppercase flex leading-5 text-gray-400 ${
                   !isExpanded && !isHovered ? "lg:justify-center" : "justify-start"
                 }`}
               >

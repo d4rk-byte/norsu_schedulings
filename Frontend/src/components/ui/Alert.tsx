@@ -35,7 +35,7 @@ export function Alert({ variant = 'info', title, children, onDismiss, className 
       role="alert"
     >
       <div className="flex">
-        <Icon className="h-5 w-5 flex-shrink-0 mr-3" />
+        <Icon className="h-5 w-5 shrink-0 mr-3" />
         <div className="flex-1">
           {title && <p className="font-medium">{title}</p>}
           <div className={cn('text-sm', title && 'mt-1')}>{children}</div>
@@ -44,7 +44,7 @@ export function Alert({ variant = 'info', title, children, onDismiss, className 
           <button
             type="button"
             onClick={onDismiss}
-            className="ml-3 flex-shrink-0 hover:opacity-70"
+            className="ml-3 shrink-0 hover:opacity-70"
           >
             <X className="h-4 w-4" />
           </button>

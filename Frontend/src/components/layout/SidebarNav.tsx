@@ -54,7 +54,7 @@ export function SidebarNav({ sections }: SidebarNavProps) {
                   >
                     <Icon
                       className={cn(
-                        'h-5 w-5 flex-shrink-0',
+                        'h-5 w-5 shrink-0',
                         isActive ? 'text-primary-600' : (item.color || 'text-stone-400'),
                       )}
                     />
@@ -100,7 +100,7 @@ export function SidebarShell({
       {/* Brand */}
       <div className="flex items-center gap-3 px-6 py-5 border-b border-stone-100 dark:border-gray-700">
         {brandIconSrc ? (
-          <div className="h-10 w-10 flex items-center justify-center flex-shrink-0">
+          <div className="h-10 w-10 flex items-center justify-center shrink-0">
             <Image src={brandIconSrc} alt={brandIconAlt} width={40} height={40} className="h-10 w-10 object-contain" />
           </div>
         ) : (

@@ -1020,7 +1020,7 @@ export default function DHScheduleCreatePage() {
 
             <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800 p-5">
               <div className="flex items-start gap-3">
-                <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                <Info className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
                 <div>
                   <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">Real-Time Conflict Detection</h3>
                   <p className="text-xs text-gray-700 dark:text-gray-300 leading-relaxed mb-3">
