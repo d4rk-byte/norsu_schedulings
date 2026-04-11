@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
 // Routes that don't require authentication
-const PUBLIC_ROUTES = ['/login', '/register', '/signup']
+const PUBLIC_ROUTES = ['/login', '/register', '/signup', '/signin', '/reset-password']
 
 // Role-based route prefixes
 const ROLE_ROUTES: Record<string, number> = {

@@ -63,6 +63,17 @@ api.interceptors.response.use(
       }
     }
 
+    // If absolute API origin is stale/misrouted and responds 404,
+    // retry once through same-origin rewrites before surfacing the error.
+    if (isAxiosErr && error.response?.status === 404 && error.config && hasAbsoluteConfiguredBaseUrl) {
+      const retryConfig = error.config as RetryableAxiosConfig
+      if (!retryConfig._sameOriginRetry && retryConfig.baseURL !== '') {
+        retryConfig._sameOriginRetry = true
+        retryConfig.baseURL = ''
+        return api.request(retryConfig)
+      }
+    }
+
     const status = isAxiosErr ? error.response?.status : undefined
     const requestUrl = isAxiosErr ? String(error.config?.url || '') : ''
     const isLoginRequest = requestUrl.includes('/api/login')

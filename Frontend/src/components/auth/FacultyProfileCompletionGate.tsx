@@ -95,14 +95,12 @@ export function FacultyProfileCompletionGate() {
 
     try {
       const profile = await facultyApi.getProfile()
+
       if (!isProfileIncomplete(profile)) {
         setOpen(false)
         return
       }
 
-      const completionOptions = await facultyApi.getProfileCompletionOptions()
-
-      setOptions(completionOptions)
       setForm({
         first_name: profile.first_name ?? '',
         middle_name: profile.middle_name ?? '',
@@ -113,10 +111,34 @@ export function FacultyProfileCompletionGate() {
         other_designation: profile.other_designation ?? '',
         address: profile.address ?? '',
       })
+
+      try {
+        const completionOptions = await facultyApi.getProfileCompletionOptions()
+        setOptions(completionOptions)
+      } catch {
+        const fallbackOptions: FacultyCompletionOptions = {
+          colleges: profile.college
+            ? [{ id: profile.college.id, code: '', name: profile.college.name }]
+            : [],
+          departments: profile.department
+            ? [{
+                id: profile.department.id,
+                code: '',
+                name: profile.department.name,
+                college_id: profile.college?.id ?? null,
+              }]
+            : [],
+        }
+
+        setOptions(fallbackOptions)
+        setLoadError('Failed to load required profile completion data. Please retry.')
+      }
+
       setOpen(true)
     } catch {
-      setLoadError('Failed to load required profile completion data. Please retry.')
-      setOpen(true)
+      // Avoid blocking the UI with the completion modal when profile data
+      // itself cannot be loaded due to a transient API/network failure.
+      setOpen(false)
     } finally {
       setLoading(false)
     }
