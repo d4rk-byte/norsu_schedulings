@@ -25,7 +25,7 @@ class HealthController extends AbstractController
             $checks['checks']['database'] = 'ok';
         } catch (\Exception $e) {
             $checks['status'] = 'unhealthy';
-            $checks['checks']['database'] = 'failed: ' . $e->getMessage();
+            $checks['checks']['database'] = 'failed';
         }
 
         // Check if cache directory is writable
@@ -46,11 +46,9 @@ class HealthController extends AbstractController
             $checks['checks']['logs_writable'] = 'failed';
         }
 
-        // Add application info
+        // Keep health output minimal to avoid leaking runtime details.
         $checks['app'] = [
             'name' => 'Smart Scheduling System',
-            'environment' => $this->getParameter('kernel.environment'),
-            'debug' => $this->getParameter('kernel.debug')
         ];
 
         $statusCode = $checks['status'] === 'healthy' ? Response::HTTP_OK : Response::HTTP_SERVICE_UNAVAILABLE;

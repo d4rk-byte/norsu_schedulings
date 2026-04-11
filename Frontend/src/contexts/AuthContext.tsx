@@ -56,6 +56,21 @@ const ROLE_API_PREFIX: Record<number, string> = {
   [ROLES.FACULTY]: '/api/faculty',
 }
 
+function getAuthCookieOptions(): Cookies.CookieAttributes {
+  const isHttps = typeof window !== 'undefined' && window.location.protocol === 'https:'
+
+  return {
+    expires: 1,
+    sameSite: 'strict',
+    secure: isHttps,
+    path: '/',
+  }
+}
+
+function clearAuthCookie(): void {
+  Cookies.remove('auth_token', { path: '/' })
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<AuthState>({
     user: null,
@@ -146,7 +161,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       })
     } catch {
       // Token invalid — clear it
-      Cookies.remove('auth_token')
+      clearAuthCookie()
       setState({ user: null, token: null, isLoading: false, isAuthenticated: false })
     }
   }, [])
@@ -167,7 +182,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { token } = response.data
 
     // Store token in cookie (expires in 24h matching JWT TTL)
-    Cookies.set('auth_token', token, { expires: 1, sameSite: 'lax' })
+    Cookies.set('auth_token', token, getAuthCookieOptions())
 
     // Derive dashboard path and user from token directly — no async API
     // calls here to avoid interfering with the redirect.
@@ -196,7 +211,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Ignore failures and continue with client logout.
     }
 
-    Cookies.remove('auth_token')
+    clearAuthCookie()
     setState({ user: null, token: null, isLoading: false, isAuthenticated: false })
     window.location.href = '/login'
   }

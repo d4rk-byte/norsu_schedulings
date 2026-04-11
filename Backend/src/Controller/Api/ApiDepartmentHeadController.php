@@ -102,6 +102,14 @@ class ApiDepartmentHeadController extends AbstractController
         return $managedDepts;
     }
 
+    /**
+     * @return int[]
+     */
+    private function getManagedDepartmentIds(User $dh): array
+    {
+        return array_map(static fn($d) => (int) $d->getId(), $this->getManagedDepartments($dh));
+    }
+
     private function canAccessScheduleChangeRequest(User $dh, ScheduleChangeRequest $requestEntity): bool
     {
         $departmentId = $dh->getDepartmentId();
@@ -1319,6 +1327,11 @@ class ApiDepartmentHeadController extends AbstractController
         $data = json_decode($request->getContent(), true);
         if (!$data) return $this->json(['success' => false, 'error' => ['code' => 400, 'message' => 'Invalid JSON.']], 400);
 
+        $managedDeptIds = $this->getManagedDepartmentIds($dh);
+        if (empty($managedDeptIds)) {
+            return $this->json(['success' => false, 'error' => ['code' => 403, 'message' => 'Department access is not configured.']], 403);
+        }
+
         $schedule = new Schedule();
 
         if (!empty($data['academicYearId'])) {
@@ -1329,15 +1342,42 @@ class ApiDepartmentHeadController extends AbstractController
 
         if (!empty($data['subjectId'])) {
             $subject = $this->subjectRepository->find((int) $data['subjectId']);
-            if ($subject) $schedule->setSubject($subject);
+            if (!$subject) {
+                return $this->json(['success' => false, 'error' => ['code' => 404, 'message' => 'Subject not found.']], 404);
+            }
+
+            $subjectDeptId = $subject->getDepartment()?->getId();
+            if ($subjectDeptId === null || !in_array((int) $subjectDeptId, $managedDeptIds, true)) {
+                return $this->json(['success' => false, 'error' => ['code' => 403, 'message' => 'You can only create schedules for managed departments.']], 403);
+            }
+
+            $schedule->setSubject($subject);
         }
         if (!empty($data['roomId'])) {
             $room = $this->roomRepository->find((int) $data['roomId']);
-            if ($room) $schedule->setRoom($room);
+            if (!$room) {
+                return $this->json(['success' => false, 'error' => ['code' => 404, 'message' => 'Room not found.']], 404);
+            }
+
+            try {
+                $this->departmentHeadService->validateRoomAccess($dh, $room);
+            } catch (\Exception) {
+                return $this->json(['success' => false, 'error' => ['code' => 403, 'message' => 'Access denied for selected room.']], 403);
+            }
+
+            $schedule->setRoom($room);
         }
         if (!empty($data['facultyId'])) {
             $faculty = $this->entityManager->getRepository(User::class)->find((int) $data['facultyId']);
-            if ($faculty) $schedule->setFaculty($faculty);
+            if (!$faculty) {
+                return $this->json(['success' => false, 'error' => ['code' => 404, 'message' => 'Faculty not found.']], 404);
+            }
+
+            if ((int) $faculty->getRole() !== 3 || !in_array((int) ($faculty->getDepartmentId() ?? 0), $managedDeptIds, true)) {
+                return $this->json(['success' => false, 'error' => ['code' => 403, 'message' => 'You can only assign faculty from managed departments.']], 403);
+            }
+
+            $schedule->setFaculty($faculty);
         }
 
         $schedule->setDayPattern($data['dayPattern'] ?? null);
@@ -1411,13 +1451,50 @@ class ApiDepartmentHeadController extends AbstractController
         if (isset($data['semester'])) $schedule->setSemester($data['semester']);
         if (!empty($data['subjectId'])) {
             $subject = $this->subjectRepository->find((int) $data['subjectId']);
-            if ($subject) $schedule->setSubject($subject);
+            if (!$subject) {
+                return $this->json(['success' => false, 'error' => ['code' => 404, 'message' => 'Subject not found.']], 404);
+            }
+
+            $subjectDeptId = $subject->getDepartment()?->getId();
+            if ($subjectDeptId === null || !in_array((int) $subjectDeptId, $managedDeptIds, true)) {
+                return $this->json(['success' => false, 'error' => ['code' => 403, 'message' => 'You can only assign subjects from managed departments.']], 403);
+            }
+
+            $schedule->setSubject($subject);
         }
         if (array_key_exists('roomId', $data)) {
-            $schedule->setRoom($data['roomId'] ? $this->roomRepository->find((int) $data['roomId']) : null);
+            if ($data['roomId']) {
+                $room = $this->roomRepository->find((int) $data['roomId']);
+                if (!$room) {
+                    return $this->json(['success' => false, 'error' => ['code' => 404, 'message' => 'Room not found.']], 404);
+                }
+
+                try {
+                    $this->departmentHeadService->validateRoomAccess($dh, $room);
+                } catch (\Exception) {
+                    return $this->json(['success' => false, 'error' => ['code' => 403, 'message' => 'Access denied for selected room.']], 403);
+                }
+
+                $schedule->setRoom($room);
+            } else {
+                $schedule->setRoom(null);
+            }
         }
         if (array_key_exists('facultyId', $data)) {
-            $schedule->setFaculty($data['facultyId'] ? $this->entityManager->getRepository(User::class)->find((int) $data['facultyId']) : null);
+            if ($data['facultyId']) {
+                $faculty = $this->entityManager->getRepository(User::class)->find((int) $data['facultyId']);
+                if (!$faculty) {
+                    return $this->json(['success' => false, 'error' => ['code' => 404, 'message' => 'Faculty not found.']], 404);
+                }
+
+                if ((int) $faculty->getRole() !== 3 || !in_array((int) ($faculty->getDepartmentId() ?? 0), $managedDeptIds, true)) {
+                    return $this->json(['success' => false, 'error' => ['code' => 403, 'message' => 'You can only assign faculty from managed departments.']], 403);
+                }
+
+                $schedule->setFaculty($faculty);
+            } else {
+                $schedule->setFaculty(null);
+            }
         }
         if (isset($data['dayPattern'])) $schedule->setDayPattern($data['dayPattern']);
         if (!empty($data['startTime'])) $schedule->setStartTime(new \DateTime($data['startTime']));
@@ -1454,27 +1531,60 @@ class ApiDepartmentHeadController extends AbstractController
     #[Route('/schedules/check-conflict', name: 'schedules_check_conflict', methods: ['POST'])]
     public function checkScheduleConflict(Request $request): JsonResponse
     {
+        $dh = $this->getDH();
         $data = json_decode($request->getContent(), true);
         if (!$data) return $this->json(['success' => false, 'error' => ['code' => 400, 'message' => 'Invalid JSON.']], 400);
+
+        $managedDeptIds = $this->getManagedDepartmentIds($dh);
+        if (empty($managedDeptIds)) {
+            return $this->json(['success' => false, 'error' => ['code' => 403, 'message' => 'Department access is not configured.']], 403);
+        }
 
         // Build a temporary Schedule entity to leverage the full ScheduleConflictDetector
         $schedule = new Schedule();
         $schedule->setStatus('active');
 
         if (!empty($data['roomId'])) {
-            $room = $this->roomRepository->find($data['roomId']);
-            if ($room) $schedule->setRoom($room);
+            $room = $this->roomRepository->find((int) $data['roomId']);
+            if (!$room) {
+                return $this->json(['success' => false, 'error' => ['code' => 404, 'message' => 'Room not found.']], 404);
+            }
+
+            try {
+                $this->departmentHeadService->validateRoomAccess($dh, $room);
+            } catch (\Exception) {
+                return $this->json(['success' => false, 'error' => ['code' => 403, 'message' => 'Access denied for selected room.']], 403);
+            }
+
+            $schedule->setRoom($room);
         }
         if (!empty($data['facultyId'])) {
-            $faculty = $this->entityManager->getRepository(User::class)->find($data['facultyId']);
-            if ($faculty) $schedule->setFaculty($faculty);
+            $faculty = $this->entityManager->getRepository(User::class)->find((int) $data['facultyId']);
+            if (!$faculty) {
+                return $this->json(['success' => false, 'error' => ['code' => 404, 'message' => 'Faculty not found.']], 404);
+            }
+
+            if ((int) $faculty->getRole() !== 3 || !in_array((int) ($faculty->getDepartmentId() ?? 0), $managedDeptIds, true)) {
+                return $this->json(['success' => false, 'error' => ['code' => 403, 'message' => 'You can only use faculty from managed departments.']], 403);
+            }
+
+            $schedule->setFaculty($faculty);
         }
         if (!empty($data['subjectId'])) {
-            $subject = $this->subjectRepository->find($data['subjectId']);
-            if ($subject) $schedule->setSubject($subject);
+            $subject = $this->subjectRepository->find((int) $data['subjectId']);
+            if (!$subject) {
+                return $this->json(['success' => false, 'error' => ['code' => 404, 'message' => 'Subject not found.']], 404);
+            }
+
+            $subjectDeptId = $subject->getDepartment()?->getId();
+            if ($subjectDeptId === null || !in_array((int) $subjectDeptId, $managedDeptIds, true)) {
+                return $this->json(['success' => false, 'error' => ['code' => 403, 'message' => 'You can only use subjects from managed departments.']], 403);
+            }
+
+            $schedule->setSubject($subject);
         }
         if (!empty($data['academicYearId'])) {
-            $ay = $this->academicYearRepository->find($data['academicYearId']);
+            $ay = $this->academicYearRepository->find((int) $data['academicYearId']);
             if ($ay) $schedule->setAcademicYear($ay);
         }
         if (!empty($data['dayPattern'])) $schedule->setDayPattern($data['dayPattern']);

@@ -21,6 +21,9 @@ security:
             entry_point: jwt
             provider: app_user_provider
             user_checker: App\Security\UserChecker
+            login_throttling:
+                max_attempts: 5
+                interval: '15 minutes'
             json_login:
                 check_path: api_login
                 username_path: email
@@ -34,6 +37,9 @@ security:
             lazy: true
             provider: app_user_provider
             user_checker: App\Security\UserChecker
+            login_throttling:
+                max_attempts: 5
+                interval: '15 minutes'
             custom_authenticator: App\Security\AppAuthenticator
             logout:
                 path: app_logout

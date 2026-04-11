@@ -347,7 +347,7 @@ export function DeptHeadSidebar() {
     >
       <div className={`py-8 flex ${!isExpanded && !isHovered ? 'lg:justify-center' : 'justify-start'}`}>
         <Link href="/department-head/dashboard" className="flex items-center gap-3">
-          <div className="h-10 w-10 flex items-center justify-center flex-shrink-0">
+          <div className="h-10 w-10 flex items-center justify-center shrink-0">
             <Image
               src="/images/logo/norsu.png"
               alt="Negros Oriental State University seal"
@@ -370,7 +370,7 @@ export function DeptHeadSidebar() {
           <div className="flex flex-col gap-3">
             <div>
               <h2
-                className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${
+                className={`mb-4 text-xs uppercase flex leading-5 text-gray-400 ${
                   !isExpanded && !isHovered ? 'lg:justify-center' : 'justify-start'
                 }`}
               >
@@ -380,7 +380,7 @@ export function DeptHeadSidebar() {
             </div>
             <div>
               <h2
-                className={`mb-3 text-xs uppercase flex leading-[20px] text-gray-400 ${
+                className={`mb-3 text-xs uppercase flex leading-5 text-gray-400 ${
                   !isExpanded && !isHovered ? 'lg:justify-center' : 'justify-start'
                 }`}
               >
@@ -390,7 +390,7 @@ export function DeptHeadSidebar() {
             </div>
             <div>
               <h2
-                className={`mb-3 text-xs uppercase flex leading-[20px] text-gray-400 ${
+                className={`mb-3 text-xs uppercase flex leading-5 text-gray-400 ${
                   !isExpanded && !isHovered ? 'lg:justify-center' : 'justify-start'
                 }`}
               >

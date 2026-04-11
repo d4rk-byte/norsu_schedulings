@@ -80,17 +80,17 @@ export default function SettingsPage() {
 
   return (
     <div className="space-y-6">
-      <div><h1 className="text-3xl font-bold text-gray-900">System Settings</h1><p className="mt-1 text-sm text-gray-500">Configure system-wide settings.</p></div>
+      <div><h1 className="text-3xl font-bold text-stone-900 dark:text-white">System Settings</h1><p className="mt-1 text-sm text-stone-500 dark:text-gray-400">Configure system-wide settings.</p></div>
       {error && <Alert variant="error">{error}</Alert>}
       {success && <Alert variant="success">{success}</Alert>}
       <form onSubmit={handleSubmit} className="space-y-6">
         <Card>
           <CardHeader title="User Registration" />
-          <div className="max-w-xl rounded-lg border border-gray-200 bg-gray-50 p-4">
+          <div className="max-w-xl rounded-lg border border-stone-200 bg-stone-50 p-4 dark:border-gray-700 dark:bg-gray-900/40">
             <div className="flex items-start justify-between gap-4">
               <div>
-                <p className="text-sm font-semibold text-gray-900">Auto-activate newly registered faculty</p>
-                <p className="mt-1 text-sm text-gray-500">
+                <p className="text-sm font-semibold text-stone-900 dark:text-white">Auto-activate newly registered faculty</p>
+                <p className="mt-1 text-sm text-stone-500 dark:text-gray-400">
                   Turn this on if you want users who sign up to become active immediately. Turn it off to require manual admin approval first.
                 </p>
               </div>
@@ -102,14 +102,14 @@ export default function SettingsPage() {
                   onChange={e => handleAutoActivateToggleChange(e.target.checked)}
                   disabled={savingAutoActivate}
                 />
-                <span className="h-6 w-11 rounded-full bg-gray-300 transition-colors peer-checked:bg-emerald-500" />
-                <span className="absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform peer-checked:translate-x-5" />
+                <span className="h-6 w-11 rounded-full bg-stone-300 transition-colors dark:bg-gray-600 peer-checked:bg-emerald-500" />
+                <span className="absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform dark:bg-gray-100 peer-checked:translate-x-5" />
               </label>
             </div>
             {savingAutoActivate && (
-              <p className="mt-2 text-xs text-gray-500">Saving auto-activation setting...</p>
+              <p className="mt-2 text-xs text-stone-500 dark:text-gray-400">Saving auto-activation setting...</p>
             )}
-            <p className={`mt-3 text-xs font-medium ${autoActivateNewUsers ? 'text-emerald-700' : 'text-amber-700'}`}>
+            <p className={`mt-3 text-xs font-medium ${autoActivateNewUsers ? 'text-emerald-700 dark:text-emerald-400' : 'text-amber-700 dark:text-amber-400'}`}>
               {autoActivateNewUsers
                 ? 'Newly registered users are activated immediately and can log in right away.'
                 : 'Newly registered users stay inactive until an admin manually activates their account.'}

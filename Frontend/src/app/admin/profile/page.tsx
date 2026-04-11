@@ -141,7 +141,7 @@ export default function AdminProfilePage() {
 function InfoRow({ icon: Icon, label, value }: { icon: React.ElementType; label: string; value: string }) {
   return (
     <div className="flex items-center gap-3 py-2">
-      <Icon className="h-4 w-4 text-gray-400 flex-shrink-0" />
+      <Icon className="h-4 w-4 text-gray-400 shrink-0" />
       <div>
         <p className="text-xs text-gray-400">{label}</p>
         <p className="text-sm font-medium text-gray-900 dark:text-white">{value}</p>
