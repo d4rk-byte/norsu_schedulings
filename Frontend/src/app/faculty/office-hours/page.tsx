@@ -59,7 +59,7 @@ export default function FacultyOfficeHoursPage() {
           <div className="space-y-3">
             {SAMPLE_HOURS.map((h, i) => (
               <div key={i} className="flex items-center gap-4 p-3 rounded-lg bg-gray-50">
-                <div className="flex-shrink-0 w-24">
+                <div className="shrink-0 w-24">
                   <p className="text-sm font-semibold text-gray-900">{h.day}</p>
                 </div>
                 <div className="flex-1">
@@ -82,15 +82,15 @@ export default function FacultyOfficeHoursPage() {
             </p>
             <div className="space-y-2">
               <div className="flex items-start gap-2">
-                <Info className="h-4 w-4 text-blue-500 mt-0.5 flex-shrink-0" />
+                <Info className="h-4 w-4 text-blue-500 mt-0.5 shrink-0" />
                 <span>Students can visit during walk-in hours without an appointment.</span>
               </div>
               <div className="flex items-start gap-2">
-                <Info className="h-4 w-4 text-blue-500 mt-0.5 flex-shrink-0" />
+                <Info className="h-4 w-4 text-blue-500 mt-0.5 shrink-0" />
                 <span>Appointment-based hours require students to schedule in advance.</span>
               </div>
               <div className="flex items-start gap-2">
-                <Info className="h-4 w-4 text-blue-500 mt-0.5 flex-shrink-0" />
+                <Info className="h-4 w-4 text-blue-500 mt-0.5 shrink-0" />
                 <span>You can update your availability once the feature is fully integrated.</span>
               </div>
             </div>

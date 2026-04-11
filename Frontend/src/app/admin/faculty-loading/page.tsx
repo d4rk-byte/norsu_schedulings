@@ -539,12 +539,6 @@ export default function FacultyLoadingPage() {
   const conflictScheduleIds = useMemo(() => {
     const ids = new Set<number>()
 
-    loadedSchedules.forEach((schedule) => {
-      if (schedule.isConflicted) {
-        ids.add(schedule.id)
-      }
-    })
-
     for (let i = 0; i < loadedSchedules.length; i += 1) {
       for (let j = i + 1; j < loadedSchedules.length; j += 1) {
         const a = loadedSchedules[i]
