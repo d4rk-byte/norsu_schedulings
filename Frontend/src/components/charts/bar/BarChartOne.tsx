@@ -62,7 +62,7 @@ export default function BarChartOne() {
       show: true,
       position: "top",
       horizontalAlign: "left",
-      fontFamily: "Outfit",
+      fontFamily: "Outfit, sans-serif",
     },
     yaxis: {
       title: {

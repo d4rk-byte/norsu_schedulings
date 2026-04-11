@@ -110,7 +110,7 @@ export default function AdminDashboard() {
       {/* ── Stats Grid (3 cards like Twig) ── */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3 md:gap-6">
         {/* Total Users */}
-        <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6 hover:shadow-theme-sm transition-shadow">
+        <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/3 md:p-6 hover:shadow-theme-sm transition-shadow">
           <div className="flex items-center">
             <div className="flex items-center justify-center w-11 h-11 lg:w-12 lg:h-12 rounded-xl bg-brand-500/10 dark:bg-brand-500/20">
               <GroupIcon className="size-5 lg:size-6 text-brand-500" />
@@ -135,7 +135,7 @@ export default function AdminDashboard() {
         </div>
 
         {/* Total Rooms */}
-        <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6 hover:shadow-theme-sm transition-shadow">
+        <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/3 md:p-6 hover:shadow-theme-sm transition-shadow">
           <div className="flex items-center">
             <div className="flex items-center justify-center w-11 h-11 lg:w-12 lg:h-12 rounded-xl bg-success-500/10 dark:bg-success-500/20">
               <DoorOpen className="size-5 lg:size-6 text-success-500" />
@@ -156,7 +156,7 @@ export default function AdminDashboard() {
         </div>
 
         {/* Active Users */}
-        <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6 hover:shadow-theme-sm transition-shadow">
+        <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/3 md:p-6 hover:shadow-theme-sm transition-shadow">
           <div className="flex items-center">
             <div className="flex items-center justify-center w-11 h-11 lg:w-12 lg:h-12 rounded-xl bg-purple-500/10 dark:bg-purple-500/20">
               <Wifi className="size-5 lg:size-6 text-purple-500" />
@@ -180,7 +180,7 @@ export default function AdminDashboard() {
       {/* ── Main Content Grid ── */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Recent Activity (left 2/3) */}
-        <div className="lg:col-span-2 rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
+        <div className="lg:col-span-2 rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/3 md:p-6">
           <div className="flex items-center justify-between mb-4 lg:mb-6">
             <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
               Recent Activity
@@ -253,7 +253,7 @@ export default function AdminDashboard() {
         {/* Right sidebar: Quick Actions + User Breakdown */}
         <div className="space-y-6">
           {/* Quick Actions */}
-          <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
+          <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/3 md:p-6">
             <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90 mb-4">
               Quick Actions
             </h3>
@@ -272,7 +272,7 @@ export default function AdminDashboard() {
           </div>
 
           {/* User Role Breakdown (same as Twig) */}
-          <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
+          <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/3 md:p-6">
             <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90 mb-4">
               User Breakdown
             </h3>

@@ -1307,7 +1307,7 @@ class ScheduleController extends AbstractController
     }
 
     #[Route('/faculty-loading/assign', name: 'app_schedule_faculty_loading_assign', methods: ['POST'])]
-    public function assignFacultyToSchedule(Request $request): JsonResponse
+    public function assignFacultyToSchedule(Request $request, \App\Service\ScheduleConflictDetector $conflictDetector): JsonResponse
     {
         try {
             $data = json_decode($request->getContent(), true);
@@ -1330,7 +1330,62 @@ class ScheduleController extends AbstractController
                 if (!$faculty) {
                     return $this->json(['success' => false, 'message' => 'Faculty member not found'], 404);
                 }
+
                 $schedule->setFaculty($faculty);
+
+                // Block assignment if the selected faculty already has overlapping schedule(s).
+                $conflicts = $conflictDetector->detectConflicts($schedule, true);
+                $facultyConflicts = array_values(array_filter($conflicts, static fn(array $c): bool => ($c['type'] ?? '') === 'faculty_conflict'));
+                if (!empty($facultyConflicts)) {
+                    $serializedConflicts = array_map(static function (array $c): array {
+                        $entry = [
+                            'type' => $c['type'] ?? 'faculty_conflict',
+                            'message' => $c['message'] ?? 'Faculty conflict detected.',
+                        ];
+
+                        if (isset($c['schedule']) && $c['schedule'] instanceof Schedule) {
+                            $conflictSchedule = $c['schedule'];
+                            $entry['schedule'] = [
+                                'id' => $conflictSchedule->getId(),
+                                'section' => $conflictSchedule->getSection(),
+                                'dayPattern' => $conflictSchedule->getDayPattern(),
+                                'startTime' => $conflictSchedule->getStartTime()?->format('H:i:s'),
+                                'endTime' => $conflictSchedule->getEndTime()?->format('H:i:s'),
+                                'subject' => [
+                                    'id' => $conflictSchedule->getSubject()?->getId(),
+                                    'code' => $conflictSchedule->getSubject()?->getCode(),
+                                    'title' => $conflictSchedule->getSubject()?->getTitle(),
+                                ],
+                                'room' => [
+                                    'id' => $conflictSchedule->getRoom()?->getId(),
+                                    'code' => $conflictSchedule->getRoom()?->getCode(),
+                                    'name' => $conflictSchedule->getRoom()?->getName(),
+                                ],
+                                'faculty' => [
+                                    'id' => $conflictSchedule->getFaculty()?->getId(),
+                                    'fullName' => $conflictSchedule->getFaculty()?->getFullName(),
+                                ],
+                            ];
+                        }
+
+                        return $entry;
+                    }, $facultyConflicts);
+
+                    // Restore previous faculty to avoid leaving managed entity in a temporary state.
+                    $schedule->setFaculty($oldFaculty);
+
+                    return $this->json([
+                        'success' => false,
+                        'message' => 'Faculty conflict detected.',
+                        'error' => [
+                            'code' => 409,
+                            'message' => 'Faculty conflict detected.',
+                        ],
+                        'data' => [
+                            'conflicts' => $serializedConflicts,
+                        ],
+                    ], 409);
+                }
                 
                 // Log the activity
                 $this->activityLogService->log(
@@ -1363,6 +1418,9 @@ class ScheduleController extends AbstractController
                     );
                 }
             }
+
+            $remainingConflicts = $conflictDetector->detectConflicts($schedule, true);
+            $schedule->setIsConflicted(!empty($remainingConflicts));
             
             $this->entityManager->flush();
 
