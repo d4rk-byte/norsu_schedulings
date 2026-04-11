@@ -40,10 +40,12 @@ export default function ScheduleViewPage({ params }: { params: Promise<{ id: str
   }
 
   if (loading) return <div className="flex justify-center py-20"><Spinner /></div>
-  if (error || !schedule) return <Alert variant="error">{error || 'Not found.'}</Alert>
+  if (!schedule) return <Alert variant="error">{error || 'Not found.'}</Alert>
 
   return (
     <div className="space-y-6">
+      {error && <Alert variant="error" onDismiss={() => setError('')}>{error}</Alert>}
+
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Link href={backHref} className="p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700"><ArrowLeft className="h-5 w-5 text-gray-500 dark:text-gray-400" /></Link>
@@ -52,7 +54,7 @@ export default function ScheduleViewPage({ params }: { params: Promise<{ id: str
             <p className="mt-1 text-sm text-gray-500">{schedule.subject.title}</p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center justify-end gap-2">
           <Link href={`/admin/schedules/${id}/edit${fromDepartment ? `?fromDepartment=${fromDepartment}` : ''}`}><Button size="sm"><Pencil className="h-4 w-4 mr-1" />Edit</Button></Link>
           <Button variant="danger" size="sm" onClick={() => setShowDelete(true)}><Trash2 className="h-4 w-4 mr-1" />Delete</Button>
         </div>

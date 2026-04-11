@@ -1,15 +1,30 @@
 nelmio_cors:
     defaults:
-        origin_regex: true
+        origin_regex: false
         allow_origin: ['%env(CORS_ALLOW_ORIGIN)%']
         allow_methods: ['GET', 'OPTIONS', 'POST', 'PUT', 'PATCH', 'DELETE']
-        allow_headers: ['Content-Type', 'Authorization', 'Accept']
+        allow_headers: ['Content-Type', 'Authorization', 'Accept', 'ngrok-skip-browser-warning']
         expose_headers: ['Link']
         max_age: 3600
     paths:
         '^/api/':
             allow_origin: ['%env(CORS_ALLOW_ORIGIN)%']
-            allow_headers: ['Content-Type', 'Authorization', 'Accept']
-            allow_methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE']
+            allow_headers: ['Content-Type', 'Authorization', 'Accept', 'ngrok-skip-browser-warning']
+            allow_methods: ['GET', 'OPTIONS', 'POST', 'PUT', 'PATCH', 'DELETE']
             max_age: 3600
         '^/': null
+
+when@dev:
+    nelmio_cors:
+        defaults:
+            origin_regex: true
+            allow_origin:
+                - '^https?://(localhost|127\.0\.0\.1|192\.168\.2\.234)(:[0-9]+)?$'
+                - '^https://[a-z0-9-]+\.ngrok-free\.(app|dev)$'
+        paths:
+            '^/api/':
+                allow_origin:
+                    - '^https?://(localhost|127\.0\.0\.1|192\.168\.2\.234)(:[0-9]+)?$'
+                    - '^https://[a-z0-9-]+\.ngrok-free\.(app|dev)$'
+                allow_headers: ['Content-Type', 'Authorization', 'Accept', 'ngrok-skip-browser-warning']
+                allow_methods: ['GET', 'OPTIONS', 'POST', 'PUT', 'PATCH', 'DELETE']

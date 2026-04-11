@@ -5,6 +5,7 @@ import { Building2, ChevronRight, Search } from 'lucide-react'
 import { useState, useEffect, useMemo } from 'react'
 import { Card } from '@/components/ui/Card'
 import { Select } from '@/components/ui/Select'
+import { Alert } from '@/components/ui/Alert'
 import { collegesApi, departmentsApi } from '@/lib/admin-api'
 import type { College, Department } from '@/types'
 
@@ -15,9 +16,11 @@ export default function SchedulesPage() {
   const [selectedCollegeId, setSelectedCollegeId] = useState('')
   const [searchTerm, setSearchTerm] = useState('')
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState('')
 
   useEffect(() => {
     async function load() {
+      setLoadError('')
       try {
         const [colRes, deptRes] = await Promise.all([
           collegesApi.list({ limit: 100 }),
@@ -25,7 +28,9 @@ export default function SchedulesPage() {
         ])
         setColleges(colRes.data)
         setDepartments(deptRes.data)
-      } catch { /* */ }
+      } catch {
+        setLoadError('Failed to load schedules data. Please try again.')
+      }
       setLoading(false)
     }
     load()
@@ -53,6 +58,8 @@ export default function SchedulesPage() {
         <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Schedule Management</h1>
         <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Select a college and department to manage schedules</p>
       </div>
+
+      {loadError && <Alert variant="error">{loadError}</Alert>}
 
       {/* College Filter & Search */}
       <Card>
@@ -110,7 +117,7 @@ export default function SchedulesPage() {
               className="group text-left bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl p-6 shadow-sm hover:border-blue-500 dark:hover:border-blue-600 hover:shadow-lg transition-all duration-200"
             >
               <div className="flex items-start gap-4">
-                <div className="flex-shrink-0 w-14 h-14 bg-blue-600 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                <div className="shrink-0 w-14 h-14 bg-blue-600 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
                   <Building2 className="w-7 h-7 text-white" />
                 </div>
                 <div className="flex-1 min-w-0">
@@ -122,7 +129,7 @@ export default function SchedulesPage() {
                   </p>
                   <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">{dept.code}</p>
                 </div>
-                <ChevronRight className="w-5 h-5 text-gray-400 dark:text-gray-500 group-hover:text-blue-600 group-hover:translate-x-1 transition-all flex-shrink-0 mt-1" />
+                <ChevronRight className="w-5 h-5 text-gray-400 dark:text-gray-500 group-hover:text-blue-600 group-hover:translate-x-1 transition-all shrink-0 mt-1" />
               </div>
             </button>
           ))}

@@ -72,12 +72,22 @@ export default function DepartmentCurriculaPage({ params }: { params: Promise<{ 
 
   async function handleDelete() {
     if (!deleteId) return
-    try { await curriculaApi.delete(deleteId); list.refresh() } catch { /* */ }
+    try {
+      await curriculaApi.delete(deleteId)
+      list.refresh()
+    } catch {
+      setError('Failed to delete curriculum.')
+    }
     setDeleteId(null)
   }
 
   async function publish(id: number) {
-    try { await curriculaApi.publish(id); list.refresh() } catch { /* */ }
+    try {
+      await curriculaApi.publish(id)
+      list.refresh()
+    } catch {
+      setError('Failed to publish curriculum.')
+    }
   }
 
   function openCreateModal() {
@@ -231,6 +241,7 @@ export default function DepartmentCurriculaPage({ params }: { params: Promise<{ 
       </div>
 
       {error && <Alert variant="error" onDismiss={() => setError('')}>{error}</Alert>}
+      {list.error && <Alert variant="error">Failed to load curricula: {list.error}</Alert>}
 
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -265,8 +276,8 @@ export default function DepartmentCurriculaPage({ params }: { params: Promise<{ 
 
       {/* Curricula Table */}
       <Card>
-        <div className="mb-4 flex items-center gap-3">
-          <SearchBar value={list.search} onChange={list.setSearch} placeholder="Search curricula..." className="max-w-sm" />
+        <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center">
+          <SearchBar value={list.search} onChange={list.setSearch} placeholder="Search curricula..." className="w-full sm:max-w-sm" />
         </div>
         <DataTable columns={columns} data={list.data} keyExtractor={(c) => c.id} loading={list.loading} sort={list.sort} onSort={list.setSort} onRowClick={(c) => router.push(`/admin/curricula/${c.id}`)} emptyTitle="No curricula found" emptyDescription="Get started by adding a curriculum for this department." />
         <Pagination className="mt-4" currentPage={list.page} totalPages={list.meta.totalPages} totalItems={list.meta.total} pageSize={list.meta.limit} onPageChange={list.setPage} />

@@ -55,6 +55,12 @@ export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
   const token = request.cookies.get('auth_token')?.value
 
+  // API requests are proxied to Symfony via next.config rewrites.
+  // They must bypass UI auth redirects in this middleware.
+  if (pathname.startsWith('/api')) {
+    return NextResponse.next()
+  }
+
   // Allow public routes
   if (PUBLIC_ROUTES.some(route => pathname.startsWith(route))) {
     // If already authenticated, redirect to dashboard
@@ -120,6 +126,6 @@ export const config = {
      * - _next/image (image optimization)
      * - favicon.ico, images, etc.
      */
-    '/((?!_next/static|_next/image|favicon.ico|images|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    '/((?!api|_next/static|_next/image|favicon.ico|images|.*\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 }
