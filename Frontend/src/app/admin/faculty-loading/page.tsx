@@ -30,6 +30,116 @@ interface FacultyLoad {
   isOverloaded: boolean
 }
 
+const DAY_TOKEN_ORDER = ['M', 'T', 'W', 'TH', 'F', 'SAT', 'SUN'] as const
+
+function extractDayTokens(pattern: string | null | undefined): string[] {
+  if (!pattern) return []
+
+  let normalized = pattern.toUpperCase().trim()
+  normalized = normalized.replace(/\([^)]*\)/g, '')
+
+  if (/\b(MON|M)\s*-\s*(FRI|F)\b/.test(normalized) || normalized.includes('WEEKDAY')) {
+    return ['M', 'T', 'W', 'TH', 'F']
+  }
+
+  if (/\b(MON|M)\s*-\s*SAT\b/.test(normalized)) {
+    return ['M', 'T', 'W', 'TH', 'F', 'SAT']
+  }
+
+  if (normalized.includes('WEEKEND')) {
+    return ['SAT', 'SUN']
+  }
+
+  normalized = normalized
+    .replace(/MONDAY/g, 'MON')
+    .replace(/TUESDAY/g, 'TUE')
+    .replace(/WEDNESDAY/g, 'WED')
+    .replace(/THURSDAY/g, 'THU')
+    .replace(/FRIDAY/g, 'FRI')
+    .replace(/SATURDAY/g, 'SAT')
+    .replace(/SUNDAY/g, 'SUN')
+
+  const compact = normalized.replace(/[^A-Z]/g, '')
+  if (!compact) return []
+
+  const tokenMap3: Record<string, string> = {
+    MON: 'M',
+    TUE: 'T',
+    WED: 'W',
+    THU: 'TH',
+    FRI: 'F',
+    SAT: 'SAT',
+    SUN: 'SUN',
+  }
+
+  const tokenMap2: Record<string, string> = {
+    MO: 'M',
+    TU: 'T',
+    WE: 'W',
+    TH: 'TH',
+    FR: 'F',
+    SA: 'SAT',
+    SU: 'SUN',
+  }
+
+  const tokens: string[] = []
+  let i = 0
+
+  while (i < compact.length) {
+    const chunk3 = compact.slice(i, i + 3)
+    if (tokenMap3[chunk3]) {
+      tokens.push(tokenMap3[chunk3])
+      i += 3
+      continue
+    }
+
+    const chunk2 = compact.slice(i, i + 2)
+    if (tokenMap2[chunk2]) {
+      tokens.push(tokenMap2[chunk2])
+      i += 2
+      continue
+    }
+
+    const char = compact[i]
+    if (char === 'M' || char === 'T' || char === 'W' || char === 'F') {
+      tokens.push(char)
+    } else if (char === 'S') {
+      tokens.push('SAT')
+    }
+
+    i += 1
+  }
+
+  const uniqueTokens = Array.from(new Set(tokens))
+  return DAY_TOKEN_ORDER.filter((token) => uniqueTokens.includes(token))
+}
+
+function hasDayOverlap(patternA: string | null | undefined, patternB: string | null | undefined): boolean {
+  const daysA = extractDayTokens(patternA)
+  const daysB = extractDayTokens(patternB)
+  if (daysA.length === 0 || daysB.length === 0) return false
+  return daysA.some((day) => daysB.includes(day))
+}
+
+function toMinutes(value: string | null | undefined): number | null {
+  if (!value) return null
+  const [h, m] = value.split(':')
+  const hours = Number(h)
+  const minutes = Number(m)
+  if (Number.isNaN(hours) || Number.isNaN(minutes)) return null
+  return (hours * 60) + minutes
+}
+
+function hasTimeOverlap(scheduleA: Schedule, scheduleB: Schedule): boolean {
+  const startA = toMinutes(scheduleA.startTime)
+  const endA = toMinutes(scheduleA.endTime)
+  const startB = toMinutes(scheduleB.startTime)
+  const endB = toMinutes(scheduleB.endTime)
+
+  if (startA === null || endA === null || startB === null || endB === null) return false
+  return startA < endB && endA > startB
+}
+
 export default function FacultyLoadingPage() {
   const list = useCrudList<FacultyLoad>((p) => schedulesApi.facultyLoading(p))
   const [departments, setDepartments] = useState<Department[]>([])
@@ -70,8 +180,8 @@ export default function FacultyLoadingPage() {
     const listParams = { department_id: Number(selectedDepartmentId), include_group: true }
     list.setExtraParams(listParams)
 
-    // Keep summary aligned with the same scope as the loading/assignment flow.
-    const summaryParams = { department_id: Number(selectedDepartmentId), include_group: true }
+    // Cards should always reflect the exact selected department only.
+    const summaryParams = { department_id: Number(selectedDepartmentId), include_group: false }
     schedulesApi.facultyLoading(summaryParams).then((res: unknown) => {
       const raw = res as { summary?: { totalSchedules?: number; assignedSchedules?: number; unassignedSchedules?: number } }
       setSummary({
@@ -426,6 +536,32 @@ export default function FacultyLoadingPage() {
     return { count: loadedSchedules.length, units, hours: Number(hours.toFixed(1)) }
   }, [loadedSchedules])
 
+  const conflictScheduleIds = useMemo(() => {
+    const ids = new Set<number>()
+
+    loadedSchedules.forEach((schedule) => {
+      if (schedule.isConflicted) {
+        ids.add(schedule.id)
+      }
+    })
+
+    for (let i = 0; i < loadedSchedules.length; i += 1) {
+      for (let j = i + 1; j < loadedSchedules.length; j += 1) {
+        const a = loadedSchedules[i]
+        const b = loadedSchedules[j]
+
+        if (hasDayOverlap(a.dayPattern || a.dayPatternLabel, b.dayPattern || b.dayPatternLabel) && hasTimeOverlap(a, b)) {
+          ids.add(a.id)
+          ids.add(b.id)
+        }
+      }
+    }
+
+    return ids
+  }, [loadedSchedules])
+
+  const conflictCount = conflictScheduleIds.size
+
   const selectedDepartmentIdNumber = Number(selectedDepartmentId || 0)
 
   const columns: Column<FacultyLoad>[] = [
@@ -553,7 +689,7 @@ export default function FacultyLoadingPage() {
       </div>
 
       <Card>
-        <div className="w-full md:w-[28rem]">
+        <div className="w-full md:w-md">
           <div className="text-sm text-gray-500">Department</div>
           <div className="text-base font-semibold text-gray-900 dark:text-gray-100">
             {selectedDepartment ? `${selectedDepartment.code} - ${selectedDepartment.name}` : 'Not selected'}
@@ -614,6 +750,15 @@ export default function FacultyLoadingPage() {
               </Button>
             </div>
 
+            {conflictCount > 0 && (
+              <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/30 dark:text-red-200">
+                <div className="inline-flex items-center gap-2 font-medium">
+                  <AlertTriangle className="h-4 w-4" />
+                  {conflictCount} conflicting schedule{conflictCount > 1 ? 's' : ''} detected for this faculty.
+                </div>
+              </div>
+            )}
+
             <div className="relative w-full">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
               <input
@@ -631,8 +776,11 @@ export default function FacultyLoadingPage() {
               <div className="py-10 text-center text-sm text-gray-500">No assigned schedules found.</div>
             ) : (
               <div className="max-h-[520px] overflow-y-auto divide-y divide-gray-100 dark:divide-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
-                {modalFilteredLoaded.map((s) => (
-                  <div key={s.id} className="p-4">
+                {modalFilteredLoaded.map((s) => {
+                  const hasConflict = conflictScheduleIds.has(s.id)
+
+                  return (
+                  <div key={s.id} className={`p-4 ${hasConflict ? 'bg-red-50/80 dark:bg-red-900/20 border-l-2 border-red-400' : ''}`}>
                     <div className="flex items-center gap-2 flex-wrap">
                       <div className="font-semibold text-gray-900 dark:text-gray-100">{s.subject.code} {s.section ? `- ${s.section}` : ''}</div>
                       {s.subject.department?.name && (
@@ -640,8 +788,18 @@ export default function FacultyLoadingPage() {
                           {s.subject.department.name}
                         </span>
                       )}
+                      {hasConflict && (
+                        <span className="inline-flex items-center rounded-full bg-red-100 px-2 py-0.5 text-[11px] font-semibold text-red-700 dark:bg-red-900/40 dark:text-red-300">
+                          CONFLICT
+                        </span>
+                      )}
                     </div>
                     <div className="text-sm text-gray-600 dark:text-gray-300">{s.subject.title}</div>
+                    {hasConflict && (
+                      <div className="mt-1 text-xs font-medium text-red-600 dark:text-red-300">
+                        Time/day overlap detected with another loaded schedule.
+                      </div>
+                    )}
                     <div className="mt-1 text-xs text-gray-500 flex items-center gap-2 flex-wrap">
                       <span>{s.subject.units} units</span>
                       <span>•</span>
@@ -652,7 +810,7 @@ export default function FacultyLoadingPage() {
                       <span>{s.room?.code || 'No room'}</span>
                     </div>
                   </div>
-                ))}
+                )})}
               </div>
             )}
           </div>
@@ -705,7 +863,14 @@ export default function FacultyLoadingPage() {
                 <div className="rounded-xl border border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/10">
                   <div className="px-4 py-3 border-b border-green-200 dark:border-green-800 flex items-center justify-between">
                     <div className="font-semibold text-green-800 dark:text-green-200">Loaded Subjects</div>
-                    <div className="text-xs text-green-700 dark:text-green-300">{modalFilteredLoaded.length} subjects</div>
+                    <div className="flex items-center gap-2 text-xs">
+                      <span className="text-green-700 dark:text-green-300">{modalFilteredLoaded.length} subjects</span>
+                      {conflictCount > 0 && (
+                        <span className="rounded-full bg-red-100 px-2 py-0.5 font-semibold text-red-700 dark:bg-red-900/40 dark:text-red-300">
+                          {conflictCount} conflict{conflictCount > 1 ? 's' : ''}
+                        </span>
+                      )}
+                    </div>
                   </div>
                   <div className="max-h-[420px] overflow-y-auto divide-y divide-green-100 dark:divide-green-900/40">
                     {modalFilteredLoaded.length === 0 ? (
@@ -714,15 +879,26 @@ export default function FacultyLoadingPage() {
                       modalFilteredLoaded.map((s) => {
                         const scheduleDepartmentId = s.subject.department?.id ?? 0
                         const isExternal = selectedDepartmentIdNumber > 0 && scheduleDepartmentId !== selectedDepartmentIdNumber
+                        const hasConflict = conflictScheduleIds.has(s.id)
+                        const rowStateClass = hasConflict
+                          ? 'bg-red-50/80 dark:bg-red-900/20 border-l-2 border-red-400'
+                          : s.isOverload
+                            ? 'bg-amber-50/70 dark:bg-amber-900/10'
+                            : ''
 
                         return (
-                        <div key={s.id} className={`p-4 flex items-start justify-between gap-3 transition-colors duration-150 ${s.isOverload ? 'bg-amber-50/70 dark:bg-amber-900/10' : ''}`}>
+                        <div key={s.id} className={`p-4 flex items-start justify-between gap-3 transition-colors duration-150 ${rowStateClass}`}>
                           <div className="min-w-0">
                             <div className="flex items-center gap-2 flex-wrap">
                               <div className="font-semibold text-gray-900 dark:text-gray-100">{s.subject.code} {s.section ? `- ${s.section}` : ''}</div>
                               {s.subject.department?.name && (
                                 <span className="inline-flex items-center rounded-full bg-gray-100 dark:bg-gray-700 px-2 py-0.5 text-[11px] font-medium text-gray-700 dark:text-gray-200">
                                   {s.subject.department.name}
+                                </span>
+                              )}
+                              {hasConflict && (
+                                <span className="inline-flex items-center rounded-full bg-red-100 px-2 py-0.5 text-[11px] font-semibold text-red-700 dark:bg-red-900/40 dark:text-red-300">
+                                  CONFLICT
                                 </span>
                               )}
                               {isExternal && (
@@ -737,6 +913,11 @@ export default function FacultyLoadingPage() {
                               )}
                             </div>
                             <div className="text-sm text-gray-600 dark:text-gray-300">{s.subject.title}</div>
+                            {hasConflict && (
+                              <div className="mt-1 text-xs font-medium text-red-600 dark:text-red-300">
+                                Time/day overlap detected with another loaded schedule.
+                              </div>
+                            )}
                             <div className="mt-1 text-xs text-gray-500 flex items-center gap-2 flex-wrap">
                               <span>{s.subject.units} units</span>
                               <span>•</span>
