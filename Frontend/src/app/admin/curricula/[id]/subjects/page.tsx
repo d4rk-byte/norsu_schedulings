@@ -208,9 +208,10 @@ export default function ManageCurriculumSubjectsPage({ params }: { params: Promi
   }
 
   async function handleUpload() {
-    if (!uploadFile) return
+    if (!uploadFile || uploading) return
     setUploading(true)
     setUploadResult(null)
+    setError('')
     try {
       const result = await curriculaApi.uploadSubjects(Number(id), uploadFile, autoCreateTerms)
       setUploadResult({ success: true, message: 'Upload successful!', subjects_added: result.subjects_added, terms_created: result.terms_created, errors: result.errors })
@@ -220,8 +221,9 @@ export default function ManageCurriculumSubjectsPage({ params }: { params: Promi
       const msg = (err as { response?: { data?: { error?: { message?: string }; details?: { errors?: string[] } } } })?.response?.data?.error?.message || 'Upload failed.'
       const errors = (err as { response?: { data?: { details?: { errors?: string[] } } } })?.response?.data?.details?.errors
       setUploadResult({ success: false, message: msg, errors })
+    } finally {
+      setUploading(false)
     }
-    setUploading(false)
   }
 
   if (loading) return <div className="flex justify-center py-20"><Spinner /></div>
@@ -599,15 +601,22 @@ export default function ManageCurriculumSubjectsPage({ params }: { params: Promi
 
       {/* Upload Curriculum Modal */}
       {showUploadModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setShowUploadModal(false)}>
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => !uploading && setShowUploadModal(false)}>
+          <div className="relative bg-white rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+            {uploading && (
+              <div className="absolute inset-0 z-10 flex flex-col items-center justify-center rounded-xl bg-white/85">
+                <Spinner className="h-10 w-10 text-primary-600" />
+                <p className="mt-3 text-sm font-medium text-gray-700">Uploading curriculum...</p>
+                <p className="mt-1 text-xs text-gray-500">Please wait until the upload finishes.</p>
+              </div>
+            )}
             {/* Header */}
             <div className="flex items-center justify-between p-6 border-b border-gray-200 bg-blue-50 rounded-t-xl">
               <div>
                 <h3 className="text-xl font-bold text-blue-900">Upload Curriculum</h3>
                 <p className="text-sm text-blue-700 mt-1">Import subjects from Excel or CSV file</p>
               </div>
-              <button onClick={() => setShowUploadModal(false)} className="p-1.5 rounded hover:bg-blue-200">
+              <button onClick={() => setShowUploadModal(false)} className="p-1.5 rounded hover:bg-blue-200 disabled:cursor-not-allowed disabled:opacity-60" disabled={uploading}>
                 <X className="h-5 w-5 text-blue-800" />
               </button>
             </div>
@@ -633,15 +642,15 @@ export default function ManageCurriculumSubjectsPage({ params }: { params: Promi
                     <p className="text-xs text-gray-600">CSV template with proper format and examples</p>
                   </div>
                 </div>
-                <Button size="sm" variant="secondary" onClick={handleDownloadTemplate}>
+                <Button size="sm" variant="secondary" onClick={handleDownloadTemplate} disabled={uploading}>
                   <Download className="h-4 w-4 mr-1" />Download
                 </Button>
               </div>
 
               {/* File Drop Zone */}
               <div
-                className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition ${uploadFile ? 'border-blue-400 bg-blue-50' : 'border-gray-300 hover:border-blue-400'}`}
-                onClick={() => document.getElementById('uploadFileInput')?.click()}
+                className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition ${uploadFile ? 'border-blue-400 bg-blue-50' : 'border-gray-300 hover:border-blue-400'} ${uploading ? 'pointer-events-none opacity-70' : ''}`}
+                onClick={() => { if (!uploading) document.getElementById('uploadFileInput')?.click() }}
               >
                 <input
                   type="file"
@@ -649,6 +658,7 @@ export default function ManageCurriculumSubjectsPage({ params }: { params: Promi
                   className="hidden"
                   accept=".xlsx,.xls,.csv"
                   onChange={e => { const f = e.target.files?.[0]; if (f) setUploadFile(f); e.target.value = '' }}
+                  disabled={uploading}
                 />
                 {uploadFile ? (
                   <div className="flex items-center justify-center gap-3">
@@ -659,7 +669,8 @@ export default function ManageCurriculumSubjectsPage({ params }: { params: Promi
                     </div>
                     <button
                       onClick={e => { e.stopPropagation(); setUploadFile(null) }}
-                      className="p-1 rounded hover:bg-red-50"
+                      className="p-1 rounded hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
+                      disabled={uploading}
                     >
                       <X className="h-4 w-4 text-red-500" />
                     </button>
@@ -680,6 +691,7 @@ export default function ManageCurriculumSubjectsPage({ params }: { params: Promi
                   checked={autoCreateTerms}
                   onChange={e => setAutoCreateTerms(e.target.checked)}
                   className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  disabled={uploading}
                 />
                 <span className="text-sm text-gray-700">Automatically create terms based on year level and semester</span>
               </label>
@@ -715,9 +727,14 @@ export default function ManageCurriculumSubjectsPage({ params }: { params: Promi
 
             {/* Footer */}
             <div className="flex items-center justify-end gap-3 p-6 border-t border-gray-200 bg-gray-50 rounded-b-xl">
-              <Button variant="secondary" onClick={() => setShowUploadModal(false)}>Cancel</Button>
+              <Button variant="secondary" onClick={() => setShowUploadModal(false)} disabled={uploading}>Cancel</Button>
               <Button onClick={handleUpload} disabled={!uploadFile || uploading}>
-                {uploading ? 'Uploading...' : 'Upload'}
+                {uploading ? (
+                  <span className="flex items-center gap-2">
+                    <Spinner className="h-4 w-4" />
+                    Uploading...
+                  </span>
+                ) : 'Upload'}
               </Button>
             </div>
           </div>

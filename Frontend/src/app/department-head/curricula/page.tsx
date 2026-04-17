@@ -12,6 +12,7 @@ import { Badge } from '@/components/ui/Badge'
 import { Alert } from '@/components/ui/Alert'
 import { Button } from '@/components/ui/Button'
 import { Modal } from '@/components/ui/Modal'
+import { Spinner } from '@/components/ui/Spinner'
 import { useCrudList } from '@/hooks/useCrudList'
 import { dhCurriculaApi } from '@/lib/department-head-api'
 import type { Curriculum } from '@/types'
@@ -83,7 +84,7 @@ export default function DHCurriculaListPage() {
   }
 
   async function handleUpload() {
-    if (!uploadFile || !uploadName.trim()) return
+    if (!uploadFile || !uploadName.trim() || uploading) return
     setUploading(true)
     setUploadResult(null)
     setActionError('')
@@ -201,6 +202,14 @@ export default function DHCurriculaListPage() {
           </>
         }
       >
+        <div className="relative">
+          {uploading && (
+            <div className="absolute inset-0 z-10 flex flex-col items-center justify-center rounded-lg bg-white/85">
+              <Spinner className="h-10 w-10 text-primary-600" />
+              <p className="mt-3 text-sm font-medium text-gray-700">Uploading curriculum...</p>
+              <p className="mt-1 text-xs text-gray-500">Please wait until the upload finishes.</p>
+            </div>
+          )}
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Curriculum Name</label>
@@ -209,6 +218,7 @@ export default function DHCurriculaListPage() {
               onChange={(e) => setUploadName(e.target.value)}
               placeholder="e.g., BS Information Technology"
               className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500 focus:outline-none"
+              disabled={uploading}
             />
           </div>
 
@@ -221,6 +231,7 @@ export default function DHCurriculaListPage() {
                 value={uploadVersion}
                 onChange={(e) => setUploadVersion(Number(e.target.value) || 1)}
                 className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500 focus:outline-none"
+                disabled={uploading}
               />
             </div>
             <div className="flex items-end">
@@ -230,6 +241,7 @@ export default function DHCurriculaListPage() {
                   checked={uploadAutoTerms}
                   onChange={(e) => setUploadAutoTerms(e.target.checked)}
                   className="h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                  disabled={uploading}
                 />
                 <span className="text-sm text-gray-700">Auto-create terms</span>
               </label>
@@ -244,14 +256,14 @@ export default function DHCurriculaListPage() {
                 <p className="text-xs text-gray-600">Use CSV, XLSX, or XLS format</p>
               </div>
             </div>
-            <Button size="sm" variant="secondary" onClick={handleDownloadTemplate}>
+            <Button size="sm" variant="secondary" onClick={handleDownloadTemplate} disabled={uploading}>
               <Download className="h-4 w-4 mr-1" />Download
             </Button>
           </div>
 
           <div
-            className={`border-2 border-dashed rounded-lg p-5 text-center cursor-pointer transition ${uploadFile ? 'border-primary-400 bg-primary-50/30' : 'border-gray-300 hover:border-primary-400'}`}
-            onClick={() => document.getElementById('dhUploadCurriculumFile')?.click()}
+            className={`border-2 border-dashed rounded-lg p-5 text-center cursor-pointer transition ${uploadFile ? 'border-primary-400 bg-primary-50/30' : 'border-gray-300 hover:border-primary-400'} ${uploading ? 'pointer-events-none opacity-70' : ''}`}
+            onClick={() => { if (!uploading) document.getElementById('dhUploadCurriculumFile')?.click() }}
           >
             <input
               id="dhUploadCurriculumFile"
@@ -263,6 +275,7 @@ export default function DHCurriculaListPage() {
                 if (f) setUploadFile(f)
                 e.target.value = ''
               }}
+              disabled={uploading}
             />
 
             {uploadFile ? (
@@ -272,7 +285,7 @@ export default function DHCurriculaListPage() {
                   <p className="text-sm font-medium text-gray-900">{uploadFile.name}</p>
                   <p className="text-xs text-gray-500">{(uploadFile.size / 1024).toFixed(1)} KB</p>
                 </div>
-                <button onClick={(e) => { e.stopPropagation(); setUploadFile(null) }} className="p-1 rounded hover:bg-red-50">
+                <button onClick={(e) => { e.stopPropagation(); setUploadFile(null) }} className="p-1 rounded hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60" disabled={uploading}>
                   <X className="h-4 w-4 text-red-500" />
                 </button>
               </div>
@@ -303,6 +316,7 @@ export default function DHCurriculaListPage() {
               </div>
             </div>
           )}
+        </div>
         </div>
       </Modal>
     </div>

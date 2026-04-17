@@ -56,7 +56,7 @@ export default function DHCurriculumViewPage() {
     el.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
 
-  if (loading) return <div className="flex items-center justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-gray-400" /></div>
+  if (loading) return <div className="flex items-center justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-gray-400 dark:text-gray-500" /></div>
   if (error || !curriculum) return <Alert variant="error">{error || 'Curriculum not found'}</Alert>
 
   const sortedTerms = [...(curriculum.curriculumTerms ?? [])].sort((a, b) => a.yearLevel - b.yearLevel || a.semester.localeCompare(b.semester))
@@ -68,14 +68,14 @@ export default function DHCurriculumViewPage() {
       {error && <Alert variant="error" onDismiss={() => setError('')}>{error}</Alert>}
 
       <div className="flex items-center gap-4">
-        <Link href="/department-head/curricula" className="p-2 rounded-lg hover:bg-gray-100"><ArrowLeft className="h-5 w-5 text-gray-500" /></Link>
+        <Link href="/department-head/curricula" className="rounded-lg p-2 hover:bg-gray-100 dark:hover:bg-gray-800"><ArrowLeft className="h-5 w-5 text-gray-500 dark:text-gray-400" /></Link>
         <div className="min-w-0 flex-1">
-          <h1 className="text-2xl font-bold text-gray-900 truncate">{curriculum.name}</h1>
-          <p className="mt-1 text-sm text-gray-500">Version {curriculum.version ? `v${curriculum.version}` : '—'} • {curriculum.department.name}</p>
+          <h1 className="truncate text-2xl font-bold text-gray-900 dark:text-gray-100">{curriculum.name}</h1>
+          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Version {curriculum.version ? `v${curriculum.version}` : '—'} • {curriculum.department.name}</p>
         </div>
       </div>
 
-      <div className="sticky top-16 z-20 bg-gray-50/95 backdrop-blur supports-backdrop-filter:bg-gray-50/80 border border-gray-200 rounded-xl p-3">
+      <div className="sticky top-16 z-20 rounded-xl border border-gray-200 bg-gray-50/95 p-3 backdrop-blur supports-backdrop-filter:bg-gray-50/80 dark:border-gray-700 dark:bg-gray-900/95 dark:supports-backdrop-filter:bg-gray-900/80">
         <div className="flex flex-wrap items-center gap-2">
           <Badge variant={curriculum.isPublished ? 'success' : 'warning'}>{curriculum.isPublished ? 'Published' : 'Draft'}</Badge>
           <Button size="sm" variant={curriculum.isPublished ? 'danger' : 'primary'} onClick={() => setShowToggle(true)}>
@@ -87,27 +87,27 @@ export default function DHCurriculumViewPage() {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <Card>
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-blue-50 rounded-lg"><BookOpen className="h-5 w-5 text-blue-600" /></div>
+            <div className="rounded-lg bg-blue-50 p-2 dark:bg-blue-900/30"><BookOpen className="h-5 w-5 text-blue-600 dark:text-blue-300" /></div>
             <div>
-              <p className="text-sm text-gray-500">Total Subjects</p>
-              <p className="text-xl font-bold text-gray-900">{totalSubjects}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Total Subjects</p>
+              <p className="text-xl font-bold text-gray-900 dark:text-gray-100">{totalSubjects}</p>
             </div>
           </div>
         </Card>
         <Card>
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-green-50 rounded-lg"><BookOpen className="h-5 w-5 text-green-600" /></div>
+            <div className="rounded-lg bg-green-50 p-2 dark:bg-green-900/30"><BookOpen className="h-5 w-5 text-green-600 dark:text-green-300" /></div>
             <div>
-              <p className="text-sm text-gray-500">Total Units</p>
-              <p className="text-xl font-bold text-gray-900">{totalUnits}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Total Units</p>
+              <p className="text-xl font-bold text-gray-900 dark:text-gray-100">{totalUnits}</p>
             </div>
           </div>
         </Card>
         <Card>
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-purple-50 rounded-lg"><BookOpen className="h-5 w-5 text-purple-600" /></div>
+            <div className="rounded-lg bg-purple-50 p-2 dark:bg-purple-900/30"><BookOpen className="h-5 w-5 text-purple-600 dark:text-purple-300" /></div>
             <div>
-              <p className="text-sm text-gray-500">Status</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Status</p>
               <Badge variant={curriculum.isPublished ? 'success' : 'warning'}>{curriculum.isPublished ? 'Published' : 'Draft'}</Badge>
             </div>
           </div>
@@ -117,12 +117,12 @@ export default function DHCurriculumViewPage() {
       {curriculum.notes && (
         <Card>
           <CardHeader title="Notes" />
-          <p className="text-sm text-gray-700 whitespace-pre-wrap">{curriculum.notes}</p>
+          <p className="whitespace-pre-wrap text-sm text-gray-700 dark:text-gray-300">{curriculum.notes}</p>
         </Card>
       )}
 
       {sortedTerms.length === 0 ? (
-        <Card><p className="text-center text-gray-400 py-8">No terms defined yet.</p></Card>
+        <Card><p className="py-8 text-center text-gray-400 dark:text-gray-500">No terms defined yet.</p></Card>
       ) : (
         sortedTerms.map(term => {
           const isExpanded = expandedTerms[term.id] ?? true
@@ -130,24 +130,24 @@ export default function DHCurriculumViewPage() {
           return (
             <Card key={term.id} id={`term-${term.id}`}>
               <button className="w-full" onClick={() => toggleTerm(term.id)}>
-                <div className="flex items-center justify-between gap-3 px-6 py-5 border-b border-gray-100">
+                <div className="flex items-center justify-between gap-3 border-b border-gray-100 px-6 py-5 dark:border-gray-700">
                   <div className="text-left">
-                    <h3 className="font-semibold text-gray-900">{term.displayName || `Year ${term.yearLevel} – ${term.semester}`}</h3>
-                    <p className="mt-1 text-sm text-gray-500">{term.curriculumSubjects.length} subjects • {term.totalUnits} units</p>
+                    <h3 className="font-semibold text-gray-900 dark:text-gray-100">{term.displayName || `Year ${term.yearLevel} – ${term.semester}`}</h3>
+                    <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{term.curriculumSubjects.length} subjects • {term.totalUnits} units</p>
                   </div>
-                  <ChevronDown className={`h-5 w-5 text-gray-500 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+                  <ChevronDown className={`h-5 w-5 text-gray-500 transition-transform dark:text-gray-400 ${isExpanded ? 'rotate-180' : ''}`} />
                 </div>
               </button>
 
               {isExpanded && (
                 <div className="p-6 pt-4">
                   {term.curriculumSubjects.length === 0 ? (
-                    <p className="text-sm text-gray-400">No subjects in this term.</p>
+                    <p className="text-sm text-gray-400 dark:text-gray-500">No subjects in this term.</p>
                   ) : (
                     <div className="overflow-x-auto">
                       <table className="min-w-full text-sm">
                         <thead>
-                          <tr className="border-b text-left text-gray-500">
+                          <tr className="border-b border-gray-200 text-left text-gray-500 dark:border-gray-700 dark:text-gray-400">
                             <th className="py-2 pr-4 font-medium">Code</th>
                             <th className="py-2 pr-4 font-medium">Title</th>
                             <th className="py-2 pr-4 font-medium text-center">Units</th>
@@ -158,12 +158,12 @@ export default function DHCurriculumViewPage() {
                         </thead>
                         <tbody>
                           {term.curriculumSubjects.map(cs => (
-                            <tr key={cs.id} className="border-b last:border-0">
-                              <td className="py-2 pr-4 font-medium text-gray-900">{cs.subject.code}</td>
-                              <td className="py-2 pr-4 text-gray-700">{cs.subject.title}</td>
-                              <td className="py-2 pr-4 text-center">{cs.subject.units}</td>
-                              <td className="py-2 pr-4 text-center">{cs.subject.lectureHours}</td>
-                              <td className="py-2 pr-4 text-center">{cs.subject.labHours}</td>
+                            <tr key={cs.id} className="border-b border-gray-100 last:border-0 dark:border-gray-700">
+                              <td className="py-2 pr-4 font-medium text-gray-900 dark:text-gray-100">{cs.subject.code}</td>
+                              <td className="py-2 pr-4 text-gray-700 dark:text-gray-300">{cs.subject.title}</td>
+                              <td className="py-2 pr-4 text-center text-gray-700 dark:text-gray-300">{cs.subject.units}</td>
+                              <td className="py-2 pr-4 text-center text-gray-700 dark:text-gray-300">{cs.subject.lectureHours}</td>
+                              <td className="py-2 pr-4 text-center text-gray-700 dark:text-gray-300">{cs.subject.labHours}</td>
                               <td className="py-2"><Badge variant="default">{cs.subject.type}</Badge></td>
                             </tr>
                           ))}

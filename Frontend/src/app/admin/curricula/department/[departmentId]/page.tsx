@@ -164,11 +164,12 @@ export default function DepartmentCurriculaPage({ params }: { params: Promise<{ 
   }
 
   async function handleUpload() {
-    if (!uploadFile || !uploadName) return
+    if (!uploadFile || !uploadName.trim() || uploading) return
     setUploading(true)
     setUploadResult(null)
+    setError('')
     try {
-      const result = await curriculaApi.bulkUpload(uploadFile, uploadName, uploadVersion, Number(departmentId), uploadAutoTerms)
+      const result = await curriculaApi.bulkUpload(uploadFile, uploadName.trim(), uploadVersion, Number(departmentId), uploadAutoTerms)
       setUploadResult({ success: true, message: 'Curriculum uploaded!', subjects_added: result.subjects_added, terms_created: result.terms_created, errors: result.errors })
       setUploadFile(null)
       setUploadName('')
@@ -177,8 +178,9 @@ export default function DepartmentCurriculaPage({ params }: { params: Promise<{ 
     } catch (err: unknown) {
       const msg = (err as { response?: { data?: { error?: { message?: string } } } })?.response?.data?.error?.message || 'Upload failed.'
       setUploadResult({ success: false, message: msg })
+    } finally {
+      setUploading(false)
     }
-    setUploading(false)
   }
 
   async function handleDownloadTemplate() {
@@ -339,25 +341,32 @@ export default function DepartmentCurriculaPage({ params }: { params: Promise<{ 
 
       {/* Upload Modal */}
       {showUpload && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setShowUpload(false)}>
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => !uploading && setShowUpload(false)}>
+          <div className="relative bg-white rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+            {uploading && (
+              <div className="absolute inset-0 z-10 flex flex-col items-center justify-center rounded-xl bg-white/85">
+                <Spinner className="h-10 w-10 text-primary-600" />
+                <p className="mt-3 text-sm font-medium text-gray-700">Uploading curriculum...</p>
+                <p className="mt-1 text-xs text-gray-500">Please wait until the upload finishes.</p>
+              </div>
+            )}
             <div className="flex items-center justify-between p-6 border-b border-gray-200 bg-blue-50 rounded-t-xl">
               <div>
                 <h3 className="text-xl font-bold text-blue-900">Upload Curriculum</h3>
                 <p className="text-sm text-blue-700 mt-1">Import subjects from Excel or CSV to create a new curriculum</p>
               </div>
-              <button onClick={() => setShowUpload(false)} className="p-1.5 rounded hover:bg-blue-200"><X className="h-5 w-5 text-blue-800" /></button>
+              <button onClick={() => setShowUpload(false)} className="p-1.5 rounded hover:bg-blue-200 disabled:cursor-not-allowed disabled:opacity-60" disabled={uploading}><X className="h-5 w-5 text-blue-800" /></button>
             </div>
             <div className="p-6 space-y-5">
               {/* Curriculum Name */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Curriculum Name <span className="text-red-500">*</span></label>
-                <input value={uploadName} onChange={e => setUploadName(e.target.value)} placeholder="e.g., Bachelor of Science in Information Technology" className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500 focus:outline-none" />
+                <input value={uploadName} onChange={e => setUploadName(e.target.value)} placeholder="e.g., Bachelor of Science in Information Technology" className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500 focus:outline-none" disabled={uploading} />
               </div>
               {/* Version */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Version</label>
-                <input type="number" min={1} value={uploadVersion} onChange={e => setUploadVersion(Number(e.target.value))} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500 focus:outline-none" />
+                <input type="number" min={1} value={uploadVersion} onChange={e => setUploadVersion(Number(e.target.value) || 1)} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500 focus:outline-none" disabled={uploading} />
               </div>
               {/* Instructions */}
               <div className="bg-blue-50 border-l-4 border-blue-500 p-4">
@@ -377,14 +386,14 @@ export default function DepartmentCurriculaPage({ params }: { params: Promise<{ 
                     <p className="text-xs text-gray-600">CSV template with examples</p>
                   </div>
                 </div>
-                <Button size="sm" variant="secondary" onClick={handleDownloadTemplate}><Download className="h-4 w-4 mr-1" />Download</Button>
+                <Button size="sm" variant="secondary" onClick={handleDownloadTemplate} disabled={uploading}><Download className="h-4 w-4 mr-1" />Download</Button>
               </div>
               {/* File */}
               <div
-                className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition ${uploadFile ? 'border-blue-400 bg-blue-50' : 'border-gray-300 hover:border-blue-400'}`}
-                onClick={() => document.getElementById('deptUploadFileInput')?.click()}
+                className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition ${uploadFile ? 'border-blue-400 bg-blue-50' : 'border-gray-300 hover:border-blue-400'} ${uploading ? 'pointer-events-none opacity-70' : ''}`}
+                onClick={() => { if (!uploading) document.getElementById('deptUploadFileInput')?.click() }}
               >
-                <input type="file" id="deptUploadFileInput" className="hidden" accept=".xlsx,.xls,.csv" onChange={e => { const f = e.target.files?.[0]; if (f) setUploadFile(f); e.target.value = '' }} />
+                <input type="file" id="deptUploadFileInput" className="hidden" accept=".xlsx,.xls,.csv" onChange={e => { const f = e.target.files?.[0]; if (f) setUploadFile(f); e.target.value = '' }} disabled={uploading} />
                 {uploadFile ? (
                   <div className="flex items-center justify-center gap-3">
                     <FileSpreadsheet className="h-7 w-7 text-blue-600" />
@@ -392,7 +401,7 @@ export default function DepartmentCurriculaPage({ params }: { params: Promise<{ 
                       <p className="text-sm font-medium text-gray-900">{uploadFile.name}</p>
                       <p className="text-xs text-gray-500">{(uploadFile.size / 1024).toFixed(1)} KB</p>
                     </div>
-                    <button onClick={e => { e.stopPropagation(); setUploadFile(null) }} className="p-1 rounded hover:bg-red-50"><X className="h-4 w-4 text-red-500" /></button>
+                    <button onClick={e => { e.stopPropagation(); setUploadFile(null) }} className="p-1 rounded hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60" disabled={uploading}><X className="h-4 w-4 text-red-500" /></button>
                   </div>
                 ) : (
                   <>
@@ -404,7 +413,7 @@ export default function DepartmentCurriculaPage({ params }: { params: Promise<{ 
               </div>
               {/* Options */}
               <label className="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" checked={uploadAutoTerms} onChange={e => setUploadAutoTerms(e.target.checked)} className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
+                <input type="checkbox" checked={uploadAutoTerms} onChange={e => setUploadAutoTerms(e.target.checked)} className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500" disabled={uploading} />
                 <span className="text-sm text-gray-700">Auto-create terms from year level and semester</span>
               </label>
               {/* Result */}
@@ -426,8 +435,15 @@ export default function DepartmentCurriculaPage({ params }: { params: Promise<{ 
               )}
             </div>
             <div className="flex items-center justify-end gap-3 p-6 border-t border-gray-200 bg-gray-50 rounded-b-xl">
-              <Button variant="secondary" onClick={() => setShowUpload(false)}>Cancel</Button>
-              <Button onClick={handleUpload} disabled={!uploadFile || !uploadName || uploading}>{uploading ? 'Uploading...' : 'Upload'}</Button>
+              <Button variant="secondary" onClick={() => setShowUpload(false)} disabled={uploading}>Cancel</Button>
+              <Button onClick={handleUpload} disabled={!uploadFile || !uploadName.trim() || uploading}>
+                {uploading ? (
+                  <span className="flex items-center gap-2">
+                    <Spinner className="h-4 w-4" />
+                    Uploading...
+                  </span>
+                ) : 'Upload'}
+              </Button>
             </div>
           </div>
         </div>

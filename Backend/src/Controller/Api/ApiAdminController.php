@@ -1091,7 +1091,18 @@ class ApiAdminController extends AbstractController
             }
         }
         if ($semester) {
-            $qb->andWhere('s.semester = :sem')->setParameter('sem', $semester);
+            $semesterVariants = $this->getSemesterVariants($semester);
+            if (!empty($semesterVariants)) {
+                if ($strict && $departmentId) {
+                    // In strict mode for schedule creation, curriculum term semester is authoritative.
+                    // Keep subject semester as fallback for legacy rows.
+                    $qb->andWhere('(ct.semester IN (:sems) OR s.semester IN (:sems))')
+                       ->setParameter('sems', $semesterVariants);
+                } else {
+                    $qb->andWhere('s.semester IN (:sems)')
+                       ->setParameter('sems', $semesterVariants);
+                }
+            }
         }
         if ($yearLevel) {
             $qb->andWhere('s.yearLevel = :yl')->setParameter('yl', (int) $yearLevel);
@@ -3946,11 +3957,6 @@ class ApiAdminController extends AbstractController
             ->orderBy('d.name', 'ASC')
             ->addOrderBy('sub.code', 'ASC');
 
-        if (!empty($semesterVariants)) {
-            $subjectsQb->andWhere('sub.semester IN (:subjectSemesters)')
-                ->setParameter('subjectSemesters', $semesterVariants);
-        }
-
         $subjects = $subjectsQb->getQuery()->getResult();
 
         $offerings = [];
@@ -3988,6 +3994,10 @@ class ApiAdminController extends AbstractController
                     'year' => $schedule->getAcademicYear()?->getYear(),
                     'semester' => $schedule->getSemester() ?: null,
                 ];
+            }
+
+            if (empty($scheduleRows)) {
+                continue;
             }
 
             $offerings[] = [
@@ -4257,11 +4267,6 @@ class ApiAdminController extends AbstractController
                 ->orderBy('d.name', 'ASC')
                 ->addOrderBy('sub.code', 'ASC');
 
-            if (!empty($semesterVariants)) {
-                $subjectsQb->andWhere('sub.semester IN (:subjectSemesters)')
-                    ->setParameter('subjectSemesters', $semesterVariants);
-            }
-
             $subjects = $subjectsQb->getQuery()->getResult();
 
             $rows = [];
@@ -4323,6 +4328,10 @@ class ApiAdminController extends AbstractController
                         'year' => $schedule->getAcademicYear()?->getYear(),
                         'semester' => $schedule->getSemester() ?: null,
                     ];
+                }
+
+                if (empty($scheduleRows)) {
+                    continue;
                 }
 
                 $rows[] = [

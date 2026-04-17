@@ -87,11 +87,41 @@ class SubjectRepository extends ServiceEntityRepository
             ->orderBy('s.code', 'ASC');
 
         if ($semester) {
-            $qb->andWhere('ct.semester = :semester')
-               ->setParameter('semester', $semester);
+            $semesterVariants = $this->getSemesterVariants($semester);
+            if (!empty($semesterVariants)) {
+                $qb->andWhere('(ct.semester IN (:semesters) OR s.semester IN (:semesters))')
+                   ->setParameter('semesters', $semesterVariants);
+            }
         }
 
         return $qb->getQuery()->getResult();
+    }
+
+    /**
+     * Build equivalent semester labels used across legacy and new records.
+     */
+    private function getSemesterVariants(?string $semester): array
+    {
+        $raw = trim((string) $semester);
+        if ($raw === '' || strtolower($raw) === 'all') {
+            return [];
+        }
+
+        $normalized = strtolower($raw);
+
+        if (str_contains($normalized, '1') || str_contains($normalized, 'first')) {
+            return ['1st', '1st Semester', 'First', 'First Semester'];
+        }
+
+        if (str_contains($normalized, '2') || str_contains($normalized, 'second')) {
+            return ['2nd', '2nd Semester', 'Second', 'Second Semester'];
+        }
+
+        if (str_contains($normalized, 'summer')) {
+            return ['Summer', 'summer'];
+        }
+
+        return [$raw];
     }
 
     /**

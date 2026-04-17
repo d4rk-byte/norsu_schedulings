@@ -39,6 +39,12 @@ export default function DHRoomsListPage() {
   const [createError, setCreateError] = useState('')
   const [formErrors, setFormErrors] = useState<Partial<Record<keyof FormState, string>>>({})
   const [form, setForm] = useState<FormState>({ code: '', name: '', building: '', floor: '', type: 'lecture', capacity: '' })
+  const [editOpen, setEditOpen] = useState(false)
+  const [editSaving, setEditSaving] = useState(false)
+  const [editError, setEditError] = useState('')
+  const [editTarget, setEditTarget] = useState<Room | null>(null)
+  const [editFormErrors, setEditFormErrors] = useState<Partial<Record<keyof FormState, string>>>({})
+  const [editForm, setEditForm] = useState<FormState>({ code: '', name: '', building: '', floor: '', type: 'lecture', capacity: '' })
 
   const roomTypeOptions = ROOM_TYPES.map(t => ({ value: t, label: t.charAt(0).toUpperCase() + t.slice(1) }))
 
@@ -53,14 +59,40 @@ export default function DHRoomsListPage() {
     setCreateOpen(true)
   }
 
+  function openEditModal(room: Room) {
+    setEditTarget(room)
+    setEditForm({
+      code: room.code || '',
+      name: room.name || '',
+      building: room.building || '',
+      floor: room.floor != null ? String(room.floor) : '',
+      type: room.type || 'lecture',
+      capacity: room.capacity ?? '',
+    })
+    setEditFormErrors({})
+    setEditError('')
+    setEditOpen(true)
+  }
+
   function closeCreateModal() {
     if (createSaving) return
     setCreateOpen(false)
   }
 
+  function closeEditModal() {
+    if (editSaving) return
+    setEditOpen(false)
+    setEditTarget(null)
+  }
+
   function setField<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((prev) => ({ ...prev, [key]: value }))
     setFormErrors((prev) => ({ ...prev, [key]: undefined }))
+  }
+
+  function setEditField<K extends keyof FormState>(key: K, value: FormState[K]) {
+    setEditForm((prev) => ({ ...prev, [key]: value }))
+    setEditFormErrors((prev) => ({ ...prev, [key]: undefined }))
   }
 
   function validateCreateForm() {
@@ -69,6 +101,15 @@ export default function DHRoomsListPage() {
     if (!form.name.trim()) nextErrors.name = 'Required'
 
     setFormErrors(nextErrors)
+    return Object.keys(nextErrors).length === 0
+  }
+
+  function validateEditForm() {
+    const nextErrors: Partial<Record<keyof FormState, string>> = {}
+    if (!editForm.code.trim()) nextErrors.code = 'Required'
+    if (!editForm.name.trim()) nextErrors.name = 'Required'
+
+    setEditFormErrors(nextErrors)
     return Object.keys(nextErrors).length === 0
   }
 
@@ -93,6 +134,31 @@ export default function DHRoomsListPage() {
       setCreateError(err?.response?.data?.message || 'Failed to create room.')
     } finally {
       setCreateSaving(false)
+    }
+  }
+
+  async function handleEditRoom(e: React.FormEvent) {
+    e.preventDefault()
+    if (!editTarget || !validateEditForm()) return
+
+    setEditSaving(true)
+    setEditError('')
+    try {
+      await dhRoomsApi.update(editTarget.id, {
+        code: editForm.code.trim(),
+        name: editForm.name.trim(),
+        building: editForm.building.trim() || undefined,
+        floor: editForm.floor.trim() || undefined,
+        type: editForm.type,
+        capacity: editForm.capacity ? Number(editForm.capacity) : undefined,
+      })
+      setEditOpen(false)
+      setEditTarget(null)
+      list.refresh()
+    } catch (err: any) {
+      setEditError(err?.response?.data?.message || 'Failed to update room.')
+    } finally {
+      setEditSaving(false)
     }
   }
 
@@ -154,7 +220,7 @@ export default function DHRoomsListPage() {
         >
           <FileDown className="h-4 w-4 text-emerald-600" />
         </button>
-        <button onClick={(e) => { e.stopPropagation(); router.push(`/department-head/rooms/${r.id}/edit`) }} className="p-1.5 rounded hover:bg-gray-100"><Edit className="h-4 w-4 text-gray-500" /></button>
+        <button onClick={(e) => { e.stopPropagation(); openEditModal(r) }} className="p-1.5 rounded hover:bg-gray-100"><Edit className="h-4 w-4 text-gray-500" /></button>
       </div>
     )},
   ]
@@ -214,6 +280,44 @@ export default function DHRoomsListPage() {
           <div className="flex justify-end gap-3 pt-2">
             <Button type="button" variant="secondary" onClick={closeCreateModal} disabled={createSaving}>Cancel</Button>
             <Button type="submit" loading={createSaving}>Create Room</Button>
+          </div>
+        </form>
+      </Modal>
+
+      <Modal
+        open={editOpen}
+        onClose={closeEditModal}
+        title="Edit Room"
+        description={editTarget ? `Update details for room ${editTarget.code}.` : 'Update room details.'}
+        size="lg"
+      >
+        {editError && <Alert variant="error">{editError}</Alert>}
+
+        <form onSubmit={handleEditRoom} className="space-y-4 mt-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Input label="Room Code" required value={editForm.code} onChange={(e) => setEditField('code', e.target.value)} error={editFormErrors.code} placeholder="e.g. R-201" />
+            <Input label="Room Name" required value={editForm.name} onChange={(e) => setEditField('name', e.target.value)} error={editFormErrors.name} placeholder="e.g. Lecture Room 201" />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Input label="Building" value={editForm.building} onChange={(e) => setEditField('building', e.target.value)} placeholder="e.g. Main Building" />
+            <Input label="Floor" value={editForm.floor} onChange={(e) => setEditField('floor', e.target.value)} placeholder="e.g. 2nd" />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Select label="Room Type" value={editForm.type} onChange={(e) => setEditField('type', e.target.value)} options={roomTypeOptions} />
+            <Input
+              label="Capacity"
+              type="number"
+              value={editForm.capacity !== '' ? String(editForm.capacity) : ''}
+              onChange={(e) => setEditField('capacity', e.target.value ? Number(e.target.value) : '')}
+              placeholder="e.g. 40"
+            />
+          </div>
+
+          <div className="flex justify-end gap-3 pt-2">
+            <Button type="button" variant="secondary" onClick={closeEditModal} disabled={editSaving}>Cancel</Button>
+            <Button type="submit" loading={editSaving}>Save Changes</Button>
           </div>
         </form>
       </Modal>
