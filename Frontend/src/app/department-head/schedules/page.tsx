@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Plus, Eye, Edit, Building2, AlertTriangle } from 'lucide-react'
+import { Plus, Eye, Edit, Building2, AlertTriangle, Loader2 } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { Card } from '@/components/ui/Card'
 import { DataTable, type Column } from '@/components/ui/DataTable'
@@ -40,6 +40,11 @@ export default function DHSchedulesListPage() {
 
   const [allSchedules, setAllSchedules] = useState<Schedule[]>([])
   const [statsLoading, setStatsLoading] = useState(true)
+  const [hasLoadedStats, setHasLoadedStats] = useState(false)
+  const [hasLoadedList, setHasLoadedList] = useState(false)
+
+  const [headerLoading, setHeaderLoading] = useState(true)
+  const [roomsLoading, setRoomsLoading] = useState(true)
 
   const [showConflicts, setShowConflicts] = useState(false)
   const [conflictDetails, setConflictDetails] = useState<Record<number, ConflictCheckResult>>({})
@@ -55,23 +60,47 @@ export default function DHSchedulesListPage() {
   }, [ayFilter.selectedAyId, ayFilter.selectedSemester, selectedRoom, selectedDayPattern])
 
   useEffect(() => {
+    let active = true
+
+    setHeaderLoading(true)
+    setRoomsLoading(true)
+
     dhDepartmentInfo
       .get()
       .then((dept) => {
+        if (!active) return
         setDepartmentName(dept.name || 'Department')
         setCollegeName(dept.college?.name || '')
       })
       .catch(() => {})
+      .finally(() => {
+        if (!active) return
+        setHeaderLoading(false)
+      })
 
     dhLookupsApi
       .rooms()
       .then((res) => {
+        if (!active) return
         setRooms(res.data.map((r) => ({ id: r.id, code: r.code })))
       })
-      .catch(() => {})
+      .catch(() => {
+        if (!active) return
+        setRooms([])
+      })
+      .finally(() => {
+        if (!active) return
+        setRoomsLoading(false)
+      })
+
+    return () => {
+      active = false
+    }
   }, [])
 
   useEffect(() => {
+    let active = true
+
     setStatsLoading(true)
     dhSchedulesApi
       .list({
@@ -81,9 +110,23 @@ export default function DHSchedulesListPage() {
         room_id: selectedRoom || undefined,
         day_pattern: selectedDayPattern || undefined,
       })
-      .then((res) => setAllSchedules(res.data))
-      .catch(() => setAllSchedules([]))
-      .finally(() => setStatsLoading(false))
+      .then((res) => {
+        if (!active) return
+        setAllSchedules(res.data)
+      })
+      .catch(() => {
+        if (!active) return
+        setAllSchedules([])
+      })
+      .finally(() => {
+        if (!active) return
+        setStatsLoading(false)
+        setHasLoadedStats(true)
+      })
+
+    return () => {
+      active = false
+    }
   }, [ayFilter.selectedAyId, ayFilter.selectedSemester, selectedRoom, selectedDayPattern])
 
   const stats = useMemo(() => {
@@ -123,6 +166,8 @@ export default function DHSchedulesListPage() {
   useEffect(() => {
     if (!showConflicts || conflictedSchedules.length === 0) return
 
+    let active = true
+
     setLoadingConflictDetails(true)
     Promise.all(
       conflictedSchedules.map((s) =>
@@ -143,14 +188,40 @@ export default function DHSchedulesListPage() {
       ),
     )
       .then((results) => {
+        if (!active) return
         const next: Record<number, ConflictCheckResult> = {}
         results.forEach((r) => {
           if (r.result) next[r.id] = r.result
         })
         setConflictDetails(next)
       })
-      .finally(() => setLoadingConflictDetails(false))
+      .finally(() => {
+        if (!active) return
+        setLoadingConflictDetails(false)
+      })
+
+    return () => {
+      active = false
+    }
   }, [showConflicts, conflictedSchedules])
+
+  useEffect(() => {
+    if (!showConflicts) {
+      setConflictDetails({})
+    }
+  }, [showConflicts])
+
+  useEffect(() => {
+    if (!list.loading) {
+      setHasLoadedList(true)
+    }
+  }, [list.loading])
+
+  const showInitialDashboardLoading = !hasLoadedStats || !hasLoadedList
+  const showStatsSkeleton = statsLoading && showInitialDashboardLoading
+  const statsRefreshing = !showInitialDashboardLoading && statsLoading
+  const listRefreshing = !showInitialDashboardLoading && list.loading
+  const hasActiveFilters = Boolean(selectedRoom || selectedDayPattern || ayFilter.selectedSemester)
 
   const columns: Column<Schedule>[] = [
     {
@@ -199,15 +270,27 @@ export default function DHSchedulesListPage() {
   return (
     <div className="mx-auto w-full max-w-7xl space-y-6">
       <div className="bg-blue-600 dark:bg-blue-700 rounded-xl p-6 text-white shadow-lg">
-        <div className="flex items-center justify-between gap-4">
-          <div className="flex items-center gap-4">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex min-w-0 items-center gap-4">
             <div className="w-14 h-14 bg-white/20 rounded-lg flex items-center justify-center">
               <Building2 className="w-7 h-7 text-white" />
             </div>
-            <div>
+            <div className="min-w-0">
               <div className="text-xs font-semibold text-blue-100 uppercase mb-1 tracking-wide">Currently Managing</div>
-              <h1 className="text-2xl font-bold">{departmentName}</h1>
-              <p className="text-blue-100 text-sm mt-0.5">{collegeName}</p>
+              <h1 className="text-2xl font-bold min-h-8 flex items-center">
+                {headerLoading ? (
+                  <span className="h-7 w-56 rounded bg-white/25 animate-pulse" aria-hidden="true" />
+                ) : (
+                  departmentName
+                )}
+              </h1>
+              <p className="text-blue-100 text-sm mt-0.5 min-h-5 flex items-center">
+                {headerLoading ? (
+                  <span className="h-4 w-40 rounded bg-white/20 animate-pulse" aria-hidden="true" />
+                ) : (
+                  collegeName
+                )}
+              </p>
             </div>
           </div>
           <Link href="/department-head/schedules/create">
@@ -230,7 +313,13 @@ export default function DHSchedulesListPage() {
             <div className="bg-blue-100 text-blue-600 rounded-full p-2"><svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg></div>
             <div>
               <div className="text-sm text-gray-600 dark:text-gray-300">Total Schedules</div>
-              <div className="text-3xl font-bold text-gray-900 dark:text-gray-100">{statsLoading ? '—' : stats.total}</div>
+              <div className="text-3xl font-bold text-gray-900 dark:text-gray-100 min-h-9 min-w-16 flex items-center tabular-nums">
+                {showStatsSkeleton ? (
+                  <span className="h-8 w-16 rounded bg-gray-200 dark:bg-gray-700 animate-pulse" aria-hidden="true" />
+                ) : (
+                  stats.total
+                )}
+              </div>
             </div>
           </div>
         </Card>
@@ -240,7 +329,13 @@ export default function DHSchedulesListPage() {
             <div className="bg-green-100 text-green-600 rounded-full p-2"><svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
             <div>
               <div className="text-sm text-gray-600 dark:text-gray-300">Active</div>
-              <div className="text-3xl font-bold text-gray-900 dark:text-gray-100">{statsLoading ? '—' : stats.active}</div>
+              <div className="text-3xl font-bold text-gray-900 dark:text-gray-100 min-h-9 min-w-16 flex items-center tabular-nums">
+                {showStatsSkeleton ? (
+                  <span className="h-8 w-16 rounded bg-gray-200 dark:bg-gray-700 animate-pulse" aria-hidden="true" />
+                ) : (
+                  stats.active
+                )}
+              </div>
             </div>
           </div>
         </Card>
@@ -250,7 +345,13 @@ export default function DHSchedulesListPage() {
             <div className="bg-orange-100 text-orange-600 rounded-full p-2"><svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
             <div>
               <div className="text-sm text-gray-600 dark:text-gray-300">Conflicts</div>
-              <div className="text-3xl font-bold text-gray-900 dark:text-gray-100">{statsLoading ? '—' : stats.conflicts}</div>
+              <div className="text-3xl font-bold text-gray-900 dark:text-gray-100 min-h-9 min-w-16 flex items-center tabular-nums">
+                {showStatsSkeleton ? (
+                  <span className="h-8 w-16 rounded bg-gray-200 dark:bg-gray-700 animate-pulse" aria-hidden="true" />
+                ) : (
+                  stats.conflicts
+                )}
+              </div>
             </div>
           </div>
         </Card>
@@ -260,61 +361,95 @@ export default function DHSchedulesListPage() {
             <div className="bg-red-100 text-red-600 rounded-full p-2"><svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"/></svg></div>
             <div>
               <div className="text-sm text-gray-600 dark:text-gray-300">Rooms Used</div>
-              <div className="text-3xl font-bold text-gray-900 dark:text-gray-100">{statsLoading ? '—' : stats.rooms}</div>
-              <div className="text-xs text-red-600 mt-1">{statsLoading ? '' : `${stats.faculty} faculty assigned`}</div>
+              <div className="text-3xl font-bold text-gray-900 dark:text-gray-100 min-h-9 min-w-16 flex items-center tabular-nums">
+                {showStatsSkeleton ? (
+                  <span className="h-8 w-16 rounded bg-gray-200 dark:bg-gray-700 animate-pulse" aria-hidden="true" />
+                ) : (
+                  stats.rooms
+                )}
+              </div>
+              <div className="text-xs text-red-600 mt-1 min-h-4 flex items-center tabular-nums">
+                {showStatsSkeleton ? (
+                  <span className="h-3 w-24 rounded bg-red-100/70 dark:bg-red-900/40 animate-pulse" aria-hidden="true" />
+                ) : (
+                  `${stats.faculty} faculty assigned`
+                )}
+              </div>
             </div>
           </div>
         </Card>
       </div>
 
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Schedule List</h2>
-          <p className="text-sm text-gray-500 dark:text-gray-400">Filtered to your department only</p>
-        </div>
-        <Button size="sm" variant="secondary" icon={<AlertTriangle className="h-4 w-4" />} onClick={() => setShowConflicts(true)} disabled={statsLoading || conflictedSchedules.length === 0}>
-          View Conflicts {!statsLoading && conflictedSchedules.length > 0 && `(${conflictedSchedules.length})`}
-        </Button>
-      </div>
-
-      <Card>
-        <div className="mb-4">
-          <div className="flex items-end gap-3 flex-nowrap">
-            <div className="w-[320px]">
-              <SearchBar
-                value={list.search}
-                onChange={list.setSearch}
-                placeholder="Search subject, faculty, room..."
-                className="w-full text-sm"
-              />
-            </div>
-
-            <div className="w-52">
-              <Select value={ayFilter.selectedAyId} onChange={e => ayFilter.setSelectedAyId(e.target.value)} options={ayFilter.ayOptions} className="text-sm py-2" />
-            </div>
-            <div className="w-52">
-              <Select value={ayFilter.selectedSemester} onChange={e => ayFilter.setSelectedSemester(e.target.value)} options={ayFilter.semesterOptions} className="text-sm py-2" />
-            </div>
-            <div className="w-52">
-              <Select value={selectedRoom} onChange={e => setSelectedRoom(e.target.value)} placeholder="All Rooms" options={roomOptions} className="text-sm py-2" />
-            </div>
-            <div className="w-52">
-              <Select value={selectedDayPattern} onChange={e => setSelectedDayPattern(e.target.value)} placeholder="All Days" options={dayOptions} className="text-sm py-2" />
-            </div>
-
-            {(selectedRoom || selectedDayPattern || ayFilter.selectedSemester) && (
-              <button
-                onClick={clearFilters}
-                className="h-[42px] px-4 rounded-lg border border-gray-200 dark:border-gray-700 text-sm text-gray-600 dark:text-gray-300 hover:text-blue-600 hover:border-blue-200 dark:hover:border-blue-700 transition whitespace-nowrap"
-              >
-                Clear Filters
-              </button>
-            )}
+      <div className="space-y-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div className="min-w-0">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Schedule List</h2>
+            <p className="text-sm text-gray-500 dark:text-gray-400 inline-flex flex-wrap items-center gap-2 min-h-5">
+              <span>Filtered to your department only</span>
+              <span className="inline-flex items-center min-w-28 text-blue-600 dark:text-blue-400 text-xs font-medium">
+                {statsRefreshing || listRefreshing ? (
+                  <span className="inline-flex items-center gap-1.5">
+                    <Loader2 className="h-3 w-3 animate-spin" />
+                    Updating metrics...
+                  </span>
+                ) : null}
+              </span>
+            </p>
           </div>
+          <Button size="sm" variant="secondary" icon={<AlertTriangle className="h-4 w-4" />} onClick={() => setShowConflicts(true)} disabled={showInitialDashboardLoading || conflictedSchedules.length === 0} className="w-full justify-center sm:w-auto sm:justify-center">
+            <span className="inline-flex items-center gap-1">
+              <span>View Conflicts</span>
+              <span className={`inline-flex min-w-10 justify-center tabular-nums ${(showInitialDashboardLoading || conflictedSchedules.length === 0) ? 'opacity-0' : ''}`}>
+                ({conflictedSchedules.length})
+              </span>
+            </span>
+          </Button>
         </div>
-        <DataTable columns={columns} data={list.data} keyExtractor={(s) => s.id} loading={list.loading} sort={list.sort} onSort={list.setSort} onRowClick={(s) => router.push(`/department-head/schedules/${s.id}`)} emptyTitle="No schedules found for your department" />
-        <Pagination className="mt-4" currentPage={list.page} totalPages={list.meta.totalPages} totalItems={list.meta.total} pageSize={list.meta.limit} onPageChange={list.setPage} />
-      </Card>
+
+        <Card>
+          <div className="mb-4">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-12">
+              <div className="sm:col-span-2 xl:col-span-4">
+                <SearchBar
+                  value={list.search}
+                  onChange={list.setSearch}
+                  placeholder="Search subject, faculty, room..."
+                  className="w-full text-sm"
+                />
+              </div>
+
+              <div className="xl:col-span-2">
+                <Select value={ayFilter.selectedAyId} onChange={e => ayFilter.setSelectedAyId(e.target.value)} options={ayFilter.ayOptions} className="text-sm py-2" disabled={ayFilter.loading} />
+              </div>
+              <div className="xl:col-span-2">
+                <Select value={ayFilter.selectedSemester} onChange={e => ayFilter.setSelectedSemester(e.target.value)} options={ayFilter.semesterOptions} className="text-sm py-2" disabled={ayFilter.loading} />
+              </div>
+              <div className="xl:col-span-2">
+                <Select value={selectedRoom} onChange={e => setSelectedRoom(e.target.value)} placeholder={roomsLoading ? 'Loading rooms...' : 'All Rooms'} options={roomOptions} className="text-sm py-2" disabled={roomsLoading} />
+              </div>
+              <div className="xl:col-span-2">
+                <Select value={selectedDayPattern} onChange={e => setSelectedDayPattern(e.target.value)} placeholder="All Days" options={dayOptions} className="text-sm py-2" />
+              </div>
+
+              <div className="flex items-end sm:col-span-2 xl:col-span-12 xl:justify-end">
+                <button
+                  onClick={clearFilters}
+                  disabled={!hasActiveFilters}
+                  className={`h-[42px] px-4 rounded-lg border border-gray-200 dark:border-gray-700 text-sm text-gray-600 dark:text-gray-300 hover:text-blue-600 hover:border-blue-200 dark:hover:border-blue-700 transition whitespace-nowrap ${hasActiveFilters ? '' : 'invisible pointer-events-none'}`}
+                >
+                  Clear Filters
+                </button>
+              </div>
+            </div>
+          </div>
+          <div className="min-h-96">
+            <DataTable columns={columns} data={list.data} keyExtractor={(s) => s.id} loading={list.loading || showInitialDashboardLoading} sort={list.sort} onSort={list.setSort} onRowClick={(s) => router.push(`/department-head/schedules/${s.id}`)} emptyTitle="No schedules found for your department" />
+          </div>
+          <div className="mt-4 min-h-10">
+            <Pagination currentPage={list.page} totalPages={list.meta.totalPages} totalItems={list.meta.total} pageSize={list.meta.limit} onPageChange={list.setPage} />
+          </div>
+        </Card>
+      </div>
 
       <Modal open={showConflicts} onClose={() => setShowConflicts(false)} title={`Conflicted Schedules (${conflictedSchedules.length})`} size="xl">
         {conflictedSchedules.length === 0 ? (
@@ -325,13 +460,13 @@ export default function DHSchedulesListPage() {
               <div className="flex flex-wrap items-center gap-2">
                 <span className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Summary:</span>
                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-700">
-                  Room {loadingConflictDetails ? '...' : conflictTypeSummary.room}
+                  Room <span className="inline-flex min-w-8 justify-end tabular-nums">{loadingConflictDetails ? '...' : conflictTypeSummary.room}</span>
                 </span>
                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-orange-100 text-orange-700">
-                  Faculty {loadingConflictDetails ? '...' : conflictTypeSummary.faculty}
+                  Faculty <span className="inline-flex min-w-8 justify-end tabular-nums">{loadingConflictDetails ? '...' : conflictTypeSummary.faculty}</span>
                 </span>
                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-purple-100 text-purple-700">
-                  Section {loadingConflictDetails ? '...' : conflictTypeSummary.section}
+                  Section <span className="inline-flex min-w-8 justify-end tabular-nums">{loadingConflictDetails ? '...' : conflictTypeSummary.section}</span>
                 </span>
               </div>
             </div>
@@ -340,9 +475,14 @@ export default function DHSchedulesListPage() {
               <div key={s.id} className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
                 <div className="flex items-center gap-4">
                   <div className="flex-1 min-w-0">
-                    {loadingConflictDetails && !conflictDetails[s.id] && (
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Loading conflict details...</p>
-                    )}
+                    <div className="min-h-5 mb-2">
+                      {loadingConflictDetails && !conflictDetails[s.id] && (
+                        <p className="text-xs text-gray-500 dark:text-gray-400 inline-flex items-center gap-1.5">
+                          <Loader2 className="h-3 w-3 animate-spin" />
+                          Loading conflict details...
+                        </p>
+                      )}
+                    </div>
                     <div className="flex items-center gap-2 mb-1">
                       <span className="font-bold text-gray-900 dark:text-gray-100">{s.subject.code}</span>
                       <span className="text-gray-500 dark:text-gray-400 text-sm">—</span>

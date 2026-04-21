@@ -204,6 +204,35 @@ export default function FacultyDashboard() {
     return 'upcoming'
   }
 
+  const scheduleStatusOrder: Record<ScheduleStatus, number> = {
+    'in-progress': 0,
+    upcoming: 1,
+    completed: 2,
+  }
+
+  const sortedTodaySchedules = [...todaySchedules].sort((a, b) => {
+    const aStatus = getScheduleStatus(a.start_time, a.end_time)
+    const bStatus = getScheduleStatus(b.start_time, b.end_time)
+
+    const statusDiff = scheduleStatusOrder[aStatus] - scheduleStatusOrder[bStatus]
+    if (statusDiff !== 0) {
+      return statusDiff
+    }
+
+    const aStart = parseTime(a.start_time)
+    const bStart = parseTime(b.start_time)
+
+    if (aStart === null && bStart === null) return 0
+    if (aStart === null) return 1
+    if (bStart === null) return -1
+
+    if (aStatus === 'completed') {
+      return bStart - aStart
+    }
+
+    return aStart - bStart
+  })
+
   let inProgressCount = 0
   let completedCount = 0
 
@@ -303,7 +332,7 @@ export default function FacultyDashboard() {
               </div>
             ) : (
               <div className="space-y-3 lg:space-y-4">
-                {todaySchedules.map((schedule) => {
+                {sortedTodaySchedules.map((schedule) => {
                   const status = getScheduleStatus(schedule.start_time, schedule.end_time)
                   const statusMeta = scheduleStatusMeta[status]
                   const subjectCode = schedule.subject?.code ?? 'TBD'

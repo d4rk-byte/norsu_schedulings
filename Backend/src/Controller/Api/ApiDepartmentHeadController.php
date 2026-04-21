@@ -373,7 +373,7 @@ class ApiDepartmentHeadController extends AbstractController
         $selectedAcademicYear = $academicYearId ? $this->academicYearRepository->find((int) $academicYearId) : null;
         $selectedSemester = $semester ?: null;
 
-        $data = $this->departmentHeadService->getDashboardData($dh, $selectedAcademicYear, $selectedSemester);
+        $data = $this->departmentHeadService->getDashboardData($dh, $selectedAcademicYear, $selectedSemester, false);
 
         $facultyWorkloads = [];
         foreach ($data['faculty_loads'] as $fl) {
