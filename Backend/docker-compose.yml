@@ -32,7 +32,7 @@ services:
     working_dir: /var/www/html
     environment:
       - APP_ENV=${APP_ENV:-prod}
-      - APP_SECRET=${APP_SECRET:-change_me_in_production}
+      - APP_SECRET=${APP_SECRET}
       - DATABASE_URL=mysql://${MYSQL_USER:-symfony}:${MYSQL_PASSWORD:-symfony}@db:3306/${MYSQL_DATABASE:-smart_scheduling}?serverVersion=8.0.31
       - MAILER_DSN=${MAILER_DSN:-null://null}
       - MESSENGER_TRANSPORT_DSN=doctrine://default

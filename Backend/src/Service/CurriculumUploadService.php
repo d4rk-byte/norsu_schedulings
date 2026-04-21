@@ -85,19 +85,31 @@ class CurriculumUploadService
      */
     private function parseFile(UploadedFile $file): array
     {
-        $extension = strtolower($file->getClientOriginalExtension());
+        // Validate by MIME type (not user-supplied extension) to prevent bypass
+        $mimeType = $file->getMimeType();
+        $allowedMimes = [
+            'text/plain'       => 'csv',
+            'text/csv'         => 'csv',
+            'application/csv'  => 'csv',
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' => 'xlsx',
+            'application/vnd.ms-excel' => 'xls',
+        ];
+
+        if (!isset($allowedMimes[$mimeType])) {
+            return [
+                'success' => false,
+                'message' => 'Unsupported file format. Supported formats: CSV, XLSX, XLS'
+            ];
+        }
+
+        $type = $allowedMimes[$mimeType];
         $path = $file->getPathname();
 
         try {
-            if ($extension === 'csv') {
+            if ($type === 'csv') {
                 return $this->parseCsvFile($path);
-            } elseif (in_array($extension, ['xlsx', 'xls'])) {
-                return $this->parseExcelFile($path);
             } else {
-                return [
-                    'success' => false,
-                    'message' => 'Unsupported file format. Supported formats: CSV, XLSX, XLS'
-                ];
+                return $this->parseExcelFile($path);
             }
         } catch (\Exception $e) {
             return [

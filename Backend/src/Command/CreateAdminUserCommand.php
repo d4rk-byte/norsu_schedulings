@@ -52,7 +52,7 @@ class CreateAdminUserCommand extends Command
         // Get or prompt for email
         $email = $input->getArgument('email');
         if (!$email) {
-            $email = $io->ask('Enter admin email', 'admin@norsu.edu.ph');
+            $email = $io->ask('Enter admin email');
         }
 
         // Get or prompt for password
