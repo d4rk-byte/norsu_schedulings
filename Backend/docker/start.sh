@@ -9,9 +9,6 @@ echo "=== Smart Scheduling System Starting ==="
 PORT=${PORT:-80}
 RUN_STARTUP_MAINTENANCE=${RUN_STARTUP_MAINTENANCE:-0}
 CREATE_DEFAULT_ADMIN=${CREATE_DEFAULT_ADMIN:-0}
-ADMIN_USERNAME=${ADMIN_USERNAME:-admin}
-ADMIN_EMAIL=${ADMIN_EMAIL:-admin@norsu.edu.ph}
-ADMIN_PASSWORD=${ADMIN_PASSWORD:-Admin@123456}
 ADMIN_FIRST_NAME=${ADMIN_FIRST_NAME:-System}
 ADMIN_LAST_NAME=${ADMIN_LAST_NAME:-Administrator}
 GENERATE_JWT_KEYS_IF_MISSING=${GENERATE_JWT_KEYS_IF_MISSING:-0}
@@ -32,9 +29,14 @@ echo "CREATE_DEFAULT_ADMIN: ${CREATE_DEFAULT_ADMIN}"
 echo "GENERATE_JWT_KEYS_IF_MISSING: ${GENERATE_JWT_KEYS_IF_MISSING}"
 
 create_admin_user() {
-    echo "Creating default admin user..."
+    if [ -z "${ADMIN_EMAIL}" ] || [ -z "${ADMIN_PASSWORD}" ]; then
+        echo "Skipping admin creation: ADMIN_EMAIL and ADMIN_PASSWORD env vars are not set."
+        return
+    fi
+    local username=${ADMIN_USERNAME:-admin}
+    echo "Creating admin user..."
     php bin/console app:create-admin \
-        "${ADMIN_USERNAME}" \
+        "${username}" \
         "${ADMIN_EMAIL}" \
         "${ADMIN_PASSWORD}" \
         --first-name="${ADMIN_FIRST_NAME}" \
